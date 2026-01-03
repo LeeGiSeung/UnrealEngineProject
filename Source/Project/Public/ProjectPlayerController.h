@@ -6,6 +6,10 @@
 #include "GameFramework/PlayerController.h"
 #include "ProjectPlayerController.generated.h"
 
+class APawn;
+class ACharacter;
+class UCameraComponent;
+
 /**
  *
  */
@@ -19,6 +23,8 @@ public:
 	void StartRealTimeTimer();
 
 	void CameraGrayTrans();
+
+	virtual void OnPossess(APawn* InPawn) override;
 
 	AProjectPlayerController();
 	~AProjectPlayerController();
@@ -38,13 +44,10 @@ public:
 
 private:
 
-	float StartTime;
+	APawn* PPawn;
+	ACharacter* PCharacter;
+	UCameraComponent* PCamera;
 
-	UPROPERTY()
-	APawn* PPawn = NULL;
-	UPROPERTY()
-	AProjectCharacter* PCharacter = NULL;
-	UPROPERTY()
-	UCameraComponent* PCamera = NULL;
+	float StartTime;
 
 };
