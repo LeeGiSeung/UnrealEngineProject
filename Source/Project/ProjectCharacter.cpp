@@ -68,7 +68,7 @@ void AProjectCharacter::BeginPlay()
 		}
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("dsaf"));
+	
 }
 
 //////////////////////////////////////////////////////////////////////////
