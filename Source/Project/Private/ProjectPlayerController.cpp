@@ -6,12 +6,31 @@
 #include "GameFramework/PlayerController.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Camera/CameraComponent.h"
-#include "C:\Users\82103\Documents\Unreal Projects\Project\Source\Project\ProjectCharacter.h"
+#include "ProjectCharacter.h"
 
 AProjectPlayerController::AProjectPlayerController()
 {
     PrimaryActorTick.bCanEverTick = true;
-    StartTime = 1.f;
+
+    //PPawn = GetPawn();
+    //if (PPawn == NULL) {
+    //    UE_LOG(LogTemp, Log, TEXT("Pawn Null"));
+    //    return;
+    //}
+
+    //PCharacter = Cast<AProjectCharacter>(PPawn);
+    //if (PCharacter == NULL) {
+    //    UE_LOG(LogTemp, Log, TEXT("Character Null"));
+    //    return;
+    //}
+
+    //PCamera = PCharacter->FindComponentByClass<UCameraComponent>();
+    //if (PCamera == NULL) {
+    //    UE_LOG(LogTemp, Log, TEXT("Camera Null"));
+    //    return;
+    //}
+
+    //PCamera->PostProcessSettings.bOverride_ColorSaturation = true;
 }
 
 AProjectPlayerController::~AProjectPlayerController()
@@ -43,7 +62,7 @@ void AProjectPlayerController::Tick(float DeltaTime) {
 
         IsBlackWhite = false;
 
-        PCamera->PostProcessSettings.bOverride_ColorSaturation = true;
+        if (!PCamera) return;
         PCamera->PostProcessSettings.ColorSaturation = FVector4(1, 1, 1, 1);
     }
 
@@ -51,25 +70,20 @@ void AProjectPlayerController::Tick(float DeltaTime) {
 
 void AProjectPlayerController::CameraGrayTrans()
 {
-    PPawn = GetPawn();
-    if (PPawn == NULL) {
-        UE_LOG(LogTemp, Log, TEXT("Pawn Null"));
-        return;
-    }
+    PCamera->PostProcessSettings.ColorSaturation = FVector4(0, 0, 0, 1);
+}
 
+void AProjectPlayerController::OnPossess(APawn* InPawn)
+{
+    Super::OnPossess(InPawn);
+
+    PPawn = InPawn;
     PCharacter = Cast<AProjectCharacter>(PPawn);
-    if (PCharacter == NULL) {
-        UE_LOG(LogTemp, Log, TEXT("Character Null"));
-        return;
-    }
+    if (!PCharacter) return;
 
     PCamera = PCharacter->FindComponentByClass<UCameraComponent>();
-    if (PCamera == NULL) {
-        UE_LOG(LogTemp, Log, TEXT("Camera Null"));
-        return;
-    }
+    if (!PCamera) return;
 
     PCamera->PostProcessSettings.bOverride_ColorSaturation = true;
-    PCamera->PostProcessSettings.ColorSaturation = FVector4(0, 0, 0, 1);
 }
 
