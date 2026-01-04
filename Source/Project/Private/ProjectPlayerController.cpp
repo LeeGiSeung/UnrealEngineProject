@@ -68,8 +68,13 @@ void AProjectPlayerController::OnPossess(APawn* InPawn)
         FoundVolumes
     );
 
-    if (FoundVolumes.Num() > 0) {
-        PostProcessVolume = Cast<APostProcessVolume>(FoundVolumes[0]);
+    for (AActor* Actor : FoundVolumes)
+    {
+        if (Actor->ActorHasTag(TEXT("GrayFilter")))
+        {
+            PostProcessVolume = Cast<APostProcessVolume>(Actor);
+            break;
+        }
     }
 }
 
@@ -78,6 +83,7 @@ void AProjectPlayerController::CameraGrayTrans()
     //if (!PCamera) return;
     //PCamera->PostProcessSettings.ColorSaturation = FVector4(0, 0, 0, 1);
     //UE_LOG(LogTemp, Warning, TEXT("Gray"));
+
     if (!PostProcessVolume) return;
     PostProcessVolume->BlendWeight = 1.f;
 }
@@ -87,6 +93,7 @@ void AProjectPlayerController::CameraColorTrans()
     //if (!PCamera) return;
     //PCamera->PostProcessSettings.ColorSaturation = FVector4(1, 1, 1, 1);
     //UE_LOG(LogTemp, Warning, TEXT("Color"));
+
     if (!PostProcessVolume) return;
     PostProcessVolume->BlendWeight = 0.f;
 }
