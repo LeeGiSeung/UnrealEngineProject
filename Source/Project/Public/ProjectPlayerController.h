@@ -9,6 +9,7 @@
 class APawn;
 class ACharacter;
 class UCameraComponent;
+class APostProcessVolume;
 
 /**
  *
@@ -23,6 +24,7 @@ public:
 	void StartRealTimeTimer();
 
 	void CameraGrayTrans();
+	void CameraColorTrans();
 
 	virtual void OnPossess(APawn* InPawn) override;
 
@@ -41,12 +43,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timer")
 
 	float TimeDuration;
+	
 
 private:
 
 	APawn* PPawn;
 	ACharacter* PCharacter;
 	UCameraComponent* PCamera;
+	
+	APostProcessVolume* PostProcessVolume;
 
 	float StartTime;
 

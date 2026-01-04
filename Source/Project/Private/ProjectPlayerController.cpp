@@ -6,31 +6,12 @@
 #include "GameFramework/PlayerController.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Camera/CameraComponent.h"
+#include "Engine/PostProcessVolume.h"
 #include "ProjectCharacter.h"
 
 AProjectPlayerController::AProjectPlayerController()
 {
     PrimaryActorTick.bCanEverTick = true;
-
-    //PPawn = GetPawn();
-    //if (PPawn == NULL) {
-    //    UE_LOG(LogTemp, Log, TEXT("Pawn Null"));
-    //    return;
-    //}
-
-    //PCharacter = Cast<AProjectCharacter>(PPawn);
-    //if (PCharacter == NULL) {
-    //    UE_LOG(LogTemp, Log, TEXT("Character Null"));
-    //    return;
-    //}
-
-    //PCamera = PCharacter->FindComponentByClass<UCameraComponent>();
-    //if (PCamera == NULL) {
-    //    UE_LOG(LogTemp, Log, TEXT("Camera Null"));
-    //    return;
-    //}
-
-    //PCamera->PostProcessSettings.bOverride_ColorSaturation = true;
 }
 
 AProjectPlayerController::~AProjectPlayerController()
@@ -39,7 +20,7 @@ AProjectPlayerController::~AProjectPlayerController()
 
 void AProjectPlayerController::StartRealTimeTimer()
 {
-   
+    if (IsBlackWhite) return;
     StartTime = FPlatformTime::Seconds(); //게임 내에 구애받지 않는 진짜 시간
     IsBlackWhite = true;
 
@@ -62,15 +43,9 @@ void AProjectPlayerController::Tick(float DeltaTime) {
 
         IsBlackWhite = false;
 
-        if (!PCamera) return;
-        PCamera->PostProcessSettings.ColorSaturation = FVector4(1, 1, 1, 1);
+        CameraColorTrans();
     }
 
-}
-
-void AProjectPlayerController::CameraGrayTrans()
-{
-    PCamera->PostProcessSettings.ColorSaturation = FVector4(0, 0, 0, 1);
 }
 
 void AProjectPlayerController::OnPossess(APawn* InPawn)
@@ -85,5 +60,34 @@ void AProjectPlayerController::OnPossess(APawn* InPawn)
     if (!PCamera) return;
 
     PCamera->PostProcessSettings.bOverride_ColorSaturation = true;
+
+    TArray<AActor*> FoundVolumes;
+    UGameplayStatics::GetAllActorsOfClass(
+        GetWorld(),
+        APostProcessVolume::StaticClass(),
+        FoundVolumes
+    );
+
+    if (FoundVolumes.Num() > 0) {
+        PostProcessVolume = Cast<APostProcessVolume>(FoundVolumes[0]);
+    }
+}
+
+void AProjectPlayerController::CameraGrayTrans()
+{
+    //if (!PCamera) return;
+    //PCamera->PostProcessSettings.ColorSaturation = FVector4(0, 0, 0, 1);
+    //UE_LOG(LogTemp, Warning, TEXT("Gray"));
+    if (!PostProcessVolume) return;
+    PostProcessVolume->BlendWeight = 1.f;
+}
+
+void AProjectPlayerController::CameraColorTrans()
+{
+    //if (!PCamera) return;
+    //PCamera->PostProcessSettings.ColorSaturation = FVector4(1, 1, 1, 1);
+    //UE_LOG(LogTemp, Warning, TEXT("Color"));
+    if (!PostProcessVolume) return;
+    PostProcessVolume->BlendWeight = 0.f;
 }
 
