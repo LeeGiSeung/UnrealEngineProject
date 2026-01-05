@@ -22,44 +22,52 @@ class PROJECT_API AProjectPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+	
+	//Base
+	AProjectPlayerController();
+	~AProjectPlayerController();
+	virtual void OnPossess(APawn* InPawn) override;
+	virtual void Tick(float DeltaTime) override;
+	//~Base
+
+	void SpecialCameraUse();
+	void CameraGrayTrans();
+	void CameraColorTrans();
+	void ReturnToPlayerCamera();
+	void SpecialCameraSetting();
+
+	//BluePrint Function
 	UFUNCTION(BlueprintCallable, Category = "Timer")
 	void StartRealTimeTimer();
 
 	UFUNCTION(BlueprintCallable, Category = "SpecialAttack")
 	void StartSpecialAttack();
 
-	void SpecialCameraUse();
+	UFUNCTION(BlueprintCallable, Category = "ScrollZoom")
+	void ScrollZomm_Down(float ActionValue);
 
-	void CameraGrayTrans();
-	void CameraColorTrans();
-	void ReturnToPlayerCamera();
+	UFUNCTION(BlueprintCallable, Category = "ScrollZoom")
+	void ScrollZomm_Up(float ActionValue);
+	//~BluePrint Function
+	
 
-	virtual void OnPossess(APawn* InPawn) override;
-
-	void SpecialCameraSetting();
-
-	AProjectPlayerController();
-	~AProjectPlayerController();
-
-	virtual void Tick(float DeltaTime) override;
-
+	//BluePrint Uproperty
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timer")
 	bool IsBlackWhite = false;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timer")
-
 	float TimeDilation;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timer")
-
 	float TimeDuration;
 	
-
 	UPROPERTY(EditAnywhere, Category = "SpecialCamera")
 	UCameraComponent* FaceCameraAnchor;
 
 	UPROPERTY(EditAnywhere, Category = "SpecialCamera")
 	ACameraActor* FaceCameraActor;
+	//~BluePrint Uproperty
+	UPROPERTY(BlueprintReadOnly, Category="CameraDistance")
+	float CameraDistance = 360.f;
+	float CurCameraDistance = 0.f;
 
 private:
 

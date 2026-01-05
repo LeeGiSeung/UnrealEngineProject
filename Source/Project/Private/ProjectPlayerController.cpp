@@ -38,7 +38,7 @@ void AProjectPlayerController::StartRealTimeTimer()
 void AProjectPlayerController::StartSpecialAttack()
 {
     if (IsBlackWhite) return;
-    
+
     UAnimInstance* AnimInst = PCharacter->GetMesh()->GetAnimInstance();
     UBaseAnimInstance* MyABP = Cast<UBaseAnimInstance>(AnimInst);
 
@@ -55,9 +55,41 @@ void AProjectPlayerController::StartSpecialAttack()
 
 }
 
+void AProjectPlayerController::ScrollZomm_Down(float ActionValue)
+{
+    if (CurCameraDistance >= CameraDistance) return;
+    CurCameraDistance += 20.f;
+
+    FVector BaseLocation = PCamera->GetComponentLocation();
+    FVector HeadLocation = PCharacter->GetMesh()->GetSocketLocation(TEXT("head"));
+
+    FVector DirVector = (HeadLocation - BaseLocation).GetSafeNormal();
+
+    BaseLocation += 20.f * DirVector;
+    PCamera->SetWorldLocation(BaseLocation);
+}
+
+void AProjectPlayerController::ScrollZomm_Up(float ActionValue)
+{
+    if (CurCameraDistance <= 0) return;
+    CurCameraDistance -= 20.f;
+
+    FVector BaseLocation = PCamera->GetComponentLocation();
+    FVector HeadLocation = PCharacter->GetMesh()->GetSocketLocation(TEXT("head"));
+
+    FVector DirVector = (HeadLocation - BaseLocation).GetSafeNormal();
+
+    BaseLocation += -20.f * DirVector;
+    PCamera->SetWorldLocation(BaseLocation);
+}
+
 void AProjectPlayerController::SpecialCameraUse()
 {
     if (!FaceCameraAnchor || !FaceCameraActor || !PCharacter) return;
+
+    //시야, 이동 변경 금지
+    SetIgnoreLookInput(true);
+    SetIgnoreMoveInput(true);
 
     //삼각대의 위치를 얻는다.
     FVector CameraLocation = FaceCameraAnchor->GetComponentLocation();
@@ -189,5 +221,9 @@ void AProjectPlayerController::ReturnToPlayerCamera()
         0.f,
         EViewTargetBlendFunction::VTBlend_EaseInOut
     );
+
+    //시야, 이동 변경 허용
+    SetIgnoreLookInput(false);
+    SetIgnoreMoveInput(false);
 }
 
