@@ -3,12 +3,14 @@
 
 #include "ProjectPlayerController.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h" //blueprint 기능을 c++에서도 사용
 #include "GameFramework/PlayerController.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Camera/CameraComponent.h"
 #include "Engine/PostProcessVolume.h"
 #include "ProjectCharacter.h"
 
+#include "Camera/CameraActor.h"
 #include "Animation/AnimInstance.h"
 #include "BaseAnimInstance.h"
 
@@ -37,7 +39,6 @@ void AProjectPlayerController::StartSpecialAttack()
 {
     if (IsBlackWhite) return;
     
-
     UAnimInstance* AnimInst = PCharacter->GetMesh()->GetAnimInstance();
     UBaseAnimInstance* MyABP = Cast<UBaseAnimInstance>(AnimInst);
 
@@ -49,6 +50,41 @@ void AProjectPlayerController::StartSpecialAttack()
     //UE_LOG(LogTemp, Warning, TEXT("good"));
 
     MyABP->PlaySpecialAttackMontage(PCharacter);
+
+    SpecialCameraUse();
+
+}
+
+void AProjectPlayerController::SpecialCameraUse()
+{
+    if (!FaceCameraAnchor || !FaceCameraActor || !PCharacter) return;
+
+    //삼각대의 위치를 얻는다.
+    FVector CameraLocation = FaceCameraAnchor->GetComponentLocation();
+
+    //카메라를 삼각대 위치에 놓는다.
+    FaceCameraActor->SetActorLocation(CameraLocation);
+
+    //카메라 위치에서 캐릭터의 Head 소켓으로 향하는 회전을 얻는다.
+    FRotator LookAtRot = UKismetMathLibrary::FindLookAtRotation(
+        CameraLocation,
+        PCharacter->GetMesh()->GetSocketLocation(TEXT("head"))
+    );
+
+    //카메라를 회전시킨다.
+    FaceCameraActor->SetActorRotation(LookAtRot);
+
+    //카메라로 시점을 변경한다.
+    SetViewTargetWithBlend(
+        FaceCameraActor,
+        0.f,
+        EViewTargetBlendFunction::VTBlend_EaseInOut
+    );
+
+    ABP_Player->OnSpecialAttackFinished.AddUObject(
+        this,
+        &AProjectPlayerController::ReturnToPlayerCamera
+    );
 
 }
 
@@ -82,7 +118,7 @@ void AProjectPlayerController::OnPossess(APawn* InPawn)
     PCamera = PCharacter->FindComponentByClass<UCameraComponent>();
     if (!PCamera) return;
 
-    PCamera->PostProcessSettings.bOverride_ColorSaturation = true;
+    //PCamera->PostProcessSettings.bOverride_ColorSaturation = true;
 
     TArray<AActor*> FoundVolumes;
     UGameplayStatics::GetAllActorsOfClass(
@@ -98,6 +134,31 @@ void AProjectPlayerController::OnPossess(APawn* InPawn)
             PostProcessVolume = Cast<APostProcessVolume>(Actor);
             break;
         }
+    }
+
+    //# Special Camera
+    SpecialCameraSetting();
+}
+
+void AProjectPlayerController::SpecialCameraSetting()
+{
+
+    AProjectCharacter* ProjectChar = Cast<AProjectCharacter>(PCharacter);
+    if (!ProjectChar) return;
+
+    FaceCameraAnchor = ProjectChar->FaceCameraAnchor;
+    //FaceCameraAnchor : 삼각대
+    //FaceCameraActor : 카메라
+    if (FaceCameraActor) return;
+    FaceCameraActor = GetWorld()->SpawnActor<ACameraActor>();
+
+    UAnimInstance* AnimInst = PCharacter->GetMesh()->GetAnimInstance();
+    ABP_Player = Cast<UBaseAnimInstance>(AnimInst);
+
+    if (!ABP_Player)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("AnimInstance is not UBaseAnimInstance"));
+        return;
     }
 }
 
@@ -119,5 +180,14 @@ void AProjectPlayerController::CameraColorTrans()
 
     if (!PostProcessVolume) return;
     PostProcessVolume->BlendWeight = 0.f;
+}
+
+void AProjectPlayerController::ReturnToPlayerCamera()
+{
+    SetViewTargetWithBlend(
+        PCharacter,
+        0.f,
+        EViewTargetBlendFunction::VTBlend_EaseInOut
+    );
 }
 

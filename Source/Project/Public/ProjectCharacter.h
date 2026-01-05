@@ -50,6 +50,8 @@ class AProjectCharacter : public ACharacter
 public:
 	AProjectCharacter();
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SpecialCamera")
+	UCameraComponent* FaceCameraAnchor;
 
 protected:
 

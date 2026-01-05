@@ -9,12 +9,16 @@ class UAnimMontage;
 /**
  * 
  */
+
 UCLASS()
 class PROJECT_API UBaseAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 	
 public:
+	DECLARE_MULTICAST_DELEGATE(FOnSpecialAttackFinished);
+	FOnSpecialAttackFinished OnSpecialAttackFinished;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpecialAttack")
 	bool IsSpecialAttack;
 

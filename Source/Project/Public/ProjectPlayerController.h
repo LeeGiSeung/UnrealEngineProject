@@ -10,6 +10,8 @@ class APawn;
 class ACharacter;
 class UCameraComponent;
 class APostProcessVolume;
+class ACameraActor;
+class UBaseAnimInstance;
 
 /**
  *
@@ -26,10 +28,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "SpecialAttack")
 	void StartSpecialAttack();
 
+	void SpecialCameraUse();
+
 	void CameraGrayTrans();
 	void CameraColorTrans();
+	void ReturnToPlayerCamera();
 
 	virtual void OnPossess(APawn* InPawn) override;
+
+	void SpecialCameraSetting();
 
 	AProjectPlayerController();
 	~AProjectPlayerController();
@@ -48,13 +55,21 @@ public:
 	float TimeDuration;
 	
 
+	UPROPERTY(EditAnywhere, Category = "SpecialCamera")
+	UCameraComponent* FaceCameraAnchor;
+
+	UPROPERTY(EditAnywhere, Category = "SpecialCamera")
+	ACameraActor* FaceCameraActor;
+
 private:
 
 	APawn* PPawn = NULL;
 	ACharacter* PCharacter = NULL;
 	UCameraComponent* PCamera = NULL;
-	
+
 	APostProcessVolume* PostProcessVolume;
+
+	UBaseAnimInstance* ABP_Player;
 
 	float StartTime;
 
