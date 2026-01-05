@@ -23,6 +23,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Timer")
 	void StartRealTimeTimer();
 
+	UFUNCTION(BlueprintCallable, Category = "SpecialAttack")
+	void StartSpecialAttack();
+
 	void CameraGrayTrans();
 	void CameraColorTrans();
 
@@ -47,9 +50,9 @@ public:
 
 private:
 
-	APawn* PPawn;
-	ACharacter* PCharacter;
-	UCameraComponent* PCamera;
+	APawn* PPawn = NULL;
+	ACharacter* PCharacter = NULL;
+	UCameraComponent* PCamera = NULL;
 	
 	APostProcessVolume* PostProcessVolume;
 

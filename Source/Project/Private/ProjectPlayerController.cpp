@@ -9,9 +9,13 @@
 #include "Engine/PostProcessVolume.h"
 #include "ProjectCharacter.h"
 
+#include "Animation/AnimInstance.h"
+#include "BaseAnimInstance.h"
+
 AProjectPlayerController::AProjectPlayerController()
 {
     PrimaryActorTick.bCanEverTick = true;
+    StartTime = 0.f;
 }
 
 AProjectPlayerController::~AProjectPlayerController()
@@ -27,6 +31,25 @@ void AProjectPlayerController::StartRealTimeTimer()
     CameraGrayTrans();
 
     UGameplayStatics::SetGlobalTimeDilation(GetWorld(), TimeDilation);
+}
+
+void AProjectPlayerController::StartSpecialAttack()
+{
+    if (IsBlackWhite) return;
+    
+
+    UAnimInstance* AnimInst = PCharacter->GetMesh()->GetAnimInstance();
+    UBaseAnimInstance* MyABP = Cast<UBaseAnimInstance>(AnimInst);
+
+    if (!MyABP) {
+        UE_LOG(LogTemp, Warning, TEXT("No ABP"));
+        return;
+    }
+
+    //UE_LOG(LogTemp, Warning, TEXT("good"));
+
+    MyABP->PlaySpecialAttackMontage(PCharacter);
+
 }
 
 void AProjectPlayerController::Tick(float DeltaTime) {
