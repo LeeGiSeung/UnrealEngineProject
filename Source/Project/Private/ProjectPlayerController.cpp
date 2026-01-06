@@ -88,9 +88,32 @@ void AProjectPlayerController::ScrollZomm_Up(float ActionValue)
     PCamera->SetWorldLocation(BaseLocation);
 }
 
-void AProjectPlayerController::Dash()
+void AProjectPlayerController::DashStart()
 {
-    
+    if (bIsDashing) return;
+    if (!PCharacter) return;
+
+    UCharacterMovementComponent* MoveComp = PCharacter->GetCharacterMovement();
+
+    if (!MoveComp) return;
+
+    DefaultWalkSpeed = MoveComp->MaxWalkSpeed;
+    MoveComp->MaxWalkSpeed = DefaultWalkSpeed + 500.f;
+
+    bIsDashing = true;
+}
+
+void AProjectPlayerController::DashEnd()
+{
+    if (!bIsDashing) return;
+    if (!PCharacter) return;
+
+    UCharacterMovementComponent* MoveComp = PCharacter->GetCharacterMovement();
+        
+    if (!MoveComp) return;
+
+    MoveComp->MaxWalkSpeed = DefaultWalkSpeed;
+    bIsDashing = false;
 }
 
 void AProjectPlayerController::SpecialCameraUse()

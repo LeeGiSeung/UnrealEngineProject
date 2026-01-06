@@ -49,14 +49,21 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ScrollZoom")
 	void ScrollZomm_Up(float ActionValue);
 
-	UFUNCTION(BlueprintCallable, Category = "Dash")
-	void Dash();
+	UFUNCTION(BlueprintCallable)
+	void DashStart();
+
+	UFUNCTION(BlueprintCallable)
+	void DashEnd();
 	//~BluePrint Function
 	
 
 	//BluePrint Uproperty
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timer")
 	bool IsBlackWhite = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timer")
+	bool IsDash = false;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timer")
 	float TimeDilation;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timer")
@@ -71,6 +78,10 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category="CameraDistance")
 	float CameraDistance = 360.f;
 	float CurCameraDistance = 0.f;
+
+	float DefaultWalkSpeed = 600.f;
+	float DashSpeed = 1100.f;
+	bool bIsDashing = false;
 
 private:
 
