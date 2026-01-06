@@ -48,6 +48,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "ScrollZoom")
 	void ScrollZomm_Up(float ActionValue);
+
+	UFUNCTION(BlueprintCallable, Category = "Dash")
+	void Dash();
 	//~BluePrint Function
 	
 

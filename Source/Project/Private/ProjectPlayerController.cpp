@@ -88,6 +88,11 @@ void AProjectPlayerController::ScrollZomm_Up(float ActionValue)
     PCamera->SetWorldLocation(BaseLocation);
 }
 
+void AProjectPlayerController::Dash()
+{
+    
+}
+
 void AProjectPlayerController::SpecialCameraUse()
 {
     if (!FaceCameraAnchor || !FaceCameraActor || !PCharacter) return;
