@@ -84,7 +84,17 @@ public:
 	//~BluePrint Uproperty
 	UPROPERTY(BlueprintReadOnly, Category="CameraDistance")
 	float CameraDistance = 360.f;
+	UPROPERTY(BlueprintReadOnly, Category = "CameraDistance")
 	float CurCameraDistance = 0.f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Drawing")
+	float fCanvasSizeWidth;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Drawing")
+	float fCanvasSizeHeight;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Drawing")
+	bool bIsDrawing;
 
 	float DefaultWalkSpeed = 600.f;
 	float DashSpeed = 1100.f;

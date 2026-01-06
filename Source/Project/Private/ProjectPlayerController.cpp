@@ -98,7 +98,7 @@ void AProjectPlayerController::DashStart()
     if (!MoveComp) return;
 
     DefaultWalkSpeed = MoveComp->MaxWalkSpeed;
-    MoveComp->MaxWalkSpeed = DefaultWalkSpeed + 500.f;
+    MoveComp->MaxWalkSpeed = DefaultWalkSpeed + 200.f;
 
     bIsDashing = true;
 }
@@ -119,11 +119,13 @@ void AProjectPlayerController::DashEnd()
 void AProjectPlayerController::DrawingStart()
 {
     ProjectChar->bIsDrawing = true;
+    bIsDrawing = true;
 }
 
 void AProjectPlayerController::DrawingEnd()
 {
     ProjectChar->bIsDrawing = false;
+    bIsDrawing = false;
 }
 
 void AProjectPlayerController::SpecialCameraUse()
