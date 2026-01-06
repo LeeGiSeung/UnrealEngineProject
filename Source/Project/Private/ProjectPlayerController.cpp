@@ -101,6 +101,8 @@ void AProjectPlayerController::DashStart()
     MoveComp->MaxWalkSpeed = DefaultWalkSpeed + 500.f;
 
     bIsDashing = true;
+
+    UE_LOG(LogTemp, Warning, TEXT("aa"));
 }
 
 void AProjectPlayerController::DashEnd()
@@ -114,6 +116,8 @@ void AProjectPlayerController::DashEnd()
 
     MoveComp->MaxWalkSpeed = DefaultWalkSpeed;
     bIsDashing = false;
+
+    UE_LOG(LogTemp, Warning, TEXT("NasdfP"));
 }
 
 void AProjectPlayerController::SpecialCameraUse()
