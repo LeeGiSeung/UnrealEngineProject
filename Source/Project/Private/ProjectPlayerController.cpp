@@ -101,8 +101,6 @@ void AProjectPlayerController::DashStart()
     MoveComp->MaxWalkSpeed = DefaultWalkSpeed + 500.f;
 
     bIsDashing = true;
-
-    UE_LOG(LogTemp, Warning, TEXT("aa"));
 }
 
 void AProjectPlayerController::DashEnd()
@@ -116,8 +114,16 @@ void AProjectPlayerController::DashEnd()
 
     MoveComp->MaxWalkSpeed = DefaultWalkSpeed;
     bIsDashing = false;
+}
 
-    UE_LOG(LogTemp, Warning, TEXT("NasdfP"));
+void AProjectPlayerController::DrawingStart()
+{
+    ProjectChar->bIsDrawing = true;
+}
+
+void AProjectPlayerController::DrawingEnd()
+{
+    ProjectChar->bIsDrawing = false;
 }
 
 void AProjectPlayerController::SpecialCameraUse()
@@ -190,8 +196,11 @@ void AProjectPlayerController::OnPossess(APawn* InPawn)
     Super::OnPossess(InPawn);
 
     PPawn = InPawn;
-    PCharacter = Cast<AProjectCharacter>(PPawn);
+    PCharacter = Cast<ACharacter>(PPawn);
     if (!PCharacter) return;
+
+    ProjectChar = Cast<AProjectCharacter>(PCharacter);
+    if (!ProjectChar) return;
 
     PCamera = PCharacter->FindComponentByClass<UCameraComponent>();
     if (!PCamera) return;
@@ -221,7 +230,6 @@ void AProjectPlayerController::OnPossess(APawn* InPawn)
 void AProjectPlayerController::SpecialCameraSetting()
 {
 
-    AProjectCharacter* ProjectChar = Cast<AProjectCharacter>(PCharacter);
     if (!ProjectChar) return;
 
     FaceCameraAnchor = ProjectChar->FaceCameraAnchor;

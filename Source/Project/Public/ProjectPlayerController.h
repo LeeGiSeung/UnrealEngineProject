@@ -8,6 +8,7 @@
 
 class APawn;
 class ACharacter;
+class AProjectCharacter;
 class UCameraComponent;
 class APostProcessVolume;
 class ACameraActor;
@@ -49,11 +50,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ScrollZoom")
 	void ScrollZomm_Up(float ActionValue);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Dash")
 	void DashStart();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Dash")
 	void DashEnd();
+
+	UFUNCTION(BlueprintCallable, Category = "Drawing")
+	void DrawingStart();
+
+	UFUNCTION(BlueprintCallable, Category = "Drawing")
+	void DrawingEnd();
 	//~BluePrint Function
 	
 
@@ -87,6 +94,7 @@ private:
 
 	APawn* PPawn = NULL;
 	ACharacter* PCharacter = NULL;
+	AProjectCharacter* ProjectChar = NULL;
 	UCameraComponent* PCamera = NULL;
 
 	APostProcessVolume* PostProcessVolume;

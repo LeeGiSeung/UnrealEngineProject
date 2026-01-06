@@ -56,6 +56,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SpecialCamera", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* CameraAnchor;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SpecialCamera")
+	bool bIsDrawing;
+
 protected:
 
 	/** Called for movement input */
