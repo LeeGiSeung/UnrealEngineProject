@@ -60,7 +60,7 @@ public:
 	float TimeDuration;
 	
 	UPROPERTY(EditAnywhere, Category = "SpecialCamera")
-	UCameraComponent* FaceCameraAnchor;
+	USceneComponent* FaceCameraAnchor;
 
 	UPROPERTY(EditAnywhere, Category = "SpecialCamera")
 	ACameraActor* FaceCameraActor;

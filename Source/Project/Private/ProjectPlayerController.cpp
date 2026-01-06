@@ -13,6 +13,7 @@
 #include "Camera/CameraActor.h"
 #include "Animation/AnimInstance.h"
 #include "BaseAnimInstance.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AProjectPlayerController::AProjectPlayerController()
 {
@@ -39,6 +40,12 @@ void AProjectPlayerController::StartSpecialAttack()
 {
     if (IsBlackWhite) return;
 
+    PCharacter->GetCharacterMovement()->StopMovementImmediately();
+
+    //시야, 이동 변경 금지
+    SetIgnoreLookInput(true);
+    SetIgnoreMoveInput(true);
+
     UAnimInstance* AnimInst = PCharacter->GetMesh()->GetAnimInstance();
     UBaseAnimInstance* MyABP = Cast<UBaseAnimInstance>(AnimInst);
 
@@ -46,8 +53,6 @@ void AProjectPlayerController::StartSpecialAttack()
         UE_LOG(LogTemp, Warning, TEXT("No ABP"));
         return;
     }
-
-    //UE_LOG(LogTemp, Warning, TEXT("good"));
 
     MyABP->PlaySpecialAttackMontage(PCharacter);
 
@@ -87,20 +92,29 @@ void AProjectPlayerController::SpecialCameraUse()
 {
     if (!FaceCameraAnchor || !FaceCameraActor || !PCharacter) return;
 
-    //시야, 이동 변경 금지
-    SetIgnoreLookInput(true);
-    SetIgnoreMoveInput(true);
-
     //삼각대의 위치를 얻는다.
     FVector CameraLocation = FaceCameraAnchor->GetComponentLocation();
+
+    FVector PlayerLocation = PCharacter->GetActorLocation();
+
+    //CameraLocation.X = PlayerLocation.X - 15.f;
+    //FaceCameraAnchor->SetWorldLocation(CameraLocation);
 
     //카메라를 삼각대 위치에 놓는다.
     FaceCameraActor->SetActorLocation(CameraLocation);
 
-    //카메라 위치에서 캐릭터의 Head 소켓으로 향하는 회전을 얻는다.
+    ////카메라 위치에서 캐릭터의 Head 소켓으로 향하는 회전을 얻는다.
+    //FRotator LookAtRot = UKismetMathLibrary::FindLookAtRotation(
+    //    CameraLocation,
+    //    PCharacter->GetMesh()->GetSocketLocation(TEXT("head"))
+    //);
+
+    FVector LookTarget = PCharacter->GetActorLocation();
+    LookTarget.Z += 80.f; // 눈높이
+
     FRotator LookAtRot = UKismetMathLibrary::FindLookAtRotation(
         CameraLocation,
-        PCharacter->GetMesh()->GetSocketLocation(TEXT("head"))
+        LookTarget
     );
 
     //카메라를 회전시킨다.

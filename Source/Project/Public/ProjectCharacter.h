@@ -51,7 +51,10 @@ public:
 	AProjectCharacter();
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SpecialCamera")
-	UCameraComponent* FaceCameraAnchor;
+	USceneComponent* FaceCameraAnchor;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SpecialCamera", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* CameraAnchor;
 
 protected:
 
