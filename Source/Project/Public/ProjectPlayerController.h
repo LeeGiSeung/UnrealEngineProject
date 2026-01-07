@@ -13,6 +13,7 @@ class UCameraComponent;
 class APostProcessVolume;
 class ACameraActor;
 class UBaseAnimInstance;
+class UBaseUserWidget;
 
 /**
  *
@@ -88,13 +89,16 @@ public:
 	float CurCameraDistance = 0.f;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Drawing")
-	float fCanvasSizeWidth;
+	float fCanvasSizeWidth = 1920;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Drawing")
-	float fCanvasSizeHeight;
+	float fCanvasSizeHeight = 1080;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Drawing")
 	bool bIsDrawing;
+	
+	UPROPERTY(BlueprintReadWrite)
+	UBaseUserWidget* BaseUserWidget;
 
 	float DefaultWalkSpeed = 600.f;
 	float DashSpeed = 1100.f;

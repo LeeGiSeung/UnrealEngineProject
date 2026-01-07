@@ -14,6 +14,8 @@
 #include "Animation/AnimInstance.h"
 #include "BaseAnimInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "BaseUserWidget.h"
+
 
 AProjectPlayerController::AProjectPlayerController()
 {
@@ -126,6 +128,8 @@ void AProjectPlayerController::DrawingEnd()
 {
     ProjectChar->bIsDrawing = false;
     bIsDrawing = false;
+
+    
 }
 
 void AProjectPlayerController::SpecialCameraUse()
@@ -189,6 +193,8 @@ void AProjectPlayerController::Tick(float DeltaTime) {
         IsBlackWhite = false;
 
         CameraColorTrans();
+
+        BaseUserWidget->RemoveFromParent();
     }
 
 }
