@@ -13,7 +13,6 @@ class UCameraComponent;
 class APostProcessVolume;
 class ACameraActor;
 class UBaseAnimInstance;
-class UBaseUserWidget;
 
 /**
  *
