@@ -96,9 +96,6 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Drawing")
 	bool bIsDrawing;
-	
-	UPROPERTY(BlueprintReadWrite)
-	UBaseUserWidget* BaseUserWidget;
 
 	float DefaultWalkSpeed = 600.f;
 	float DashSpeed = 1100.f;

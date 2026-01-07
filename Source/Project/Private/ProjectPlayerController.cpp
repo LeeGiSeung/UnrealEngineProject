@@ -193,8 +193,6 @@ void AProjectPlayerController::Tick(float DeltaTime) {
         IsBlackWhite = false;
 
         CameraColorTrans();
-
-        BaseUserWidget->RemoveFromParent();
     }
 
 }
