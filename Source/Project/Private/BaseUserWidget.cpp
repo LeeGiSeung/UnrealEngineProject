@@ -45,33 +45,21 @@ void UBaseUserWidget::SaveCanvasRenderTargetToPNG(UTextureRenderTarget2D* Canvas
 
     TArray<FColor> Bitmap;
     Bitmap.SetNum(LinearBitmap.Num());
+    
 
     for (int32 i = 0; i < LinearBitmap.Num(); i++)
     {
-        FLinearColor Color = LinearBitmap[i];
+        const FLinearColor& Src = LinearBitmap[i];
 
-        float Alpha = FMath::Clamp(Color.A, 0.0f, 1.0f);
+        // 알파 무시, RGB만 그대로
+        FLinearColor Out;
+        Out.R = Src.R;
+        Out.G = Src.G;
+        Out.B = Src.B;
+        Out.A = 1.0f; // 강제로 불투명
 
-        FLinearColor StraightColor = Color;
-
-        if (Alpha > 0.0001f)
-        {
-            StraightColor.R /= Alpha;
-            StraightColor.G /= Alpha;
-            StraightColor.B /= Alpha;
-        }
-        else
-        {
-            StraightColor.R = 0;
-            StraightColor.G = 0;
-            StraightColor.B = 0;
-        }
-
-        StraightColor.A = Alpha;
-
-        Bitmap[i] = StraightColor.ToFColor(false);
+        Bitmap[i] = Out.ToFColor(false);
     }
-
 
     IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
     TSharedPtr<IImageWrapper> ImageWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
