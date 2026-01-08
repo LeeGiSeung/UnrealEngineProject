@@ -6,6 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "BaseUserWidget.generated.h"
 
+class UTextureRenderTarget2D;
+
 /**
  * 
  */
@@ -13,5 +15,8 @@ UCLASS()
 class PROJECT_API UBaseUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
+
+	UFUNCTION(BlueprintCallable, Category = "CanvasCapture")
+	void SaveCanvasRenderTargetToPNG(UTextureRenderTarget2D* Canvas, const FString& FilePath, const FString& FileName);
 
 };
