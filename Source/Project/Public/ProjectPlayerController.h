@@ -13,6 +13,9 @@ class UCameraComponent;
 class APostProcessVolume;
 class ACameraActor;
 class UBaseAnimInstance;
+//class FOnActionTriggered;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActionTriggered);
 
 /**
  *
@@ -61,10 +64,23 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Drawing")
 	void DrawingEnd();
+
+	UFUNCTION(BlueprintCallable, Category = "Drawing")
+	void SetDrawingPosition(TArray<FVector2D> _DrawPosition);
+
+	UFUNCTION(BlueprintCallable, Category = "Drawing")
+	void SpawnDrawingObject();
+
 	//~BluePrint Function
 	
 
 	//BluePrint Uproperty
+	UPROPERTY()
+	UStaticMesh* CubeMesh;
+
+	UPROPERTY(BlueprintAssignable, Category = "Event")
+	FOnActionTriggered OnActionTriggered;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timer")
 	bool IsBlackWhite = false;
 
@@ -96,9 +112,14 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Drawing")
 	bool bIsDrawing;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Drawing")
+	TArray<FVector2D> DrawPosition;
+
 	float DefaultWalkSpeed = 600.f;
 	float DashSpeed = 1100.f;
 	bool bIsDashing = false;
+
+	void SpawnCubeAtHit(const FHitResult& Hit);
 
 private:
 

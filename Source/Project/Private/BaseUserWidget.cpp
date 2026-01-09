@@ -13,6 +13,14 @@
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 
+void UBaseUserWidget::RecordPosition(FVector2D Pos)
+{
+    DrawPositions.Add(Pos);
+
+    //UE_LOG(LogTemp, Warning, TEXT("add position : %s"), *Pos.ToString());
+    //UE_LOG(LogTemp, Warning, TEXT("position Num : %d"), DrawPositions.Num());
+}
+
 void UBaseUserWidget::SaveCanvasRenderTargetToPNG(UTextureRenderTarget2D* Canvas, const FString& FilePath, const FString& FileName)
 {
     if (!Canvas)
@@ -82,3 +90,12 @@ void UBaseUserWidget::SaveCanvasRenderTargetToPNG(UTextureRenderTarget2D* Canvas
 
     UE_LOG(LogTemp, Log, TEXT("Saved PNG successfully: %s"), *FilePath);
 }
+
+void UBaseUserWidget::FinishDrawing()
+{
+    UE_LOG(LogTemp, Warning, TEXT("juaaaa num : %d"), DrawPositions.Num());
+    //OnDrawFinished.Broadcast(DrawPositions);
+    OnDrawFinished.Broadcast();
+
+}
+

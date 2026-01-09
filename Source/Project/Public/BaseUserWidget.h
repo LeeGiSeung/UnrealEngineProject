@@ -8,6 +8,8 @@
 
 class UTextureRenderTarget2D;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDrawFinished);
+
 /**
  * 
  */
@@ -16,7 +18,20 @@ class PROJECT_API UBaseUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
+public:
+
 	UFUNCTION(BlueprintCallable, Category = "CanvasCapture")
 	void SaveCanvasRenderTargetToPNG(UTextureRenderTarget2D* Canvas, const FString& FilePath, const FString& FileName);
 
+	UFUNCTION(BlueprintCallable, Category = "Drawing")
+	void RecordPosition(FVector2D Pos);
+
+	UPROPERTY(BlueprintReadWrite, Category = "Drawing")
+	TArray<FVector2D> DrawPositions;
+
+	UPROPERTY(BlueprintAssignable, Category = "Drawing")
+	FOnDrawFinished OnDrawFinished;
+
+	UFUNCTION(BlueprintCallable)
+	void FinishDrawing();
 };

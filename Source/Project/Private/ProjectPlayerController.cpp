@@ -14,12 +14,28 @@
 #include "Animation/AnimInstance.h"
 #include "BaseAnimInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/GameModeBase.h"
 
+#include "Engine/StaticMeshActor.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Engine/World.h"           // GetWorld()
+#include "GameFramework/Actor.h"    // AActor
+#include "GameFramework/Pawn.h"     // APawn
+#include "Engine/EngineTypes.h"     // FCollisionQueryParams
 
 AProjectPlayerController::AProjectPlayerController()
 {
     PrimaryActorTick.bCanEverTick = true;
     StartTime = 0.f;
+
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMeshFinder(
+        TEXT("/Engine/BasicShapes/Cube.Cube")
+    );
+
+    if (CubeMeshFinder.Succeeded())
+    {
+        CubeMesh = CubeMeshFinder.Object;
+    }
 }
 
 AProjectPlayerController::~AProjectPlayerController()
@@ -121,6 +137,7 @@ void AProjectPlayerController::DrawingStart()
 {
     ProjectChar->bIsDrawing = true;
     bIsDrawing = true;
+
 }
 
 void AProjectPlayerController::DrawingEnd()
@@ -129,6 +146,92 @@ void AProjectPlayerController::DrawingEnd()
     bIsDrawing = false;
 
     
+}
+
+void AProjectPlayerController::SetDrawingPosition(TArray<FVector2D> _DrawPosition)
+{
+    UE_LOG(LogTemp, Warning, TEXT("position Num : %d"), _DrawPosition.Num());
+    DrawPosition = _DrawPosition;
+
+    SpawnDrawingObject();
+}
+
+void AProjectPlayerController::SpawnDrawingObject()
+{
+    if (DrawPosition.Num() == 0)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("DrawPosition Zero"));
+        return;
+    }
+
+    FVector2D Sum(0.f, 0.f);
+    for (const FVector2D& Pos : DrawPosition)
+    {
+        Sum += Pos;
+    }
+    FVector2D Center = Sum / DrawPosition.Num();
+    UE_LOG(LogTemp, Warning, TEXT("Center Position : %s"), *Center.ToString());
+
+    FVector WorldLocation, WorldDirection;
+    if (!DeprojectScreenPositionToWorld(Center.X, Center.Y, WorldLocation, WorldDirection))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("DeprojectScreenPositionToWorld failed"));
+        return;
+    }
+
+    FVector Start = WorldLocation;
+    FVector End = Start + WorldDirection * 10000.f;
+
+    FCollisionQueryParams Params;
+    Params.AddIgnoredActor(GetPawn());
+
+    FHitResult Hit;
+    bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params);
+
+#if !UE_BUILD_SHIPPING
+    DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.f, 0, 1.f);
+#endif
+
+    if (bHit && Hit.GetActor() && Hit.GetActor()->ActorHasTag(TEXT("DrawAble")))
+    {
+        SpawnCubeAtHit(Hit);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("No valid hit on Drawable actor"));
+    }
+}
+
+void AProjectPlayerController::SpawnCubeAtHit(const FHitResult& Hit)
+{
+    // Spawn 위치 계산
+    FVector CubeSpawnLocation = Hit.ImpactPoint + Hit.ImpactNormal * 2.f; // Z-fighting 방지
+    FRotator CubeSpawnRotation = FRotator::ZeroRotator;
+
+    // StaticMeshActor 생성
+    AStaticMeshActor* Cube = GetWorld()->SpawnActor<AStaticMeshActor>(
+        AStaticMeshActor::StaticClass(), CubeSpawnLocation, CubeSpawnRotation);
+
+    if (Cube)
+    {
+        // Mobility 설정
+        Cube->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
+
+        // Cube 스태틱 메쉬 지정 (Engine 기본 Cube 사용)
+        static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMeshObj(TEXT("/Engine/BasicShapes/Cube.Cube"));
+        if (CubeMeshObj.Succeeded())
+        {
+            Cube->GetStaticMeshComponent()->SetStaticMesh(CubeMeshObj.Object);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Failed to load Cube mesh!"));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Failed to spawn Cube actor!"));
+    }
 }
 
 void AProjectPlayerController::SpecialCameraUse()
@@ -192,6 +295,8 @@ void AProjectPlayerController::Tick(float DeltaTime) {
         IsBlackWhite = false;
 
         CameraColorTrans();
+
+        OnActionTriggered.Broadcast();
     }
 
 }
