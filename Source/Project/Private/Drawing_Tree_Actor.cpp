@@ -12,8 +12,17 @@ void ADrawing_Tree_Actor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	CurTime += DeltaTime;
+
+	if (CurTime >= DuarationTime) Destroy();
+
+	//GrowTree();
+}
+
+void ADrawing_Tree_Actor::GrowTree()
+{
 	FVector NewLocation = GetActorLocation();
-	NewLocation.Z = NewLocation.Z + MoveSpeed * DeltaTime;
+	NewLocation.Z = NewLocation.Z + MoveSpeed * GetWorld()->GetDeltaSeconds();;
 	SetActorLocation(NewLocation);
 }
 

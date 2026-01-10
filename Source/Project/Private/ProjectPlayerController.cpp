@@ -23,6 +23,9 @@
 #include "GameFramework/Pawn.h"     // APawn
 #include "Engine/EngineTypes.h"     // FCollisionQueryParams
 
+
+#include "DrawingBaseActor.h"
+
 AProjectPlayerController::AProjectPlayerController()
 {
     PrimaryActorTick.bCanEverTick = true;
@@ -209,6 +212,18 @@ void AProjectPlayerController::SpawnDrawingObject()
     }
 }
 
+void AProjectPlayerController::RegisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor)
+{
+    TrackedActors.AddUnique(_ADrawingBaseActor);
+    //그냥 add하면 blueprint, c++ 두번 들어감
+    UE_LOG(LogTemp, Warning, TEXT("%d"),TrackedActors.Num());
+}
+
+void AProjectPlayerController::UnregisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor)
+{
+    TrackedActors.Remove(_ADrawingBaseActor);
+}
+
 void AProjectPlayerController::SpawnCubeAtHit(const FHitResult& Hit)
 {
     FVector CubeSpawnLocation = Hit.ImpactPoint + Hit.ImpactNormal;
@@ -277,9 +292,44 @@ void AProjectPlayerController::SpecialCameraUse()
 void AProjectPlayerController::Tick(float DeltaTime) {
 
     Super::Tick(DeltaTime);
+    //Drawing Object 사용
+    CheckAccTime += DeltaTime;
+    if (CheckAccTime < CheckInterval) return;
+    CheckAccTime = 0.f;
 
-    if (!IsBlackWhite) return; //아직 실행 안됬으면 return;
+    for (int32 i = 0; i < TrackedActors.Num(); i++)
+    {
+        if (!TrackedActors[i].IsValid())
+        {
+            TrackedActors.RemoveAt(i); //혹시 모르니까 여기서 삭제
+            continue;
+        }
+
+        ADrawingBaseActor* Actor = TrackedActors[i].Get();
+
+        if (!Actor) continue;
+
+        UStaticMeshComponent* MeshComp = Actor->FindComponentByClass<UStaticMeshComponent>();
+
+        if (!MeshComp) UE_LOG(LogTemp, Warning, TEXT("AAAA"));
+
+        bool bVisible = MeshComp && MeshComp->WasRecentlyRendered(0.1f); //UPrimitiveComponent에서만 가능한 함수 이번에 그려졌냐를 검사
+
+        if (bVisible)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("FIND OBJECT"));
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("NO OBJECT"));
+
+        }
   
+    }
+    //흑백 상태
+    if (!IsBlackWhite) return; //아직 실행 안됬으면 return;
+    
+    
     const float CurrentTime = FPlatformTime::Seconds();
 
     if (CurrentTime - StartTime >= TimeDuration) {
@@ -329,6 +379,19 @@ void AProjectPlayerController::OnPossess(APawn* InPawn)
 
     //# Special Camera
     SpecialCameraSetting();
+
+
+    TArray<AActor*> Found;
+    UGameplayStatics::GetAllActorsOfClass(
+        GetWorld(),
+        ADrawingBaseActor::StaticClass(),
+        Found
+    );
+
+    for (AActor* A : Found)
+    {
+        TrackedActors.Add(Cast<ADrawingBaseActor>(A));
+    }
 }
 
 void AProjectPlayerController::SpecialCameraSetting()

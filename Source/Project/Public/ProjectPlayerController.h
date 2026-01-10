@@ -13,7 +13,7 @@ class UCameraComponent;
 class APostProcessVolume;
 class ACameraActor;
 class UBaseAnimInstance;
-//class FOnActionTriggered;
+class ADrawingBaseActor;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActionTriggered);
 
@@ -71,6 +71,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Drawing")
 	void SpawnDrawingObject();
 
+	void RegisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor);
+	void UnregisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor);
+
 	//~BluePrint Function
 	
 
@@ -114,6 +117,15 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Drawing")
 	TArray<FVector2D> DrawPosition;
+
+	UPROPERTY(BlueprintReadOnly, Category = "DrawingObject")
+	bool bFindObject = false;
+
+	
+
+	float CheckInterval = 0.1f;
+	float CheckAccTime = 0.f;
+	TArray<TWeakObjectPtr<ADrawingBaseActor>> TrackedActors;
 
 	float DefaultWalkSpeed = 600.f;
 	float DashSpeed = 1100.f;

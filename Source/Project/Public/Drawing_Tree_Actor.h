@@ -20,9 +20,15 @@ public:
 public:
 	virtual void Tick(float DeltaTime) override;
 
+	void GrowTree();
+
 	UPROPERTY(BlueprintReadWrite, Category = "Drawing_Tree")
 	float MoveSpeed = 500.f;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Drawing_Tree")
+	float DuarationTime = 3.f;
+
+	float CurTime = 0.f;
 protected:
 	virtual void BeginPlay() override;
 

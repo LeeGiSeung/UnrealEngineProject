@@ -14,4 +14,11 @@ class PROJECT_API ADrawingBaseActor : public ABaseActor
 {
 	GENERATED_BODY()
 	
+public:
+
+	ADrawingBaseActor();
+
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 };
