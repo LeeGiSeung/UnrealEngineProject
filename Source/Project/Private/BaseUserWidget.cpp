@@ -17,7 +17,7 @@ void UBaseUserWidget::RecordPosition(FVector2D Pos)
 {
     DrawPositions.Add(Pos);
 
-    //UE_LOG(LogTemp, Warning, TEXT("add position : %s"), *Pos.ToString());
+    UE_LOG(LogTemp, Warning, TEXT("add position : %s"), *Pos.ToString());
     //UE_LOG(LogTemp, Warning, TEXT("position Num : %d"), DrawPositions.Num());
 }
 

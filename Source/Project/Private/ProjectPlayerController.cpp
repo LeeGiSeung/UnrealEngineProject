@@ -36,6 +36,10 @@ AProjectPlayerController::AProjectPlayerController()
     {
         CubeMesh = CubeMeshFinder.Object;
     }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Failed to load Cube mesh in constructor!"));
+    }
 }
 
 AProjectPlayerController::~AProjectPlayerController()
@@ -178,12 +182,15 @@ void AProjectPlayerController::SpawnDrawingObject()
         UE_LOG(LogTemp, Warning, TEXT("DeprojectScreenPositionToWorld failed"));
         return;
     }
+    else {
+        UE_LOG(LogTemp, Warning, TEXT("WorldOLocation : %f"), WorldLocation);
+    }
 
     FVector Start = WorldLocation;
     FVector End = Start + WorldDirection * 10000.f;
 
     FCollisionQueryParams Params;
-    Params.AddIgnoredActor(GetPawn());
+    Params.AddIgnoredActor(GetPawn()); //나 자신은 무시
 
     FHitResult Hit;
     bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params);
@@ -204,33 +211,20 @@ void AProjectPlayerController::SpawnDrawingObject()
 
 void AProjectPlayerController::SpawnCubeAtHit(const FHitResult& Hit)
 {
-    // Spawn 위치 계산
-    FVector CubeSpawnLocation = Hit.ImpactPoint + Hit.ImpactNormal * 2.f; // Z-fighting 방지
+    FVector CubeSpawnLocation = Hit.ImpactPoint + Hit.ImpactNormal * 2.f;
     FRotator CubeSpawnRotation = FRotator::ZeroRotator;
 
-    // StaticMeshActor 생성
     AStaticMeshActor* Cube = GetWorld()->SpawnActor<AStaticMeshActor>(
         AStaticMeshActor::StaticClass(), CubeSpawnLocation, CubeSpawnRotation);
 
-    if (Cube)
+    if (Cube && CubeMesh)
     {
-        // Mobility 설정
         Cube->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
-
-        // Cube 스태틱 메쉬 지정 (Engine 기본 Cube 사용)
-        static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMeshObj(TEXT("/Engine/BasicShapes/Cube.Cube"));
-        if (CubeMeshObj.Succeeded())
-        {
-            Cube->GetStaticMeshComponent()->SetStaticMesh(CubeMeshObj.Object);
-        }
-        else
-        {
-            UE_LOG(LogTemp, Warning, TEXT("Failed to load Cube mesh!"));
-        }
+        Cube->GetStaticMeshComponent()->SetStaticMesh(CubeMesh);
     }
-    else
+    else if (!CubeMesh)
     {
-        UE_LOG(LogTemp, Warning, TEXT("Failed to spawn Cube actor!"));
+        UE_LOG(LogTemp, Warning, TEXT("CubeMesh is null! Did you load it in the constructor?"));
     }
 }
 
