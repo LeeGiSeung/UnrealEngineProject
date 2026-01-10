@@ -177,7 +177,7 @@ void AProjectPlayerController::SpawnDrawingObject()
     UE_LOG(LogTemp, Warning, TEXT("Center Position : %s"), *Center.ToString());
 
     FVector WorldLocation, WorldDirection;
-    if (!DeprojectScreenPositionToWorld(Center.X, Center.Y, WorldLocation, WorldDirection))
+    if (!DeprojectScreenPositionToWorld(Center.X, Center.Y, WorldLocation, WorldDirection)) //PlayerController가 소유한 카메라를 기준으로
     {
         UE_LOG(LogTemp, Warning, TEXT("DeprojectScreenPositionToWorld failed"));
         return;
@@ -193,15 +193,15 @@ void AProjectPlayerController::SpawnDrawingObject()
     Params.AddIgnoredActor(GetPawn()); //나 자신은 무시
 
     FHitResult Hit;
-    bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params);
+    bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params); //맞는지 검사
 
 #if !UE_BUILD_SHIPPING
-    DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.f, 0, 1.f);
+    DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.f, 0, 1.f); //디버그 모드에서만 line그려서 검사확인
 #endif
 
-    if (bHit && Hit.GetActor() && Hit.GetActor()->ActorHasTag(TEXT("DrawAble")))
+    if (bHit && Hit.GetActor() && Hit.GetActor()->ActorHasTag(TEXT("DrawAble"))) //맞았고, 해당 위치에 액터가 있고, 액터가 그릴 수 있는 액터면
     {
-        SpawnCubeAtHit(Hit);
+        SpawnCubeAtHit(Hit); //액터 소환
     }
     else
     {
@@ -211,7 +211,7 @@ void AProjectPlayerController::SpawnDrawingObject()
 
 void AProjectPlayerController::SpawnCubeAtHit(const FHitResult& Hit)
 {
-    FVector CubeSpawnLocation = Hit.ImpactPoint + Hit.ImpactNormal * 2.f;
+    FVector CubeSpawnLocation = Hit.ImpactPoint + Hit.ImpactNormal;
     FRotator CubeSpawnRotation = FRotator::ZeroRotator;
 
     AStaticMeshActor* Cube = GetWorld()->SpawnActor<AStaticMeshActor>(
