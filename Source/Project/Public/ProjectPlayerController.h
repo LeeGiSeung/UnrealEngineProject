@@ -14,6 +14,7 @@ class APostProcessVolume;
 class ACameraActor;
 class UBaseAnimInstance;
 class ADrawingBaseActor;
+class UFWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActionTriggered);
 
@@ -78,6 +79,12 @@ public:
 	
 
 	//BluePrint Uproperty
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DrawingObject")
+	TSubclassOf<UFWidget> InteractWidgetClass;
+
+	UPROPERTY()
+	UFWidget* InteractWidget;
+
 	UPROPERTY()
 	UStaticMesh* CubeMesh;
 
@@ -123,7 +130,7 @@ public:
 
 	
 
-	float CheckInterval = 0.1f;
+	float CheckInterval = 0.0f;
 	float CheckAccTime = 0.f;
 	TArray<TWeakObjectPtr<ADrawingBaseActor>> TrackedActors;
 

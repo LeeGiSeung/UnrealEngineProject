@@ -23,8 +23,8 @@
 #include "GameFramework/Pawn.h"     // APawn
 #include "Engine/EngineTypes.h"     // FCollisionQueryParams
 
-
 #include "DrawingBaseActor.h"
+#include "FWidget.h"
 
 AProjectPlayerController::AProjectPlayerController()
 {
@@ -294,55 +294,75 @@ void AProjectPlayerController::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
     //Drawing Object 사용
     CheckAccTime += DeltaTime;
-    if (CheckAccTime < CheckInterval) return;
-    CheckAccTime = 0.f;
+    if (CheckAccTime >= CheckInterval) {
+        CheckAccTime = 0.f;
 
-    for (int32 i = 0; i < TrackedActors.Num(); i++)
-    {
-        if (!TrackedActors[i].IsValid())
+        for (int32 i = 0; i < TrackedActors.Num(); i++)
         {
-            TrackedActors.RemoveAt(i); //혹시 모르니까 여기서 삭제
-            continue;
+            if (!TrackedActors[i].IsValid())
+            {
+                TrackedActors.RemoveAt(i); //혹시 모르니까 여기서 삭제
+                continue;
+            }
+
+            ADrawingBaseActor* Actor = TrackedActors[i].Get();
+
+            if (!Actor) continue;
+
+            UStaticMeshComponent* MeshComp = Actor->FindComponentByClass<UStaticMeshComponent>();
+
+            if (!MeshComp) UE_LOG(LogTemp, Warning, TEXT("No UStaticMeshComponent"));
+
+            bool bVisible = MeshComp && MeshComp->WasRecentlyRendered(0.1f); //UPrimitiveComponent에서만 가능한 함수 이번에 그려졌냐를 검사
+
+            if (!InteractWidget) {
+                UE_LOG(LogTemp, Warning, TEXT("NO WIDGET"));
+                continue;
+            }
+
+            if (bVisible)
+            {
+                bFindObject = true;
+                FVector WorldLocation = Actor->GetActorLocation();
+                FVector2D ScreenPos;
+
+                UE_LOG(LogTemp, Warning, TEXT("VISIBLE"));
+
+                if (ProjectWorldLocationToScreen(WorldLocation, ScreenPos))
+                {
+                    InteractWidget->SetPositionInViewport(ScreenPos, true);
+                    InteractWidget->SetVisibility(ESlateVisibility::Visible);
+                    bFindObject = true;
+
+                    UE_LOG(LogTemp, Warning, TEXT("SEE WIDGET"));
+
+                    break;
+                }
+            }
+            else
+            {
+                bFindObject = false;
+                InteractWidget->SetVisibility(ESlateVisibility::Hidden);
+                UE_LOG(LogTemp, Warning, TEXT("NO OBJECT"));
+            }
         }
-
-        ADrawingBaseActor* Actor = TrackedActors[i].Get();
-
-        if (!Actor) continue;
-
-        UStaticMeshComponent* MeshComp = Actor->FindComponentByClass<UStaticMeshComponent>();
-
-        if (!MeshComp) UE_LOG(LogTemp, Warning, TEXT("AAAA"));
-
-        bool bVisible = MeshComp && MeshComp->WasRecentlyRendered(0.1f); //UPrimitiveComponent에서만 가능한 함수 이번에 그려졌냐를 검사
-
-        if (bVisible)
-        {
-            UE_LOG(LogTemp, Warning, TEXT("FIND OBJECT"));
-        }
-        else
-        {
-            UE_LOG(LogTemp, Warning, TEXT("NO OBJECT"));
-
-        }
-  
     }
+    
     //흑백 상태
-    if (!IsBlackWhite) return; //아직 실행 안됬으면 return;
-    
-    
-    const float CurrentTime = FPlatformTime::Seconds();
+    if (IsBlackWhite) {
+        const float CurrentTime = FPlatformTime::Seconds();
 
-    if (CurrentTime - StartTime >= TimeDuration) {
+        if (CurrentTime - StartTime >= TimeDuration) {
 
-        UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
+            UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
 
-        IsBlackWhite = false;
+            IsBlackWhite = false;
 
-        CameraColorTrans();
+            CameraColorTrans();
 
-        OnActionTriggered.Broadcast();
+            OnActionTriggered.Broadcast();
+        }
     }
-
 }
 
 void AProjectPlayerController::OnPossess(APawn* InPawn)
@@ -391,6 +411,13 @@ void AProjectPlayerController::OnPossess(APawn* InPawn)
     for (AActor* A : Found)
     {
         TrackedActors.Add(Cast<ADrawingBaseActor>(A));
+    }
+
+    InteractWidget = CreateWidget<UFWidget>(this, InteractWidgetClass);
+    if (InteractWidget)
+    {
+        InteractWidget->AddToViewport();
+        InteractWidget->SetVisibility(ESlateVisibility::Hidden);
     }
 }
 
