@@ -6,27 +6,37 @@
 ADrawing_Tree_Actor::ADrawing_Tree_Actor()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	RenderMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 }
 
 void ADrawing_Tree_Actor::Tick(float DeltaTime)
 {
+	if (!isGrow) return;
+	if (CurTime >= DuarationTime) Destroy();
+
 	Super::Tick(DeltaTime);
 
 	CurTime += DeltaTime;
 
-	if (CurTime >= DuarationTime) Destroy();
-
-	//GrowTree();
+	GrowTree();
 }
 
 void ADrawing_Tree_Actor::GrowTree()
 {
-	FVector NewLocation = GetActorLocation();
-	NewLocation.Z = NewLocation.Z + MoveSpeed * GetWorld()->GetDeltaSeconds();;
-	SetActorLocation(NewLocation);
+	if (CurTime > GrowTime) return; //성장 시간 넘기면 return
+	FVector NewScale = GetActorScale3D();
+	NewScale.Z = NewScale.Z + GrowSpeed * GetWorld()->GetDeltaSeconds();
+	SetActorScale3D(NewScale);
 }
 
 void ADrawing_Tree_Actor::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void ADrawing_Tree_Actor::UseAbility()
+{
+	Super::UseAbility();
+
+	isGrow = true;
 }

@@ -16,6 +16,8 @@ class PROJECT_API ADrawing_Tree_Actor : public ADrawingBaseActor
 
 public:
 	ADrawing_Tree_Actor();
+	virtual void UseAbility() override;
+
 
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -23,12 +25,18 @@ public:
 	void GrowTree();
 
 	UPROPERTY(BlueprintReadWrite, Category = "Drawing_Tree")
-	float MoveSpeed = 500.f;
+	float GrowSpeed;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Drawing_Tree")
-	float DuarationTime = 3.f;
+	float DuarationTime = 10.f;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Drawing_Tree")
+	float GrowTime = 5.f;
 
 	float CurTime = 0.f;
+
+	bool isGrow = false;
+
 protected:
 	virtual void BeginPlay() override;
 

@@ -212,11 +212,20 @@ void AProjectPlayerController::SpawnDrawingObject()
     }
 }
 
+void AProjectPlayerController::DrawingObject_UseAbility()
+{
+    if (!DrawingActor) {
+        UE_LOG(LogTemp, Warning, TEXT("NONE DrawingActor"));
+        return;
+    }
+    DrawingActor->UseAbility();
+}
+
 void AProjectPlayerController::RegisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor)
 {
     TrackedActors.AddUnique(_ADrawingBaseActor);
     //그냥 add하면 blueprint, c++ 두번 들어감
-    UE_LOG(LogTemp, Warning, TEXT("%d"),TrackedActors.Num());
+    //UE_LOG(LogTemp, Warning, TEXT("%d"),TrackedActors.Num());
 }
 
 void AProjectPlayerController::UnregisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor)
@@ -305,28 +314,29 @@ void AProjectPlayerController::Tick(float DeltaTime) {
                 continue;
             }
 
-            ADrawingBaseActor* Actor = TrackedActors[i].Get();
+            //
+            DrawingActor = TrackedActors[i].Get();
 
-            if (!Actor) continue;
+            if (!DrawingActor) continue;
 
-            UStaticMeshComponent* MeshComp = Actor->FindComponentByClass<UStaticMeshComponent>();
+            UStaticMeshComponent* MeshComp = DrawingActor->FindComponentByClass<UStaticMeshComponent>();
 
             if (!MeshComp) UE_LOG(LogTemp, Warning, TEXT("No UStaticMeshComponent"));
 
             bool bVisible = MeshComp && MeshComp->WasRecentlyRendered(0.1f); //UPrimitiveComponent에서만 가능한 함수 이번에 그려졌냐를 검사
 
             if (!InteractWidget) {
-                UE_LOG(LogTemp, Warning, TEXT("NO WIDGET"));
+                //UE_LOG(LogTemp, Warning, TEXT("NO WIDGET"));
                 continue;
             }
 
             if (bVisible)
             {
                 bFindObject = true;
-                FVector WorldLocation = Actor->GetActorLocation();
+                FVector WorldLocation = DrawingActor->GetActorLocation();
                 FVector2D ScreenPos;
 
-                UE_LOG(LogTemp, Warning, TEXT("VISIBLE"));
+                //UE_LOG(LogTemp, Warning, TEXT("VISIBLE"));
 
                 if (ProjectWorldLocationToScreen(WorldLocation, ScreenPos))
                 {
@@ -334,7 +344,7 @@ void AProjectPlayerController::Tick(float DeltaTime) {
                     InteractWidget->SetVisibility(ESlateVisibility::Visible);
                     bFindObject = true;
 
-                    UE_LOG(LogTemp, Warning, TEXT("SEE WIDGET"));
+                    //UE_LOG(LogTemp, Warning, TEXT("SEE WIDGET"));
 
                     break;
                 }
@@ -343,7 +353,7 @@ void AProjectPlayerController::Tick(float DeltaTime) {
             {
                 bFindObject = false;
                 InteractWidget->SetVisibility(ESlateVisibility::Hidden);
-                UE_LOG(LogTemp, Warning, TEXT("NO OBJECT"));
+                //UE_LOG(LogTemp, Warning, TEXT("NO OBJECT"));
             }
         }
     }

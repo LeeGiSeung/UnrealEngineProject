@@ -72,6 +72,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Drawing")
 	void SpawnDrawingObject();
 
+	UFUNCTION(BlueprintCallable, Category = "Drawing_Object")
+	void DrawingObject_UseAbility();
+
 	void RegisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor);
 	void UnregisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor);
 
@@ -127,6 +130,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "DrawingObject")
 	bool bFindObject = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "DrawingObject")
+	ADrawingBaseActor* DrawingActor;
 
 	
 

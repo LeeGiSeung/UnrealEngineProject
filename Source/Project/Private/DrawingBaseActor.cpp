@@ -27,3 +27,17 @@ void ADrawingBaseActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
     Super::EndPlay(EndPlayReason);
 }
+
+void ADrawingBaseActor::UseAbility()
+{
+    //UE_LOG(LogTemp, Warning, TEXT("BASEACTOR"));
+    //자세한 능력은 각 Actor에서 실행
+}
+
+void ADrawingBaseActor::SetHighlight(bool bEnable)
+{
+    if (!RenderMesh) return;
+
+    RenderMesh->SetRenderCustomDepth(bEnable);
+    RenderMesh->SetCustomDepthStencilValue(1); // 1번 ID
+}
