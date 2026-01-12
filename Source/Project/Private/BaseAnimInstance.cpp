@@ -21,7 +21,7 @@ void UBaseAnimInstance::PlaySpecialAttackMontage(ACharacter* APlayer)
 	if (SpecialAttackMontage)
 	{
 		Montage_Play(SpecialAttackMontage);
-		UE_LOG(LogTemp, Warning, TEXT("Special Attack Montage Played"));
+		//UE_LOG(LogTemp, Warning, TEXT("Special Attack Montage Played"));
 	}
 
 }

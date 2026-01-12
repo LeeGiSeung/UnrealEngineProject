@@ -134,7 +134,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "DrawingObject")
 	ADrawingBaseActor* DrawingActor;
 
-	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DrawingObject")
+	TArray<TSubclassOf<AActor>> SpawnActorClasses;
+
 
 	float CheckInterval = 0.0f;
 	float CheckAccTime = 0.f;

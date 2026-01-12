@@ -235,21 +235,48 @@ void AProjectPlayerController::UnregisterDrawingActor(ADrawingBaseActor* _ADrawi
 
 void AProjectPlayerController::SpawnCubeAtHit(const FHitResult& Hit)
 {
-    FVector CubeSpawnLocation = Hit.ImpactPoint + Hit.ImpactNormal;
-    FRotator CubeSpawnRotation = FRotator::ZeroRotator;
+    FVector Normal = Hit.ImpactNormal;
+    UE_LOG(LogTemp, Warning, TEXT("%s"), *Normal.ToString());
 
-    AStaticMeshActor* Cube = GetWorld()->SpawnActor<AStaticMeshActor>(
-        AStaticMeshActor::StaticClass(), CubeSpawnLocation, CubeSpawnRotation);
+    constexpr float SurfaceThreshold = 0.7f;
 
-    if (Cube && CubeMesh)
+    // 표면 법선 기준 회전
+    FRotator SelectedSpawnRotation = UKismetMathLibrary::MakeRotFromZ(Normal);
+
+    // Pitch 보정 (원하는 만큼)
+    if (Normal.Z > SurfaceThreshold)        // 바닥
     {
-        Cube->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
-        Cube->GetStaticMeshComponent()->SetStaticMesh(CubeMesh);
+        //SelectedSpawnRotation.Pitch += 90.f;
     }
-    else if (!CubeMesh)
+    else if (Normal.Z < -SurfaceThreshold)  // 천장
     {
-        UE_LOG(LogTemp, Warning, TEXT("CubeMesh is null! Did you load it in the constructor?"));
+        //SelectedSpawnRotation.Pitch = 180.f;
     }
+
+    FVector SelectedSpawnLocation = Hit.ImpactPoint + Normal * 2.f; // Z-Fighting 방지
+    //Z-Fighting : 두 엑터가 같은 z값에 있어서 서로 깜빡깜빡거리는것
+
+    //벽에 설치되는건 이걸 수정하면 됨
+    //z + 벡터 방향이 플레이어를 바라보게 소환
+
+    if (SpawnActorClasses.Num() == 0) {
+        UE_LOG(LogTemp, Warning, TEXT("SpawnActorClasses is 0"));
+        return;
+    }
+
+    TSubclassOf<AActor> SelectedClass = SpawnActorClasses[0]; //일단 0번째 강제 소환하게
+    if (!SelectedClass) {
+        UE_LOG(LogTemp, Warning, TEXT("NONE SpawnActorClass"));
+        return;
+    }
+
+    AActor* SpawnActor = GetWorld()->SpawnActor<AActor>(
+        SelectedClass, 
+        SelectedSpawnLocation,
+        SelectedSpawnRotation);
+
+    //AActor* = 이미 존재하는 액터(실체)
+    //TSubclassOf<AActor> = 앞으로 생성할 액터의 설계도(클래스)
 }
 
 void AProjectPlayerController::SpecialCameraUse()
