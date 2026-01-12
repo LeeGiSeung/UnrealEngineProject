@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Colorenum/Colorenum.h"
+
 #include "ProjectPlayerController.generated.h"
 
 class APawn;
@@ -75,6 +77,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Drawing_Object")
 	void DrawingObject_UseAbility();
 
+	UFUNCTION(BlueprintCallable, Category = "Drawing_Object")
+	void DrawingObject_SetDrawingObject_Type(EColor CurChoiceColor);
+
 	void RegisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor);
 	void UnregisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor);
 
@@ -135,8 +140,11 @@ public:
 	ADrawingBaseActor* DrawingActor;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DrawingObject")
-	TArray<TSubclassOf<AActor>> SpawnActorClasses;
+	//TArray<TSubclassOf<AActor>> SpawnActorClasses;
+	TMap<EColor, TSubclassOf<AActor>> SpawnActorMap;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DrawingObject")
+	EColor DrawingColor;
 
 	float CheckInterval = 0.0f;
 	float CheckAccTime = 0.f;

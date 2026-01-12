@@ -177,16 +177,16 @@ void AProjectPlayerController::SpawnDrawingObject()
         Sum += Pos;
     }
     FVector2D Center = Sum / DrawPosition.Num();
-    UE_LOG(LogTemp, Warning, TEXT("Center Position : %s"), *Center.ToString());
+    //UE_LOG(LogTemp, Warning, TEXT("Center Position : %s"), *Center.ToString());
 
     FVector WorldLocation, WorldDirection;
     if (!DeprojectScreenPositionToWorld(Center.X, Center.Y, WorldLocation, WorldDirection)) //PlayerController가 소유한 카메라를 기준으로
     {
-        UE_LOG(LogTemp, Warning, TEXT("DeprojectScreenPositionToWorld failed"));
+        //UE_LOG(LogTemp, Warning, TEXT("DeprojectScreenPositionToWorld failed"));
         return;
     }
     else {
-        UE_LOG(LogTemp, Warning, TEXT("WorldOLocation : %f"), WorldLocation);
+        //UE_LOG(LogTemp, Warning, TEXT("WorldOLocation : %f"), WorldLocation);
     }
 
     FVector Start = WorldLocation;
@@ -221,6 +221,11 @@ void AProjectPlayerController::DrawingObject_UseAbility()
     DrawingActor->UseAbility();
 }
 
+void AProjectPlayerController::DrawingObject_SetDrawingObject_Type(EColor CurChoiceColor)
+{
+    DrawingColor = CurChoiceColor;
+}
+
 void AProjectPlayerController::RegisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor)
 {
     TrackedActors.AddUnique(_ADrawingBaseActor);
@@ -243,28 +248,18 @@ void AProjectPlayerController::SpawnCubeAtHit(const FHitResult& Hit)
     // 표면 법선 기준 회전
     FRotator SelectedSpawnRotation = UKismetMathLibrary::MakeRotFromZ(Normal);
 
-    // Pitch 보정 (원하는 만큼)
-    if (Normal.Z > SurfaceThreshold)        // 바닥
-    {
-        //SelectedSpawnRotation.Pitch += 90.f;
-    }
-    else if (Normal.Z < -SurfaceThreshold)  // 천장
-    {
-        //SelectedSpawnRotation.Pitch = 180.f;
-    }
-
     FVector SelectedSpawnLocation = Hit.ImpactPoint + Normal * 2.f; // Z-Fighting 방지
     //Z-Fighting : 두 엑터가 같은 z값에 있어서 서로 깜빡깜빡거리는것
 
     //벽에 설치되는건 이걸 수정하면 됨
     //z + 벡터 방향이 플레이어를 바라보게 소환
 
-    if (SpawnActorClasses.Num() == 0) {
+    if (SpawnActorMap.Num() == 0) {
         UE_LOG(LogTemp, Warning, TEXT("SpawnActorClasses is 0"));
         return;
     }
 
-    TSubclassOf<AActor> SelectedClass = SpawnActorClasses[0]; //일단 0번째 강제 소환하게
+    TSubclassOf<AActor> SelectedClass = SpawnActorMap[DrawingColor]; //일단 0번째 강제 소환하게
     if (!SelectedClass) {
         UE_LOG(LogTemp, Warning, TEXT("NONE SpawnActorClass"));
         return;

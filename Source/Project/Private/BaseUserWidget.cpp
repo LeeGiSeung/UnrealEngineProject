@@ -93,8 +93,6 @@ void UBaseUserWidget::SaveCanvasRenderTargetToPNG(UTextureRenderTarget2D* Canvas
 
 void UBaseUserWidget::FinishDrawing()
 {
-    //UE_LOG(LogTemp, Warning, TEXT("juaaaa num : %d"), DrawPositions.Num());
-    //OnDrawFinished.Broadcast(DrawPositions);
     OnDrawFinished.Broadcast();
 
 }

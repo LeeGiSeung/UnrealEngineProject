@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Colorenum/Colorenum.h"
+
 #include "BaseUserWidget.generated.h"
 
 class UTextureRenderTarget2D;
@@ -31,6 +33,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Drawing")
 	FOnDrawFinished OnDrawFinished;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Drawing")
+	EColor CurChoiceColor;
 
 	UFUNCTION(BlueprintCallable)
 	void FinishDrawing();
