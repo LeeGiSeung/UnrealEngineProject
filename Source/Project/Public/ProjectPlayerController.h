@@ -17,6 +17,7 @@ class ACameraActor;
 class UBaseAnimInstance;
 class ADrawingBaseActor;
 class UFWidget;
+class ADecalActor;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActionTriggered);
 
@@ -69,16 +70,10 @@ public:
 	void DrawingEnd();
 
 	UFUNCTION(BlueprintCallable, Category = "Drawing")
-	void SetDrawingPosition(TArray<FVector2D> _DrawPosition);
-
-	UFUNCTION(BlueprintCallable, Category = "Drawing")
-	void SpawnDrawingObject();
+	void SpawnDecalActor(TArray<FVector2D> _DrawPosition , EColor CurChoiceColor);
 
 	UFUNCTION(BlueprintCallable, Category = "Drawing_Object")
 	void DrawingObject_UseAbility();
-
-	UFUNCTION(BlueprintCallable, Category = "Drawing_Object")
-	void DrawingObject_SetDrawingObject_Type(EColor CurChoiceColor);
 
 	void RegisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor);
 	void UnregisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor);
@@ -139,6 +134,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "DrawingObject")
 	ADrawingBaseActor* DrawingActor;
 
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DrawingObject")
 	//TArray<TSubclassOf<AActor>> SpawnActorClasses;
 	TMap<EColor, TSubclassOf<AActor>> SpawnActorMap;
@@ -149,6 +145,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DrawingObject")
 	EColor DrawingColor;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DrawingObject")
+	TSubclassOf<AActor> DecalActor;
+	
+	//DrawingObject Hit Postion
+	FHitResult Hit;
+	ADecalActor* Decal;
+	//DrawingObject Hit Postion
+	
 	float CheckInterval = 0.0f;
 	float CheckAccTime = 0.f;
 	TArray<TWeakObjectPtr<ADrawingBaseActor>> TrackedActors;
@@ -157,7 +161,8 @@ public:
 	float DashSpeed = 1100.f;
 	bool bIsDashing = false;
 
-	void SpawnCubeAtHit(const FHitResult& Hit);
+	void SpawnCubeAtHit();
+	void SpawnDecalAtHit();
 
 private:
 

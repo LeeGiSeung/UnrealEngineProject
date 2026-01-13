@@ -25,6 +25,9 @@
 
 #include "DrawingBaseActor.h"
 #include "FWidget.h"
+#include "Engine/DecalActor.h"
+#include "Components/DecalComponent.h"
+
 
 AProjectPlayerController::AProjectPlayerController()
 {
@@ -151,20 +154,14 @@ void AProjectPlayerController::DrawingEnd()
 {
     ProjectChar->bIsDrawing = false;
     bIsDrawing = false;
-
-    
 }
 
-void AProjectPlayerController::SetDrawingPosition(TArray<FVector2D> _DrawPosition)
+void AProjectPlayerController::SpawnDecalActor(TArray<FVector2D> _DrawPosition, EColor CurChoiceColor)
 {
-    UE_LOG(LogTemp, Warning, TEXT("position Num : %d"), _DrawPosition.Num());
     DrawPosition = _DrawPosition;
 
-    SpawnDrawingObject();
-}
+    DrawingColor = CurChoiceColor;
 
-void AProjectPlayerController::SpawnDrawingObject()
-{
     if (DrawPosition.Num() == 0)
     {
         UE_LOG(LogTemp, Warning, TEXT("DrawPosition Zero"));
@@ -177,16 +174,11 @@ void AProjectPlayerController::SpawnDrawingObject()
         Sum += Pos;
     }
     FVector2D Center = Sum / DrawPosition.Num();
-    //UE_LOG(LogTemp, Warning, TEXT("Center Position : %s"), *Center.ToString());
 
     FVector WorldLocation, WorldDirection;
-    if (!DeprojectScreenPositionToWorld(Center.X, Center.Y, WorldLocation, WorldDirection)) //PlayerController가 소유한 카메라를 기준으로
+    if (!DeprojectScreenPositionToWorld(Center.X, Center.Y, WorldLocation, WorldDirection))
     {
-        //UE_LOG(LogTemp, Warning, TEXT("DeprojectScreenPositionToWorld failed"));
         return;
-    }
-    else {
-        //UE_LOG(LogTemp, Warning, TEXT("WorldOLocation : %f"), WorldLocation);
     }
 
     FVector Start = WorldLocation;
@@ -195,16 +187,16 @@ void AProjectPlayerController::SpawnDrawingObject()
     FCollisionQueryParams Params;
     Params.AddIgnoredActor(GetPawn()); //나 자신은 무시
 
-    FHitResult Hit;
     bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params); //맞는지 검사
 
 #if !UE_BUILD_SHIPPING
-    DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.f, 0, 1.f); //디버그 모드에서만 line그려서 검사확인
+    //DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.f, 0, 1.f); //디버그 모드에서만 line그려서 검사확인
 #endif
 
     if (bHit && Hit.GetActor() && Hit.GetActor()->ActorHasTag(TEXT("DrawAble"))) //맞았고, 해당 위치에 액터가 있고, 액터가 그릴 수 있는 액터면
     {
-        SpawnCubeAtHit(Hit); //액터 소환
+        //SpawnCubeAtHit(); //액터 소환
+        SpawnDecalAtHit();
     }
     else
     {
@@ -214,16 +206,13 @@ void AProjectPlayerController::SpawnDrawingObject()
 
 void AProjectPlayerController::DrawingObject_UseAbility()
 {
+
+    SpawnCubeAtHit();
+
     if (!DrawingActor) {
         UE_LOG(LogTemp, Warning, TEXT("NONE DrawingActor"));
         return;
     }
-    DrawingActor->UseAbility();
-}
-
-void AProjectPlayerController::DrawingObject_SetDrawingObject_Type(EColor CurChoiceColor)
-{
-    DrawingColor = CurChoiceColor;
 }
 
 void AProjectPlayerController::RegisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor)
@@ -238,28 +227,26 @@ void AProjectPlayerController::UnregisterDrawingActor(ADrawingBaseActor* _ADrawi
     TrackedActors.Remove(_ADrawingBaseActor);
 }
 
-void AProjectPlayerController::SpawnCubeAtHit(const FHitResult& Hit)
+void AProjectPlayerController::SpawnCubeAtHit()
 {
+    UE_LOG(LogTemp, Warning, TEXT("SPAWNCUBE"));
     FVector Normal = Hit.ImpactNormal;
-    UE_LOG(LogTemp, Warning, TEXT("%s"), *Normal.ToString());
+
+    //이거 나중에 능력 사용후에 그대로 사용하면됨
 
     constexpr float SurfaceThreshold = 0.7f;
 
     // 표면 법선 기준 회전
     FRotator SelectedSpawnRotation = UKismetMathLibrary::MakeRotFromZ(Normal);
 
-    FVector SelectedSpawnLocation = Hit.ImpactPoint + Normal * 2.f; // Z-Fighting 방지
-    //Z-Fighting : 두 엑터가 같은 z값에 있어서 서로 깜빡깜빡거리는것
-
-    //벽에 설치되는건 이걸 수정하면 됨
-    //z + 벡터 방향이 플레이어를 바라보게 소환
+    FVector SelectedSpawnLocation = Hit.ImpactPoint + Normal * 2.f;
 
     if (SpawnActorMap.Num() == 0) {
         UE_LOG(LogTemp, Warning, TEXT("SpawnActorClasses is 0"));
         return;
     }
     
-    TSubclassOf<AActor> SelectedClass = SpawnActorMap[DrawingColor]; //일단 0번째 강제 소환하게
+    TSubclassOf<AActor> SelectedClass = SpawnActorMap[DrawingColor];
     if (!SelectedClass) {
         UE_LOG(LogTemp, Warning, TEXT("NONE SpawnActorClass"));
         return;
@@ -270,8 +257,34 @@ void AProjectPlayerController::SpawnCubeAtHit(const FHitResult& Hit)
         SelectedSpawnLocation,
         SelectedSpawnRotation);
 
-    //AActor* = 이미 존재하는 액터(실체)
-    //TSubclassOf<AActor> = 앞으로 생성할 액터의 설계도(클래스)
+    if (ADrawingBaseActor* SpawnDrawing = Cast<ADrawingBaseActor>(SpawnActor))
+    {
+        Decal->Destroy();
+        SpawnDrawing->UseAbility();
+    }
+
+}
+
+void AProjectPlayerController::SpawnDecalAtHit()
+{
+    if (!DecalMaterialMap[DrawingColor]) return;
+
+    // 1. Slightly offset the location to avoid z-fighting
+    FVector DecalSpawnLocation = Hit.ImpactPoint + Hit.ImpactNormal * 1.f;
+
+    // 2. Base rotation: Forward aligned to impact normal
+    FRotator BaseRotation = UKismetMathLibrary::MakeRotFromZ(Hit.ImpactNormal);
+
+    // 4. Spawn decal actor
+    Decal = GetWorld()->SpawnActor<ADecalActor>(DecalSpawnLocation, BaseRotation);
+    if (!Decal) return;
+
+    // 5. Set decal material and size
+    Decal->SetDecalMaterial(DecalMaterialMap[DrawingColor]);
+    Decal->GetDecal()->DecalSize = FVector(200.f, 200.f, 200.f);
+
+    // 6. Optional lifespan
+    Decal->SetLifeSpan(0.f);
 }
 
 void AProjectPlayerController::SpecialCameraUse()

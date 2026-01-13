@@ -15,6 +15,7 @@ void ADrawingBaseActor::BeginPlay()
     if (AProjectPlayerController* PC = Cast<AProjectPlayerController>(GetWorld()->GetFirstPlayerController()))
     {
         PC->RegisterDrawingActor(this);
+        UE_LOG(LogTemp, Warning, TEXT("Add Reg"));
     }
 }
 
