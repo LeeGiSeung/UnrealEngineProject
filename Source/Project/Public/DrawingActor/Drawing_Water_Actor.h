@@ -16,5 +16,8 @@ class PROJECT_API ADrawing_Water_Actor : public ADrawingBaseActor
 
 public:
 	ADrawing_Water_Actor();
+	virtual void UseAbility() override;
+
+	virtual void Tick(float DeltaTime) override;
 
 };

@@ -258,7 +258,7 @@ void AProjectPlayerController::SpawnCubeAtHit(const FHitResult& Hit)
         UE_LOG(LogTemp, Warning, TEXT("SpawnActorClasses is 0"));
         return;
     }
-
+    
     TSubclassOf<AActor> SelectedClass = SpawnActorMap[DrawingColor]; //일단 0번째 강제 소환하게
     if (!SelectedClass) {
         UE_LOG(LogTemp, Warning, TEXT("NONE SpawnActorClass"));

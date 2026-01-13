@@ -16,5 +16,7 @@ class PROJECT_API ADrawing_Lightning_Actor : public ADrawingBaseActor
 	
 public:
 	ADrawing_Lightning_Actor();
+	virtual void UseAbility() override;
 
+	virtual void Tick(float DeltaTime) override;
 };

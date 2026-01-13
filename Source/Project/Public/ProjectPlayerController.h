@@ -143,6 +143,9 @@ public:
 	//TArray<TSubclassOf<AActor>> SpawnActorClasses;
 	TMap<EColor, TSubclassOf<AActor>> SpawnActorMap;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DrawingObject")
+	TMap<EColor, UMaterialInterface*> DecalMaterialMap;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DrawingObject")
 	EColor DrawingColor;
 
