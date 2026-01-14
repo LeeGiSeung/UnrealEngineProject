@@ -13,5 +13,11 @@ UCLASS()
 class PROJECT_API ADrawing_Decal_Actor : public ADrawingBaseActor
 {
 	GENERATED_BODY()
+
+	ADrawing_Decal_Actor();
+
+public:
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	
 };

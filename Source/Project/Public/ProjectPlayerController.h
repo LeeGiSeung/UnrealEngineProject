@@ -17,6 +17,7 @@ class ACameraActor;
 class UBaseAnimInstance;
 class ADrawingBaseActor;
 class UFWidget;
+class ADrawing_Decal_Actor;
 class ADecalActor;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActionTriggered);
@@ -78,6 +79,9 @@ public:
 	void RegisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor);
 	void UnregisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor);
 
+	void RegisterDrawingDecar(ADrawing_Decal_Actor* _ADrawingBaseDecar);
+	void UnregisterDrawingDecar(ADrawing_Decal_Actor* _ADrawingBaseDecar);
+
 	//~BluePrint Function
 	
 
@@ -134,28 +138,32 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "DrawingObject")
 	ADrawingBaseActor* DrawingActor;
 
-
+	//DrawingObject Hit Postion
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DrawingObject")
-	//TArray<TSubclassOf<AActor>> SpawnActorClasses;
 	TMap<EColor, TSubclassOf<AActor>> SpawnActorMap;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DrawingObject")
 	TMap<EColor, UMaterialInterface*> DecalMaterialMap;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DrawingObject")
-	EColor DrawingColor;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DrawingObject")
+	TMap<UMaterialInterface*, TSubclassOf<AActor>> DecarDrawingObjectMap;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DrawingObject")
+	//TSubclassOf<AActor> DecalActor;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DrawingObject")
-	TSubclassOf<AActor> DecalActor;
+	EColor DrawingColor;
 	
-	//DrawingObject Hit Postion
-	FHitResult Hit;
+	FHitResult Hit; //공유되는 hit
+
 	ADecalActor* Decal;
 	//DrawingObject Hit Postion
 	
 	float CheckInterval = 0.0f;
 	float CheckAccTime = 0.f;
 	TArray<TWeakObjectPtr<ADrawingBaseActor>> TrackedActors;
+
+	TArray<TWeakObjectPtr<ADrawing_Decal_Actor>> TrackedDecalActors;
 
 	float DefaultWalkSpeed = 600.f;
 	float DashSpeed = 1100.f;

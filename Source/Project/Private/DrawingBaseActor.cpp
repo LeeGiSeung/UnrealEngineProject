@@ -3,9 +3,11 @@
 
 #include "DrawingBaseActor.h"
 #include "ProjectPlayerController.h"
+#include "Components/BoxComponent.h"
 
 ADrawingBaseActor::ADrawingBaseActor()
 {
+
 }
 
 void ADrawingBaseActor::BeginPlay()
@@ -15,8 +17,9 @@ void ADrawingBaseActor::BeginPlay()
     if (AProjectPlayerController* PC = Cast<AProjectPlayerController>(GetWorld()->GetFirstPlayerController()))
     {
         PC->RegisterDrawingActor(this);
-        UE_LOG(LogTemp, Warning, TEXT("Add Reg"));
+        //UE_LOG(LogTemp, Warning, TEXT("Add Reg"));
     }
+
 }
 
 void ADrawingBaseActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -41,4 +44,16 @@ void ADrawingBaseActor::SetHighlight(bool bEnable)
 
     RenderMesh->SetRenderCustomDepth(bEnable);
     RenderMesh->SetCustomDepthStencilValue(1); // 1¹ø ID
+}
+
+
+
+void ADrawingBaseActor::SetDecalActor(ADecalActor* _Decal)
+{
+    Decal = _Decal;
+}
+
+ADecalActor* ADrawingBaseActor::GetDecalActor()
+{
+    return Decal;
 }

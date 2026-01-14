@@ -6,6 +6,8 @@
 #include "BaseActor.h"
 #include "DrawingBaseActor.generated.h"
 
+class UBoxComponent;
+class ADecalActor;
 /**
  * 
  */
@@ -25,6 +27,9 @@ public:
 
 	virtual void SetHighlight(bool bEnable);
 
+	void SetDecalActor(ADecalActor* Decal);
+	ADecalActor* GetDecalActor();
+	ADecalActor* Decal;
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UMeshComponent* RenderMesh;

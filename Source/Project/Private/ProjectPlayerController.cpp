@@ -27,6 +27,7 @@
 #include "FWidget.h"
 #include "Engine/DecalActor.h"
 #include "Components/DecalComponent.h"
+#include "DrawingActor/Drawing_Decal_Actor.h"
 
 
 AProjectPlayerController::AProjectPlayerController()
@@ -169,10 +170,9 @@ void AProjectPlayerController::SpawnDecalActor(TArray<FVector2D> _DrawPosition, 
     }
 
     FVector2D Sum(0.f, 0.f);
-    for (const FVector2D& Pos : DrawPosition)
-    {
-        Sum += Pos;
-    }
+
+    for (const FVector2D& Pos : DrawPosition) Sum += Pos;
+
     FVector2D Center = Sum / DrawPosition.Num();
 
     FVector WorldLocation, WorldDirection;
@@ -195,7 +195,6 @@ void AProjectPlayerController::SpawnDecalActor(TArray<FVector2D> _DrawPosition, 
 
     if (bHit && Hit.GetActor() && Hit.GetActor()->ActorHasTag(TEXT("DrawAble"))) //맞았고, 해당 위치에 액터가 있고, 액터가 그릴 수 있는 액터면
     {
-        //SpawnCubeAtHit(); //액터 소환
         SpawnDecalAtHit();
     }
     else
@@ -207,12 +206,13 @@ void AProjectPlayerController::SpawnDecalActor(TArray<FVector2D> _DrawPosition, 
 void AProjectPlayerController::DrawingObject_UseAbility()
 {
 
-    SpawnCubeAtHit();
-
     if (!DrawingActor) {
         UE_LOG(LogTemp, Warning, TEXT("NONE DrawingActor"));
         return;
     }
+
+    DrawingActor->UseAbility();
+    DrawingActor->GetDecalActor()->Destroy();
 }
 
 void AProjectPlayerController::RegisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor)
@@ -227,12 +227,22 @@ void AProjectPlayerController::UnregisterDrawingActor(ADrawingBaseActor* _ADrawi
     TrackedActors.Remove(_ADrawingBaseActor);
 }
 
+void AProjectPlayerController::RegisterDrawingDecar(ADrawing_Decal_Actor* _ADrawingBaseDecar)
+{
+    TrackedDecalActors.AddUnique(_ADrawingBaseDecar);
+    UE_LOG(LogTemp, Warning, TEXT("Size : %f"), TrackedDecalActors.Num());
+}
+
+void AProjectPlayerController::UnregisterDrawingDecar(ADrawing_Decal_Actor* _ADrawingBaseDecar)
+{
+    TrackedDecalActors.Remove(_ADrawingBaseDecar);
+    UE_LOG(LogTemp, Warning, TEXT("Un Size : %f"), TrackedDecalActors.Num());
+}
+
 void AProjectPlayerController::SpawnCubeAtHit()
 {
     UE_LOG(LogTemp, Warning, TEXT("SPAWNCUBE"));
     FVector Normal = Hit.ImpactNormal;
-
-    //이거 나중에 능력 사용후에 그대로 사용하면됨
 
     constexpr float SurfaceThreshold = 0.7f;
 
@@ -257,11 +267,9 @@ void AProjectPlayerController::SpawnCubeAtHit()
         SelectedSpawnLocation,
         SelectedSpawnRotation);
 
-    if (ADrawingBaseActor* SpawnDrawing = Cast<ADrawingBaseActor>(SpawnActor))
-    {
-        Decal->Destroy();
-        SpawnDrawing->UseAbility();
-    }
+    ADrawingBaseActor* DrawingSpawnActor = Cast<ADrawingBaseActor>(SpawnActor);
+
+    DrawingSpawnActor->SetDecalActor(Decal);
 
 }
 
@@ -285,6 +293,17 @@ void AProjectPlayerController::SpawnDecalAtHit()
 
     // 6. Optional lifespan
     Decal->SetLifeSpan(0.f);
+
+    // 7. Random rotation around decal forward axis (impact normal)
+    const float RandomAngle = FMath::FRandRange(0.f, 360.f);
+    const FVector RotationAxis = Hit.ImpactNormal;
+
+    FQuat RandomQuat(RotationAxis, FMath::DegreesToRadians(RandomAngle));
+
+    // World 기준 회전 추가
+    Decal->AddActorWorldRotation(RandomQuat);
+
+    SpawnCubeAtHit();
 }
 
 void AProjectPlayerController::SpecialCameraUse()
@@ -296,17 +315,11 @@ void AProjectPlayerController::SpecialCameraUse()
 
     FVector PlayerLocation = PCharacter->GetActorLocation();
 
-    //CameraLocation.X = PlayerLocation.X - 15.f;
-    //FaceCameraAnchor->SetWorldLocation(CameraLocation);
-
     //카메라를 삼각대 위치에 놓는다.
     FaceCameraActor->SetActorLocation(CameraLocation);
 
     ////카메라 위치에서 캐릭터의 Head 소켓으로 향하는 회전을 얻는다.
-    //FRotator LookAtRot = UKismetMathLibrary::FindLookAtRotation(
-    //    CameraLocation,
-    //    PCharacter->GetMesh()->GetSocketLocation(TEXT("head"))
-    //);
+
 
     FVector LookTarget = PCharacter->GetActorLocation();
     LookTarget.Z += 80.f; // 눈높이
@@ -336,8 +349,9 @@ void AProjectPlayerController::SpecialCameraUse()
 void AProjectPlayerController::Tick(float DeltaTime) {
 
     Super::Tick(DeltaTime);
-    //Drawing Object 사용
+    //Drawing Object FWidget
     CheckAccTime += DeltaTime;
+
     if (CheckAccTime >= CheckInterval) {
         CheckAccTime = 0.f;
 
@@ -349,50 +363,37 @@ void AProjectPlayerController::Tick(float DeltaTime) {
                 continue;
             }
 
-            //
-            DrawingActor = TrackedActors[i].Get();
+            FVector Start = PCamera->GetComponentLocation();
+            FVector End = Start + PCamera->GetForwardVector() * 500.f;
+
+            FHitResult DrawingObjectHit;
+            FCollisionQueryParams Params;
+            Params.AddIgnoredActor(this);
+
+            bool bHit = GetWorld()->LineTraceSingleByChannel(
+                DrawingObjectHit,
+                Start,
+                End,
+                ECC_Visibility,
+                Params
+            );
+
+            DrawingActor = Cast<ADrawingBaseActor>(DrawingObjectHit.GetActor());
 
             if (!DrawingActor) continue;
 
-            UStaticMeshComponent* MeshComp = DrawingActor->FindComponentByClass<UStaticMeshComponent>();
+            //Decar과 CubeActor는 따로임 이 두개를 묶어서 진행해야함
 
-            if (!MeshComp) UE_LOG(LogTemp, Warning, TEXT("No UStaticMeshComponent"));
-
-            bool bVisible = MeshComp && MeshComp->WasRecentlyRendered(0.1f); //UPrimitiveComponent에서만 가능한 함수 이번에 그려졌냐를 검사
-
-            if (!InteractWidget) {
-                //UE_LOG(LogTemp, Warning, TEXT("NO WIDGET"));
-                continue;
-            }
-
-            if (bVisible)
+            if (DrawingActor)
             {
+                UE_LOG(LogTemp,Warning,TEXT("Drawing Actor Name : %s"), *DrawingActor->GetName());
                 bFindObject = true;
-                FVector WorldLocation = DrawingActor->GetActorLocation();
-                FVector2D ScreenPos;
-
-                //UE_LOG(LogTemp, Warning, TEXT("VISIBLE"));
-
-                if (ProjectWorldLocationToScreen(WorldLocation, ScreenPos))
-                {
-                    InteractWidget->SetPositionInViewport(ScreenPos, true);
-                    InteractWidget->SetVisibility(ESlateVisibility::Visible);
-                    bFindObject = true;
-
-                    //UE_LOG(LogTemp, Warning, TEXT("SEE WIDGET"));
-
-                    break;
-                }
-            }
-            else
-            {
-                bFindObject = false;
-                InteractWidget->SetVisibility(ESlateVisibility::Hidden);
-                //UE_LOG(LogTemp, Warning, TEXT("NO OBJECT"));
             }
         }
     }
     
+    if (!DrawingActor) bFindObject = false;
+
     //흑백 상태
     if (IsBlackWhite) {
         const float CurrentTime = FPlatformTime::Seconds();

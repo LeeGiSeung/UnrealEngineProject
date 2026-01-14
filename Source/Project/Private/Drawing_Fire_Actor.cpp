@@ -5,6 +5,7 @@
 
 ADrawing_Fire_Actor::ADrawing_Fire_Actor()
 {
+	PrimaryActorTick.bCanEverTick = true;
 	RenderMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 }
 
