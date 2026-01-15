@@ -154,7 +154,7 @@ void UBaseUserWidget::ChangeBrushStartColor(EColor _color, UMaterialInstanceDyna
 
     if (_Brush)
     {
-        UE_LOG(LogTemp, Warning, TEXT("MATEaaaaaR"));
+        UE_LOG(LogTemp, Warning, TEXT("BrushColor Change"));
         _Brush->SetVectorParameterValue(
             FName("Color"),                 // ParameterName
             CenterColor
