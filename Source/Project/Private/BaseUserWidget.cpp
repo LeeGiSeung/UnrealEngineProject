@@ -12,6 +12,7 @@
 #include "Modules/ModuleManager.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
+#include "Colorenum/Colorenum.h"
 
 void UBaseUserWidget::RecordPosition(FVector2D Pos)
 {
@@ -95,5 +96,69 @@ void UBaseUserWidget::FinishDrawing()
 {
     OnDrawFinished.Broadcast();
 
+}
+
+void UBaseUserWidget::ChangeCenterCursorColor(EColor _color)
+{
+    FLinearColor CenterColor;
+
+    switch (_color)
+    {
+    case EColor::RED:
+        CenterColor = FLinearColor(1.f, 0.f, 0.f, 1.f);
+        break;
+    case EColor::BLUE:
+        CenterColor = FLinearColor(0.f, 0.f, 1.f, 1.f);
+        break;
+    case EColor::YELLOW:
+        CenterColor = FLinearColor(1.f, 1.f, 0.f, 1.f);
+        break;
+    case EColor::GREEN:
+        CenterColor = FLinearColor(0.f, 1.f, 0.f, 1.f);
+        break;
+    default:
+        break;
+    }
+
+    if (CenterCursorMaterial)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("MATEaaaaaR"));
+        CenterCursorMaterial->SetVectorParameterValue(
+            FName("Color"),                 // ParameterName
+            CenterColor
+        );
+    }
+}
+
+void UBaseUserWidget::ChangeBrushStartColor(EColor _color, UMaterialInstanceDynamic* _Brush)
+{
+    FLinearColor CenterColor;
+
+    switch (_color)
+    {
+    case EColor::RED:
+        CenterColor = FLinearColor(1.f, 0.f, 0.f, 1.f);
+        break;
+    case EColor::BLUE:
+        CenterColor = FLinearColor(0.f, 0.f, 1.f, 1.f);
+        break;
+    case EColor::YELLOW:
+        CenterColor = FLinearColor(1.f, 1.f, 0.f, 1.f);
+        break;
+    case EColor::GREEN:
+        CenterColor = FLinearColor(0.f, 1.f, 0.f, 1.f);
+        break;
+    default:
+        break;
+    }
+
+    if (_Brush)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("MATEaaaaaR"));
+        _Brush->SetVectorParameterValue(
+            FName("Color"),                 // ParameterName
+            CenterColor
+        );
+    }
 }
 

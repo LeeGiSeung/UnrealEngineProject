@@ -148,11 +148,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DrawingObject")
 	TMap<UMaterialInterface*, TSubclassOf<AActor>> DecarDrawingObjectMap;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DrawingObject")
-	//TSubclassOf<AActor> DecalActor;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DrawingObject")
 	EColor DrawingColor;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerCenterCurSor")
+	//UMaterialInstanceDynamic* CenterCursorMaterial;
 	
 	FHitResult Hit; //공유되는 hit
 
@@ -167,6 +167,7 @@ public:
 
 	float DefaultWalkSpeed = 600.f;
 	float DashSpeed = 1100.f;
+	float ViewDistance = 10000.f;
 	bool bIsDashing = false;
 
 	void SpawnCubeAtHit();

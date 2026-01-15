@@ -9,6 +9,7 @@
 #include "BaseUserWidget.generated.h"
 
 class UTextureRenderTarget2D;
+class UMaterialInstanceDynamic;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDrawFinished);
 
@@ -39,4 +40,16 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void FinishDrawing();
+
+	UFUNCTION(BlueprintCallable, Category = "CenterCursor")
+	void ChangeCenterCursorColor(EColor _color);
+
+	UFUNCTION(BlueprintCallable, Category = "CenterCursor")
+	void ChangeBrushStartColor(EColor _color, UMaterialInstanceDynamic* _Brush);
+
+	UPROPERTY(BlueprintReadWrite, Category = "CenterCursor")
+	UMaterialInstanceDynamic* CenterCursorMaterial;
+
+	UPROPERTY(BlueprintReadWrite, Category = "CenterCursor")
+	UMaterialInstanceDynamic* BrushMaterial;
 };

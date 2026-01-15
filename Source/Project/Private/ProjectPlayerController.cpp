@@ -28,6 +28,7 @@
 #include "Engine/DecalActor.h"
 #include "Components/DecalComponent.h"
 #include "DrawingActor/Drawing_Decal_Actor.h"
+#include "DrawDebugHelpers.h"
 
 
 AProjectPlayerController::AProjectPlayerController()
@@ -261,7 +262,7 @@ void AProjectPlayerController::SpawnCubeAtHit()
         UE_LOG(LogTemp, Warning, TEXT("NONE SpawnActorClass"));
         return;
     }
-
+    //나중에 유동적 사이즈로 변경
     AActor* SpawnActor = GetWorld()->SpawnActor<AActor>(
         SelectedClass, 
         SelectedSpawnLocation,
@@ -289,7 +290,7 @@ void AProjectPlayerController::SpawnDecalAtHit()
 
     // 5. Set decal material and size
     Decal->SetDecalMaterial(DecalMaterialMap[DrawingColor]);
-    Decal->GetDecal()->DecalSize = FVector(200.f, 200.f, 200.f);
+    Decal->GetDecal()->DecalSize = FVector(300.f, 300.f, 300.f); //나중에 유동적 사이즈로 변경
 
     // 6. Optional lifespan
     Decal->SetLifeSpan(0.f);
@@ -364,7 +365,7 @@ void AProjectPlayerController::Tick(float DeltaTime) {
             }
 
             FVector Start = PCamera->GetComponentLocation();
-            FVector End = Start + PCamera->GetForwardVector() * 500.f;
+            FVector End = Start + PCamera->GetForwardVector() * ViewDistance;
 
             FHitResult DrawingObjectHit;
             FCollisionQueryParams Params;
@@ -389,6 +390,30 @@ void AProjectPlayerController::Tick(float DeltaTime) {
                 UE_LOG(LogTemp,Warning,TEXT("Drawing Actor Name : %s"), *DrawingActor->GetName());
                 bFindObject = true;
             }
+
+            if (bHit)
+            {
+                //DrawDebugLine(
+                //    GetWorld(),
+                //    Start,
+                //    DrawingObjectHit.ImpactPoint,
+                //    FColor::Green,
+                //    false,
+                //    1.f,
+                //    0,
+                //    2.f
+                //);
+
+                DrawDebugPoint(
+                    GetWorld(),
+                    DrawingObjectHit.ImpactPoint,
+                    10.f,
+                    FColor::White,
+                    false,
+                    1.f
+                );
+            }
+
         }
     }
     

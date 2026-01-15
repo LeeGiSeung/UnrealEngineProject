@@ -6,6 +6,8 @@
 #include "BaseUserWidget.h"
 #include "FWidget.generated.h"
 
+class UMaterialInstanceDynamic;
+
 /**
  * 
  */
