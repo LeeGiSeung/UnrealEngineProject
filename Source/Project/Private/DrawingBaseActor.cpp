@@ -57,3 +57,8 @@ ADecalActor* ADrawingBaseActor::GetDecalActor()
 {
     return Decal;
 }
+
+void ADrawingBaseActor::SetInUse()
+{
+    bInUse = true;
+}

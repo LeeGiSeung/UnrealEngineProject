@@ -30,6 +30,11 @@ public:
 	void SetDecalActor(ADecalActor* Decal);
 	ADecalActor* GetDecalActor();
 	ADecalActor* Decal;
+
+	void SetInUse();
+
+	bool bInUse = false;
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UMeshComponent* RenderMesh;

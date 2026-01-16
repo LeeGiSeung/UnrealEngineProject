@@ -2,7 +2,8 @@
 
 
 #include "DrawingActor/Drawing_Water_Actor.h"
-
+//#include "WaterBodyCustom.h"
+#include "Engine/World.h"
 
 
 ADrawing_Water_Actor::ADrawing_Water_Actor()
@@ -17,5 +18,29 @@ void ADrawing_Water_Actor::Tick(float DeltaTime)
 
 void ADrawing_Water_Actor::UseAbility()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Water"));
+    UWorld* World = GetWorld();
+    if (!World) return;
+
+    //AWaterBodyCustom* TestPtr = nullptr;
+
+    //FActorSpawnParameters SpawnParams;
+    //SpawnParams.Owner = this;
+    //SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+    //AWaterBodyCustom* WaterBody = World->SpawnActor<AWaterBodyCustom>(
+    //    AWaterBodyCustom::StaticClass(),
+    //    GetActorLocation(),
+    //    FRotator::ZeroRotator,
+    //    SpawnParams
+    //);
+
+    //if (WaterBody)
+    //{
+    //    WaterBody->SetActorScale3D(FVector(1.f));
+    //    UE_LOG(LogTemp, Log, TEXT("Water spawned at %s"), *GetActorLocation().ToString());
+    //}
+    //else
+    //{
+    //    UE_LOG(LogTemp, Warning, TEXT("Failed to spawn water."));
+    //}
 }
