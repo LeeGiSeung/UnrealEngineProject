@@ -240,6 +240,11 @@ void AProjectPlayerController::UnregisterDrawingDecar(ADrawing_Decal_Actor* _ADr
     UE_LOG(LogTemp, Warning, TEXT("Un Size : %f"), TrackedDecalActors.Num());
 }
 
+FHitResult AProjectPlayerController::GetHit()
+{
+    return Hit;
+}
+
 void AProjectPlayerController::SpawnCubeAtHit()
 {
     UE_LOG(LogTemp, Warning, TEXT("SPAWNCUBE"));
@@ -387,7 +392,7 @@ void AProjectPlayerController::Tick(float DeltaTime) {
 
             if (DrawingActor)
             {
-                UE_LOG(LogTemp,Warning,TEXT("Drawing Actor Name : %s"), *DrawingActor->GetName());
+                //UE_LOG(LogTemp,Warning,TEXT("Drawing Actor Name : %s"), *DrawingActor->GetName());
                 bFindObject = true;
             }
 

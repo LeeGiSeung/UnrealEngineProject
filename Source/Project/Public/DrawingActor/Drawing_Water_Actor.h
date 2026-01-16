@@ -4,7 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "DrawingBaseActor.h"
+#include "Engine/HitResult.h"
 #include "Drawing_Water_Actor.generated.h"
+
+class UNiagaraSystem;
+class UNiagaraComponent;
 
 /**
  * 
@@ -19,5 +23,18 @@ public:
 	virtual void UseAbility() override;
 
 	virtual void Tick(float DeltaTime) override;
+	virtual void BeginPlay() override;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Water")
+	UNiagaraSystem* WaterNiagaraEffect;
+
+	FHitResult hit;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Water")
+	float WaterTime = 20.f;
+
+	float CurTime = 0.f;
+
+	bool bUseAbility;
 
 };

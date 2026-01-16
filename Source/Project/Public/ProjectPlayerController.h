@@ -170,6 +170,8 @@ public:
 	float ViewDistance = 10000.f;
 	bool bIsDashing = false;
 
+	FHitResult GetHit();
+
 	void SpawnCubeAtHit();
 	void SpawnDecalAtHit();
 
