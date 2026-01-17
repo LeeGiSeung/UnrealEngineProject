@@ -231,13 +231,11 @@ void AProjectPlayerController::UnregisterDrawingActor(ADrawingBaseActor* _ADrawi
 void AProjectPlayerController::RegisterDrawingDecar(ADrawing_Decal_Actor* _ADrawingBaseDecar)
 {
     TrackedDecalActors.AddUnique(_ADrawingBaseDecar);
-    UE_LOG(LogTemp, Warning, TEXT("Size : %f"), TrackedDecalActors.Num());
 }
 
 void AProjectPlayerController::UnregisterDrawingDecar(ADrawing_Decal_Actor* _ADrawingBaseDecar)
 {
     TrackedDecalActors.Remove(_ADrawingBaseDecar);
-    UE_LOG(LogTemp, Warning, TEXT("Un Size : %f"), TrackedDecalActors.Num());
 }
 
 FHitResult AProjectPlayerController::GetHit()
@@ -247,7 +245,7 @@ FHitResult AProjectPlayerController::GetHit()
 
 void AProjectPlayerController::SpawnCubeAtHit()
 {
-    UE_LOG(LogTemp, Warning, TEXT("SPAWNCUBE"));
+
     FVector Normal = Hit.ImpactNormal;
 
     constexpr float SurfaceThreshold = 0.7f;

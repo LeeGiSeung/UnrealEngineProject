@@ -19,4 +19,7 @@ public:
 	virtual void UseAbility() override;
 
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void BeginPlay() override;
+
 };

@@ -122,7 +122,6 @@ void UBaseUserWidget::ChangeCenterCursorColor(EColor _color)
 
     if (CenterCursorMaterial)
     {
-        UE_LOG(LogTemp, Warning, TEXT("MATEaaaaaR"));
         CenterCursorMaterial->SetVectorParameterValue(
             FName("Color"),                 // ParameterName
             CenterColor
@@ -154,7 +153,6 @@ void UBaseUserWidget::ChangeBrushStartColor(EColor _color, UMaterialInstanceDyna
 
     if (_Brush)
     {
-        UE_LOG(LogTemp, Warning, TEXT("BrushColor Change"));
         _Brush->SetVectorParameterValue(
             FName("Color"),                 // ParameterName
             CenterColor
