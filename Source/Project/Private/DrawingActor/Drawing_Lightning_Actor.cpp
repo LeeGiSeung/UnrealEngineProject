@@ -38,6 +38,17 @@ void ADrawing_Lightning_Actor::UseAbility()
     FCollisionQueryParams Params;
     Params.AddIgnoredActor(this); // 자기 자신 무시
 
+    DrawDebugSphere(
+        GetWorld(),
+        GetActorLocation(),
+        Sphere.GetSphereRadius(),
+        32,               // 세그먼트 수
+        FColor::Green,    // 색상
+        false,            // 지속 시간 무한 아님
+        2.f,              // 지속 시간
+        0,                // 깊이 우선 표시
+        2.f               // 선 두께
+    );
 
     bool bHit = GetWorld()->OverlapMultiByChannel(
         Overlaps,

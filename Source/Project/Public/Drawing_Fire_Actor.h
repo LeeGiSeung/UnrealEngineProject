@@ -6,6 +6,9 @@
 #include "DrawingBaseActor.h"
 #include "Drawing_Fire_Actor.generated.h"
 
+class UNiagaraSystem;
+class UNiagaraComponent;
+
 /**
  * 
  */
@@ -20,6 +23,16 @@ public:
 
 public:
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Fire")
+	UNiagaraSystem* FireNiagaraEffect;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Fire")
+	float FireTime = 20.f;
+	FHitResult hit;
+
+	float CurTime = 0.f;
+	bool bUseAbility;
 
 protected:
 	virtual void BeginPlay() override;
