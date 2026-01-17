@@ -27,41 +27,58 @@ void ADrawing_Lightning_Actor::BeginPlay()
 
 }
 
+
 void ADrawing_Lightning_Actor::UseAbility()
 {
-    TArray<FOverlapResult> Overlaps;
-    TArray<AActor*> ElectrialActor;
 
-    FCollisionShape Sphere = FCollisionShape::MakeSphere(100);
+    TArray<FOverlapResult> Overlaps;
+    TArray<AActor*> ElectricalActors;
+
+    FCollisionShape Sphere = FCollisionShape::MakeSphere(100.f); // 범위 조절 가능
     FCollisionQueryParams Params;
-    Params.AddIgnoredActor(this);
+    Params.AddIgnoredActor(this); // 자기 자신 무시
+
 
     bool bHit = GetWorld()->OverlapMultiByChannel(
         Overlaps,
         GetActorLocation(),
         FQuat::Identity,
-        ECC_Pawn,
+        ECC_Pawn, // 필요 시 ObjectType 조정 가능
         Sphere,
         Params
     );
+
 
     if (bHit)
     {
         for (const FOverlapResult& Result : Overlaps)
         {
             AActor* HitActor = Result.GetActor();
-            if (HitActor)
+            if (!HitActor) continue; // 안전 체크
+
+            // 3-1. Actor Tags 기반 태그 체크
+            if (HitActor->Tags.Contains(FName("Electrical")))
             {
-                ElectrialActor.AddUnique(HitActor);
-                UE_LOG(LogTemp, Warning, TEXT("Found: %s"), *HitActor->GetName());
+                ElectricalActors.AddUnique(HitActor);
             }
         }
     }
 
-    for (AActor* EleActor : ElectrialActor) {
-        Cast<AElectricalDevice>(EleActor)->Use_Function();
+
+    for (AActor* EleActor : ElectricalActors)
+    {
+        if (AElectricalDevice* Device = Cast<AElectricalDevice>(EleActor))
+        {
+            Device->Use_Function();
+        }
+        else
+        {
+            // Actor Tags는 Electrical인데 C++ 클래스가 아닐 수 있음
+            UE_LOG(LogTemp, Warning, TEXT("%s has 'Electrical' tag but is not an ElectricalDevice!"), *EleActor->GetName());
+        }
     }
 
-    Destroy(); //본인 바로 삭제
 
+    Destroy();
 }
+

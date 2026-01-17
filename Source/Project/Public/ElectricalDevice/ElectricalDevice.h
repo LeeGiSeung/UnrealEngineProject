@@ -5,8 +5,10 @@
 #include "CoreMinimal.h"
 #include "BaseActor.h"
 #include "GameplayTagContainer.h"
-#include "ElectricalDevice.generated.h"
+#include "GameplayTagAssetInterface.h"
 
+
+#include "ElectricalDevice.generated.h"
 /**
  * 
  */
