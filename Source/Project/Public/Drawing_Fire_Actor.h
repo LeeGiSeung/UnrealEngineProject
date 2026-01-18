@@ -24,6 +24,8 @@ public:
 public:
 	virtual void Tick(float DeltaTime) override;
 
+	bool AreAllBurnActorsFinished();
+
 	UPROPERTY(BlueprintReadWrite, Category = "Fire")
 	UNiagaraSystem* FireNiagaraEffect;
 
@@ -31,7 +33,14 @@ public:
 	float FireTime = 20.f;
 	FHitResult hit;
 
+	TArray<AActor*> BurnActors;
+	UNiagaraComponent* FireComp;
+
+
 	float CurTime = 0.f;
+
+	float BurnLimitTime = 3.f;
+
 	bool bUseAbility;
 
 protected:

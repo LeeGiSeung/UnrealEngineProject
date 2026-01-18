@@ -10,7 +10,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "ProjectPlayerController.h"
-
+#include "BurnActor/BurnActor.h"
 
 ADrawing_Fire_Actor::ADrawing_Fire_Actor()
 {
@@ -22,14 +22,24 @@ ADrawing_Fire_Actor::ADrawing_Fire_Actor()
 
 void ADrawing_Fire_Actor::Tick(float DeltaTime)
 {
-    Super::Tick(DeltaTime);
 
     if (!bUseAbility) return;
-    if (CurTime >= FireTime) Destroy();
+    Super::Tick(DeltaTime);
 
-    CurTime += DeltaTime;
+    if (BurnActors.Num() == 0) {
+        CurTime += DeltaTime;
+        if (CurTime > BurnLimitTime) {
+            Destroy(); //만약 주위에 탈게 없으면 3초 동안 타다 끝남
+            FireComp->Deactivate();
+        }
+    }
 
- 
+    if (AreAllBurnActorsFinished() && BurnActors.Num() != 0) {
+        UE_LOG(LogTemp, Warning, TEXT("EMPTY"));
+        BurnActors.Empty();
+        UE_LOG(LogTemp, Warning, TEXT("%f"), BurnActors.Num());
+    }
+
 }
 
 void ADrawing_Fire_Actor::BeginPlay()
@@ -60,14 +70,14 @@ void ADrawing_Fire_Actor::UseAbility()
         //CurLocation.Z += 100; //이것도 나중에 유동적 사이즈 되면 수정할거
         FVector Forward = GetActorForwardVector();
 
-        UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-            GetWorld(),
+        FireComp = UNiagaraFunctionLibrary::SpawnSystemAttached(
             FireNiagaraEffect,
+            GetRootComponent(),
+            NAME_None,
             hit.ImpactPoint,
             SelectedSpawnRotation,
-            FVector(1.f),     // Scale
-            true,             // AutoDestroy
-            true              // AutoActivate
+            EAttachLocation::KeepWorldPosition,
+            true // AutoDestroy
         );
 
         bUseAbility = true;
@@ -77,4 +87,75 @@ void ADrawing_Fire_Actor::UseAbility()
     RenderMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision); // 충돌도 없게
     RenderMesh->SetHiddenInGame(true);
 
+    TArray<FOverlapResult> Overlaps;
+    BurnActors;
+
+    FCollisionShape Sphere = FCollisionShape::MakeSphere(100.f); // 범위 조절 가능
+    FCollisionQueryParams Params;
+    Params.AddIgnoredActor(this); // 자기 자신 무시
+
+    DrawDebugSphere(
+        GetWorld(),
+        GetActorLocation(),
+        Sphere.GetSphereRadius(),
+        32,               // 세그먼트 수
+        FColor::Green,    // 색상
+        false,            // 지속 시간 무한 아님
+        2.f,              // 지속 시간
+        0,                // 깊이 우선 표시
+        2.f               // 선 두께
+    );
+
+    bool bHit = GetWorld()->OverlapMultiByChannel(
+        Overlaps,
+        GetActorLocation(),
+        FQuat::Identity,
+        ECC_Pawn, // 필요 시 ObjectType 조정 가능
+        Sphere,
+        Params
+    );
+
+
+    if (bHit)
+    {
+        for (const FOverlapResult& Result : Overlaps)
+        {
+            AActor* HitActor = Result.GetActor();
+            if (!HitActor) continue; // 안전 체크
+
+            // 3-1. Actor Tags 기반 태그 체크
+            if (HitActor->Tags.Contains(FName("Burn")))
+            {
+                BurnActors.AddUnique(HitActor);
+            }
+        }
+    }
+
+
+    for (AActor* b : BurnActors)
+    {
+        if (ABurnActor* burnActor = Cast<ABurnActor>(b))
+        {
+            UE_LOG(LogTemp, Warning, TEXT("BURN"));
+            burnActor->SetIsBurn();
+        }
+        else
+        {
+            // Actor Tags는 Electrical인데 C++ 클래스가 아닐 수 있음
+            //UE_LOG(LogTemp, Warning, TEXT("%s has 'Electrical' tag but is not an ElectricalDevice!"), *EleActor->GetName());
+        }
+    }
+
+}
+
+bool ADrawing_Fire_Actor::AreAllBurnActorsFinished()
+{
+    for (AActor* Burn : BurnActors)
+    {
+        if (IsValid(Burn) && !Burn->IsActorBeingDestroyed())
+        {
+            return false;
+        }
+    }
+    return true;
 }

@@ -51,8 +51,6 @@ void ADrawing_Water_Actor::Tick(float DeltaTime)
             FVector Sc = HitActor->GetActorScale3D();
             Sc.Z += DeltaTime * 0.5f;
             HitActor->SetActorScale3D(Sc);
-
-            //UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *HitActor->GetName());
         }
     }
 
