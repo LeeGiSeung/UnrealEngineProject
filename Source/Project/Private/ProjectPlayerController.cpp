@@ -162,6 +162,28 @@ void AProjectPlayerController::SpawnDecalActor(TArray<FVector2D> _DrawPosition, 
 {
     DrawPosition = _DrawPosition;
 
+    FVector2D MinScale = FVector2D(FLT_MAX, FLT_MAX);
+    FVector2D MaxScale = FVector2D(-FLT_MAX, -FLT_MAX);
+
+    for (const FVector2D& P : _DrawPosition)
+    {
+        MinScale.X = FMath::Min(MinScale.X, P.X);
+        MinScale.Y = FMath::Min(MinScale.Y, P.Y);
+
+        MaxScale.X = FMath::Max(MaxScale.X, P.X);
+        MaxScale.Y = FMath::Max(MaxScale.Y, P.Y);
+    }
+
+    FVector2D Size = MaxScale - MinScale;
+
+    float BaseWidth = 100.f;
+    float BaseHeight = 100.f;
+
+    float ScaleX = Size.X / BaseWidth;
+    float ScaleY = Size.Y / BaseHeight;
+
+    SetActorSpawnScale(ScaleX, ScaleY);
+
     DrawingColor = CurChoiceColor;
 
     if (DrawPosition.Num() == 0)
@@ -238,6 +260,24 @@ void AProjectPlayerController::UnregisterDrawingDecar(ADrawing_Decal_Actor* _ADr
     TrackedDecalActors.Remove(_ADrawingBaseDecar);
 }
 
+FVector AProjectPlayerController::GetActorSpawnScale()
+{
+    FVector result = FVector(ActorSpawnScaleX, ActorSpawnScaleY, FMath::Min(ActorSpawnScaleX, ActorSpawnScaleY));
+
+    return result;
+}
+
+void AProjectPlayerController::SetActorSpawnScale(float _ActorSpawnScaleX, float _ActorSpawnScaleY)
+{
+    ActorSpawnScaleX = _ActorSpawnScaleX;
+    ActorSpawnScaleY = _ActorSpawnScaleY;
+
+    float limit = 5;
+
+    if (ActorSpawnScaleY > limit) ActorSpawnScaleX = limit;
+    if (ActorSpawnScaleY > limit) ActorSpawnScaleY = limit;
+}
+
 FHitResult AProjectPlayerController::GetHit()
 {
     return Hit;
@@ -265,11 +305,16 @@ void AProjectPlayerController::SpawnCubeAtHit()
         UE_LOG(LogTemp, Warning, TEXT("NONE SpawnActorClass"));
         return;
     }
-    //나중에 유동적 사이즈로 변경
+    
     AActor* SpawnActor = GetWorld()->SpawnActor<AActor>(
         SelectedClass, 
         SelectedSpawnLocation,
         SelectedSpawnRotation);
+
+    //유동적 사이즈로 변경
+    if (SpawnActor) {
+        SpawnActor->SetActorScale3D(GetActorSpawnScale());
+    }
 
     ADrawingBaseActor* DrawingSpawnActor = Cast<ADrawingBaseActor>(SpawnActor);
 
@@ -303,6 +348,11 @@ void AProjectPlayerController::SpawnDecalAtHit()
     const FVector RotationAxis = Hit.ImpactNormal;
 
     FQuat RandomQuat(RotationAxis, FMath::DegreesToRadians(RandomAngle));
+
+    if (Decal) {
+        Decal->SetActorScale3D(GetActorSpawnScale());
+    }
+    
 
     // World 기준 회전 추가
     Decal->AddActorWorldRotation(RandomQuat);
@@ -548,4 +598,3 @@ void AProjectPlayerController::ReturnToPlayerCamera()
     SetIgnoreLookInput(false);
     SetIgnoreMoveInput(false);
 }
-

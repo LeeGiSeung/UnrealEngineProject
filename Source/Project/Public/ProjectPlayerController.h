@@ -156,6 +156,13 @@ public:
 	
 	FHitResult Hit; //공유되는 hit
 
+	FVector2D DrowSize;
+
+	float ActorSpawnScaleX;
+	float ActorSpawnScaleY;
+	FVector GetActorSpawnScale();
+	void SetActorSpawnScale(float _ActorSpawnScaleX, float _ActorSpawnScaleY);
+
 	ADecalActor* Decal;
 	//DrawingObject Hit Postion
 	

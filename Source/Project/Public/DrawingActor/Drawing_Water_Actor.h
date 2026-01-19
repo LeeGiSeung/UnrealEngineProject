@@ -28,6 +28,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Water")
 	UNiagaraSystem* WaterNiagaraEffect;
 
+	FVector f;
+
 	FHitResult hit;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Water")

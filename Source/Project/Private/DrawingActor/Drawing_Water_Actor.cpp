@@ -33,7 +33,7 @@ void ADrawing_Water_Actor::Tick(float DeltaTime)
     FHitResult WaterHit;
 
     FVector Start = GetActorLocation() + FVector(0, 0, 50);
-    FVector End = Start + FVector(0, 0, -1000);
+    FVector End = Start + FVector(0, 0, -10000);
 
     AActor* HitActor = nullptr;
 
@@ -66,8 +66,10 @@ void ADrawing_Water_Actor::BeginPlay()
             UGameplayStatics::GetPlayerController(GetWorld(), 0)
         );
 
-    if (PC) hit = PC->GetHit(); //소환 됐을때의 hit 저장
-    
+    if (PC) {
+        hit = PC->GetHit(); //소환 됐을때의 hit 저장
+        f = PC->GetActorSpawnScale();
+    }
 
     
 }
@@ -95,7 +97,7 @@ void ADrawing_Water_Actor::UseAbility()
             WaterNiagaraEffect,
             hit.ImpactPoint,
             SelectedSpawnRotation,
-            FVector(1.f),     // Scale
+            f,                // 유동적 크기
             true,             // AutoDestroy
             true              // AutoActivate
         );
