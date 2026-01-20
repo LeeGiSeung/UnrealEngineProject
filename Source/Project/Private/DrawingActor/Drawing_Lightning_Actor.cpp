@@ -9,6 +9,9 @@
 #include "GameplayTagAssetInterface.h"
 #include "ElectricalDevice/ElectricalDevice.h"
 
+#include "Components/StaticMeshComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
+
 ADrawing_Lightning_Actor::ADrawing_Lightning_Actor()
 {
 	PrimaryActorTick.bCanEverTick = true;

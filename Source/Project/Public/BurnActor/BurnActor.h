@@ -26,9 +26,18 @@ public:
 
 	float CurTime;
 
-	bool IsBurn;
+	float t = 0.1f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "BurnTime")
+	bool bIsBurn;
 
 	UPROPERTY(BlueprintReadWrite, Category = "BurnTime")
 	float BurnTime;
+
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* MeshComp;
+
+	UPROPERTY()
+	UMaterialInstanceDynamic* DissolveMID;
 
 };
