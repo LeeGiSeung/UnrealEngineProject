@@ -51,7 +51,10 @@ void ADrawing_Fire_Actor::BeginPlay()
             UGameplayStatics::GetPlayerController(GetWorld(), 0)
         );
 
-    if (PC) hit = PC->GetHit(); //소환 됐을때의 hit 저장
+    if (PC) {
+        hit = PC->GetHit(); //소환 됐을때의 hit 저장
+        f = PC->GetActorSpawnScale();
+    }
 }
 
 void ADrawing_Fire_Actor::UseAbility()
@@ -70,14 +73,14 @@ void ADrawing_Fire_Actor::UseAbility()
         //CurLocation.Z += 100; //이것도 나중에 유동적 사이즈 되면 수정할거
         FVector Forward = GetActorForwardVector();
 
-        FireComp = UNiagaraFunctionLibrary::SpawnSystemAttached(
+        FireComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+            GetWorld(),
             FireNiagaraEffect,
-            GetRootComponent(),
-            NAME_None,
             hit.ImpactPoint,
             SelectedSpawnRotation,
-            EAttachLocation::KeepWorldPosition,
-            true // AutoDestroy
+            FVector(f),
+            true,
+            true
         );
 
         bUseAbility = true;
@@ -136,7 +139,7 @@ void ADrawing_Fire_Actor::UseAbility()
     {
         if (ABurnActor* burnActor = Cast<ABurnActor>(b))
         {
-            UE_LOG(LogTemp, Warning, TEXT("BURN"));
+            //UE_LOG(LogTemp, Warning, TEXT("BURN"));
             burnActor->SetIsBurn();
         }
         else

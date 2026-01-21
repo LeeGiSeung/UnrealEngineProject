@@ -175,7 +175,7 @@ void AProjectPlayerController::SpawnDecalActor(TArray<FVector2D> _DrawPosition, 
     }
 
     FVector2D Size = MaxScale - MinScale;
-
+    UE_LOG(LogTemp, Warning, TEXT("Size 크기 : %s"), *Size.ToString());
     float BaseWidth = 100.f;
     float BaseHeight = 100.f;
 
@@ -314,11 +314,73 @@ void AProjectPlayerController::SpawnCubeAtHit()
     //유동적 사이즈로 변경
     if (SpawnActor) {
         SpawnActor->SetActorScale3D(GetActorSpawnScale());
+
+        FVector Origin;
+        FVector BoxExtent;
+
+        SpawnActor->GetActorBounds(
+            true, 
+            Origin,
+            BoxExtent
+        );
+
+        UE_LOG(LogTemp, Warning, TEXT("%s"), *BoxExtent.ToString());
+
+        ActorXSize = BoxExtent.X;
+
+        if (Decal) {
+            FVector f = GetActorSpawnScale();
+            f.X = f.X / 2.f;
+            Decal->SetActorScale3D(f);
+
+            FVector DecalCurLocation = Decal->GetActorLocation();
+            UE_LOG(LogTemp, Warning, TEXT("%s"), *DecalCurLocation.ToString());
+            DecalCurLocation -= Decal->GetActorForwardVector() * ActorXSize;
+            UE_LOG(LogTemp, Warning, TEXT("%s"), *DecalCurLocation.ToString());
+
+            Decal->SetActorLocation(DecalCurLocation);
+        }
+
+        //ActorYSize = BoxExtent.Y;
+        //ActorZSize = BoxExtent.Z;
+
+        //UE_LOG(LogTemp, Warning, TEXT("%f"), ActorXSize);
+        //UE_LOG(LogTemp, Warning, TEXT("%f"), ActorYSize);
+        //UE_LOG(LogTemp, Warning, TEXT("%f"), ActorZSize);
+
+        ADrawingBaseActor* DrawingSpawnActor = Cast<ADrawingBaseActor>(SpawnActor);
+
+        DrawingSpawnActor->SetDecalActor(Decal);
+        
+        TArray<UActorComponent*> Components;
+        SpawnActor->GetComponents(UPrimitiveComponent::StaticClass(), Components);
+
+        for (UActorComponent *com : Components) {
+            if (UPrimitiveComponent* primcom = Cast<UPrimitiveComponent>(com)) {
+                primcom->SetRenderCustomDepth(true);
+                
+                switch (DrawingColor)
+                {
+                case EColor::RED:
+                    primcom->SetCustomDepthStencilValue(1);
+                    break;
+                case EColor::BLUE:
+                    primcom->SetCustomDepthStencilValue(4);
+                    break;
+                case EColor::YELLOW:
+                    primcom->SetCustomDepthStencilValue(2);
+                    break;
+                case EColor::GREEN:
+                    primcom->SetCustomDepthStencilValue(3);
+                    break;
+                default:
+                    break;
+                }
+                
+            }
+        }
+
     }
-
-    ADrawingBaseActor* DrawingSpawnActor = Cast<ADrawingBaseActor>(SpawnActor);
-
-    DrawingSpawnActor->SetDecalActor(Decal);
 
 }
 
@@ -327,18 +389,20 @@ void AProjectPlayerController::SpawnDecalAtHit()
     if (!DecalMaterialMap[DrawingColor]) return;
 
     // 1. Slightly offset the location to avoid z-fighting
-    FVector DecalSpawnLocation = Hit.ImpactPoint + Hit.ImpactNormal * 1.f;
+    float Margin = 2.f;
+    FVector SelectedSpawnLocation = Hit.ImpactPoint + Hit.ImpactNormal;
 
     // 2. Base rotation: Forward aligned to impact normal
     FRotator BaseRotation = UKismetMathLibrary::MakeRotFromZ(Hit.ImpactNormal);
 
     // 4. Spawn decal actor
-    Decal = GetWorld()->SpawnActor<ADecalActor>(DecalSpawnLocation, BaseRotation);
+    Decal = GetWorld()->SpawnActor<ADecalActor>(SelectedSpawnLocation, BaseRotation);
     if (!Decal) return;
 
     // 5. Set decal material and size
     Decal->SetDecalMaterial(DecalMaterialMap[DrawingColor]);
-    Decal->GetDecal()->DecalSize = FVector(300.f, 300.f, 300.f); //나중에 유동적 사이즈로 변경
+
+    //Decal->GetDecal()->DecalSize = FVector(); //나중에 유동적 사이즈로 변경 //어차피 아래에서 사이즈 변경해서 여기서 설정할 필요는 업승ㅁ
 
     // 6. Optional lifespan
     Decal->SetLifeSpan(0.f);
@@ -349,16 +413,26 @@ void AProjectPlayerController::SpawnDecalAtHit()
 
     FQuat RandomQuat(RotationAxis, FMath::DegreesToRadians(RandomAngle));
 
-    if (Decal) {
-        Decal->SetActorScale3D(GetActorSpawnScale());
-    }
-    
+    Decal->AddActorWorldRotation(RandomQuat);
+
+    //if (Decal) {
+    //    FVector f = GetActorSpawnScale();
+    //    f.X = f.X / 2.f;
+    //    Decal->SetActorScale3D(f);
+
+    //    FVector DecalCurLocation = Decal->GetActorLocation();
+    //    UE_LOG(LogTemp, Warning, TEXT("%s"), *DecalCurLocation.ToString());
+    //    DecalCurLocation += Decal->GetActorForwardVector() * ActorXSize;
+    //    UE_LOG(LogTemp, Warning, TEXT("%s"), *DecalCurLocation.ToString());
+
+    //    Decal->SetActorLocation(DecalCurLocation);
+    //}
 
     // World 기준 회전 추가
-    Decal->AddActorWorldRotation(RandomQuat);
 
     SpawnCubeAtHit();
 }
+
 
 void AProjectPlayerController::SpecialCameraUse()
 {

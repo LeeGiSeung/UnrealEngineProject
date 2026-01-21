@@ -160,6 +160,9 @@ public:
 
 	float ActorSpawnScaleX;
 	float ActorSpawnScaleY;
+	float ActorXSize = 0.f;
+	//float ActorYSize = 0.f;
+	//float ActorZSize = 0.f;
 	FVector GetActorSpawnScale();
 	void SetActorSpawnScale(float _ActorSpawnScaleX, float _ActorSpawnScaleY);
 

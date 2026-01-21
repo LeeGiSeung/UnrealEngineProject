@@ -36,6 +36,7 @@ public:
 	TArray<AActor*> BurnActors;
 	UNiagaraComponent* FireComp;
 
+	FVector f;
 
 	float CurTime = 0.f;
 

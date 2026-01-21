@@ -26,7 +26,7 @@ public:
 
 	float CurTime;
 
-	float t = 0.1f;
+	float t = 0.3f;
 
 	UPROPERTY(BlueprintReadOnly, Category = "BurnTime")
 	bool bIsBurn;
