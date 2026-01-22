@@ -30,6 +30,8 @@
 #include "DrawingActor/Drawing_Decal_Actor.h"
 #include "DrawDebugHelpers.h"
 
+#include "Energy/EnergyWidget.h"
+
 
 AProjectPlayerController::AProjectPlayerController()
 {
@@ -48,6 +50,8 @@ AProjectPlayerController::AProjectPlayerController()
     {
         UE_LOG(LogTemp, Warning, TEXT("Failed to load Cube mesh in constructor!"));
     }
+
+    fDrawingEnergy = 100.f;
 }
 
 AProjectPlayerController::~AProjectPlayerController()

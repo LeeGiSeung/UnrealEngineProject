@@ -19,6 +19,7 @@ class ADrawingBaseActor;
 class UFWidget;
 class ADrawing_Decal_Actor;
 class ADecalActor;
+class UEnergyWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActionTriggered);
 
@@ -151,8 +152,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DrawingObject")
 	EColor DrawingColor;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerCenterCurSor")
-	//UMaterialInstanceDynamic* CenterCursorMaterial;
+	UPROPERTY(BlueprintReadWrite, Category = "DrawingEnergyWidget")
+	UEnergyWidget* DrawingEnergyWidget;
+
+	UPROPERTY(BlueprintReadWrite, Category = "DrawingEnergyWidget")
+	float fDrawingEnergy;
 	
 	FHitResult Hit; //공유되는 hit
 
