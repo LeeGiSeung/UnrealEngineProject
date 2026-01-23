@@ -74,6 +74,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Drawing")
 	void SpawnDecalActor(TArray<FVector2D> _DrawPosition , EColor CurChoiceColor);
 
+	void SpawnRandomActor();
+
 	UFUNCTION(BlueprintCallable, Category = "Drawing_Object")
 	void DrawingObject_UseAbility();
 
@@ -83,6 +85,10 @@ public:
 	void RegisterDrawingDecar(ADrawing_Decal_Actor* _ADrawingBaseDecar);
 	void UnregisterDrawingDecar(ADrawing_Decal_Actor* _ADrawingBaseDecar);
 
+	bool CheckDrawingEnergyIsEnough(float _Scale);
+	void UpdateEnergy(float _Energy);
+
+	void SetEnergyPercentGage();
 	//~BluePrint Function
 	
 
@@ -158,6 +164,14 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "DrawingEnergyWidget")
 	float fDrawingEnergy;
 	
+	float fDefaultDrawingEnergy;
+	float fEnergyCharge = 0.1;
+
+	bool bSpawnRandom = false;
+
+	void SetSpawnRandom(bool Random) { bSpawnRandom = Random; }
+	bool GetSpawnRandom() { return bSpawnRandom; }
+
 	FHitResult Hit; //공유되는 hit
 
 	FVector2D DrowSize;

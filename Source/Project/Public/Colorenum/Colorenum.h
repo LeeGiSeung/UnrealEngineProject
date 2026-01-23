@@ -9,5 +9,6 @@ enum class EColor : uint8
 	RED,
 	BLUE,
 	YELLOW,
-	GREEN
+	GREEN,
+	RANDOM
 };

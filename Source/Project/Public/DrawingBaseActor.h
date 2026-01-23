@@ -35,8 +35,9 @@ public:
 
 	bool bInUse = false;
 
-protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UMeshComponent* RenderMesh;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	//UMeshComponent* RenderMesh;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UStaticMeshComponent* RenderMesh;
 };

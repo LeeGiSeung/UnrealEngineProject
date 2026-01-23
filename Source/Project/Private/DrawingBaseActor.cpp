@@ -43,7 +43,7 @@ void ADrawingBaseActor::SetHighlight(bool bEnable)
     if (!RenderMesh) return;
 
     RenderMesh->SetRenderCustomDepth(bEnable);
-    RenderMesh->SetCustomDepthStencilValue(1); // 1¹ø ID
+    //RenderMesh->SetCustomDepthStencilValue(1); // 1¹ø ID
 }
 
 

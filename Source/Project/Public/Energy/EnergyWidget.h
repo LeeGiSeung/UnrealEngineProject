@@ -6,6 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "EnergyWidget.generated.h"
 
+class UProgressBar;
+
 /**
  * 
  */
@@ -14,4 +16,9 @@ class PROJECT_API UEnergyWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	
+public:
+
+	UPROPERTY(BlueprintReadWrite, Category = "EnergyBar")
+	UProgressBar* EnergyBar;
+
 };

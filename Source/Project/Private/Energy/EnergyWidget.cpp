@@ -2,4 +2,4 @@
 
 
 #include "Energy/EnergyWidget.h"
-
+#include "Components/ProgressBar.h"

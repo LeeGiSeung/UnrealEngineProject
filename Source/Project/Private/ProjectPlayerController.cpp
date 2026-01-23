@@ -31,7 +31,7 @@
 #include "DrawDebugHelpers.h"
 
 #include "Energy/EnergyWidget.h"
-
+#include "Components/ProgressBar.h"
 
 AProjectPlayerController::AProjectPlayerController()
 {
@@ -51,7 +51,8 @@ AProjectPlayerController::AProjectPlayerController()
         UE_LOG(LogTemp, Warning, TEXT("Failed to load Cube mesh in constructor!"));
     }
 
-    fDrawingEnergy = 100.f;
+    fDefaultDrawingEnergy = 10.f;
+    fDrawingEnergy = fDefaultDrawingEnergy;
 }
 
 AProjectPlayerController::~AProjectPlayerController()
@@ -179,16 +180,34 @@ void AProjectPlayerController::SpawnDecalActor(TArray<FVector2D> _DrawPosition, 
     }
 
     FVector2D Size = MaxScale - MinScale;
-    UE_LOG(LogTemp, Warning, TEXT("Size 크기 : %s"), *Size.ToString());
+
     float BaseWidth = 100.f;
     float BaseHeight = 100.f;
 
     float ScaleX = Size.X / BaseWidth;
     float ScaleY = Size.Y / BaseHeight;
 
+    float UseEnergy = ScaleY + ScaleY;
+
+    
+    if (CheckDrawingEnergyIsEnough(UseEnergy)) {
+        UpdateEnergy(-UseEnergy);
+    }
+    else {
+        SetSpawnRandom(true);
+        //return; //DrawingEnergy가 부족하면 그림을 그릴 수 없음
+    }
+    
     SetActorSpawnScale(ScaleX, ScaleY);
 
-    DrawingColor = CurChoiceColor;
+    //DrawingColor = CurChoiceColor;
+
+    if (GetSpawnRandom()) {
+        DrawingColor = static_cast<EColor>(FMath::RandRange(0, 3));
+    }
+    else {
+        DrawingColor = CurChoiceColor;
+    }
 
     if (DrawPosition.Num() == 0)
     {
@@ -230,6 +249,42 @@ void AProjectPlayerController::SpawnDecalActor(TArray<FVector2D> _DrawPosition, 
     }
 }
 
+void AProjectPlayerController::SpawnRandomActor()
+{
+    int32 RandValue = FMath::RandRange(0, 4);
+
+    if (!DecalMaterialMap[DrawingColor]) return;
+
+    // 1. Slightly offset the location to avoid z-fighting
+    float Margin = 2.f;
+    FVector SelectedSpawnLocation = Hit.ImpactPoint + Hit.ImpactNormal;
+
+    // 2. Base rotation: Forward aligned to impact normal
+    FRotator BaseRotation = UKismetMathLibrary::MakeRotFromZ(Hit.ImpactNormal);
+
+    // 4. Spawn decal actor
+    Decal = GetWorld()->SpawnActor<ADecalActor>(SelectedSpawnLocation, BaseRotation);
+    if (!Decal) return;
+    
+    // 5. Set decal material and size
+    Decal->SetDecalMaterial(DecalMaterialMap[DrawingColor]);
+
+    //Decal->GetDecal()->DecalSize = FVector(); //나중에 유동적 사이즈로 변경 //어차피 아래에서 사이즈 변경해서 여기서 설정할 필요는 업승ㅁ
+
+    // 6. Optional lifespan
+    Decal->SetLifeSpan(0.f);
+
+    // 7. Random rotation around decal forward axis (impact normal)
+    const float RandomAngle = FMath::FRandRange(0.f, 360.f);
+    const FVector RotationAxis = Hit.ImpactNormal;
+
+    FQuat RandomQuat(RotationAxis, FMath::DegreesToRadians(RandomAngle));
+
+    Decal->AddActorWorldRotation(RandomQuat);
+
+    SpawnCubeAtHit();
+}
+
 void AProjectPlayerController::DrawingObject_UseAbility()
 {
 
@@ -264,6 +319,31 @@ void AProjectPlayerController::UnregisterDrawingDecar(ADrawing_Decal_Actor* _ADr
     TrackedDecalActors.Remove(_ADrawingBaseDecar);
 }
 
+bool AProjectPlayerController::CheckDrawingEnergyIsEnough(float _Scale)
+{
+    return fDrawingEnergy >= _Scale;
+}
+
+void AProjectPlayerController::UpdateEnergy(float _Energy)
+{
+    if (fDefaultDrawingEnergy - _Energy < 0.f) return;
+
+    fDrawingEnergy += _Energy;
+    
+    if (fDrawingEnergy > fDefaultDrawingEnergy) fDrawingEnergy = fDefaultDrawingEnergy;
+
+    SetEnergyPercentGage();
+}
+
+void AProjectPlayerController::SetEnergyPercentGage()
+{
+
+    float EnergyPercent = FMath::Clamp(fDrawingEnergy / fDefaultDrawingEnergy, 0.f, 1.f);
+
+    DrawingEnergyWidget->EnergyBar->SetPercent(EnergyPercent);
+
+}
+
 FVector AProjectPlayerController::GetActorSpawnScale()
 {
     FVector result = FVector(ActorSpawnScaleX, ActorSpawnScaleY, FMath::Min(ActorSpawnScaleX, ActorSpawnScaleY));
@@ -287,109 +367,9 @@ FHitResult AProjectPlayerController::GetHit()
     return Hit;
 }
 
-void AProjectPlayerController::SpawnCubeAtHit()
-{
-
-    FVector Normal = Hit.ImpactNormal;
-
-    constexpr float SurfaceThreshold = 0.7f;
-
-    // 표면 법선 기준 회전
-    FRotator SelectedSpawnRotation = UKismetMathLibrary::MakeRotFromZ(Normal);
-
-    FVector SelectedSpawnLocation = Hit.ImpactPoint + Normal * 2.f;
-
-    if (SpawnActorMap.Num() == 0) {
-        UE_LOG(LogTemp, Warning, TEXT("SpawnActorClasses is 0"));
-        return;
-    }
-    
-    TSubclassOf<AActor> SelectedClass = SpawnActorMap[DrawingColor];
-    if (!SelectedClass) {
-        UE_LOG(LogTemp, Warning, TEXT("NONE SpawnActorClass"));
-        return;
-    }
-    
-    AActor* SpawnActor = GetWorld()->SpawnActor<AActor>(
-        SelectedClass, 
-        SelectedSpawnLocation,
-        SelectedSpawnRotation);
-
-    //유동적 사이즈로 변경
-    if (SpawnActor) {
-        SpawnActor->SetActorScale3D(GetActorSpawnScale());
-
-        FVector Origin;
-        FVector BoxExtent;
-
-        SpawnActor->GetActorBounds(
-            true, 
-            Origin,
-            BoxExtent
-        );
-
-        UE_LOG(LogTemp, Warning, TEXT("%s"), *BoxExtent.ToString());
-
-        ActorXSize = BoxExtent.X;
-
-        if (Decal) {
-            FVector f = GetActorSpawnScale();
-            f.X = f.X / 2.f;
-            Decal->SetActorScale3D(f);
-
-            FVector DecalCurLocation = Decal->GetActorLocation();
-            UE_LOG(LogTemp, Warning, TEXT("%s"), *DecalCurLocation.ToString());
-            DecalCurLocation -= Decal->GetActorForwardVector() * ActorXSize;
-            UE_LOG(LogTemp, Warning, TEXT("%s"), *DecalCurLocation.ToString());
-
-            Decal->SetActorLocation(DecalCurLocation);
-        }
-
-        //ActorYSize = BoxExtent.Y;
-        //ActorZSize = BoxExtent.Z;
-
-        //UE_LOG(LogTemp, Warning, TEXT("%f"), ActorXSize);
-        //UE_LOG(LogTemp, Warning, TEXT("%f"), ActorYSize);
-        //UE_LOG(LogTemp, Warning, TEXT("%f"), ActorZSize);
-
-        ADrawingBaseActor* DrawingSpawnActor = Cast<ADrawingBaseActor>(SpawnActor);
-
-        DrawingSpawnActor->SetDecalActor(Decal);
-        
-        TArray<UActorComponent*> Components;
-        SpawnActor->GetComponents(UPrimitiveComponent::StaticClass(), Components);
-
-        for (UActorComponent *com : Components) {
-            if (UPrimitiveComponent* primcom = Cast<UPrimitiveComponent>(com)) {
-                primcom->SetRenderCustomDepth(true);
-                
-                switch (DrawingColor)
-                {
-                case EColor::RED:
-                    primcom->SetCustomDepthStencilValue(1);
-                    break;
-                case EColor::BLUE:
-                    primcom->SetCustomDepthStencilValue(4);
-                    break;
-                case EColor::YELLOW:
-                    primcom->SetCustomDepthStencilValue(2);
-                    break;
-                case EColor::GREEN:
-                    primcom->SetCustomDepthStencilValue(3);
-                    break;
-                default:
-                    break;
-                }
-                
-            }
-        }
-
-    }
-
-}
-
 void AProjectPlayerController::SpawnDecalAtHit()
 {
+
     if (!DecalMaterialMap[DrawingColor]) return;
 
     // 1. Slightly offset the location to avoid z-fighting
@@ -419,24 +399,99 @@ void AProjectPlayerController::SpawnDecalAtHit()
 
     Decal->AddActorWorldRotation(RandomQuat);
 
-    //if (Decal) {
-    //    FVector f = GetActorSpawnScale();
-    //    f.X = f.X / 2.f;
-    //    Decal->SetActorScale3D(f);
-
-    //    FVector DecalCurLocation = Decal->GetActorLocation();
-    //    UE_LOG(LogTemp, Warning, TEXT("%s"), *DecalCurLocation.ToString());
-    //    DecalCurLocation += Decal->GetActorForwardVector() * ActorXSize;
-    //    UE_LOG(LogTemp, Warning, TEXT("%s"), *DecalCurLocation.ToString());
-
-    //    Decal->SetActorLocation(DecalCurLocation);
-    //}
-
-    // World 기준 회전 추가
-
     SpawnCubeAtHit();
 }
 
+void AProjectPlayerController::SpawnCubeAtHit()
+{
+
+    FVector Normal = Hit.ImpactNormal;
+
+    constexpr float SurfaceThreshold = 0.7f;
+
+    // 표면 법선 기준 회전
+    FRotator SelectedSpawnRotation = UKismetMathLibrary::MakeRotFromZ(Normal);
+
+    FVector SelectedSpawnLocation = Hit.ImpactPoint + Normal * 2.f;
+
+    if (SpawnActorMap.Num() == 0) {
+        UE_LOG(LogTemp, Warning, TEXT("SpawnActorClasses is 0"));
+        return;
+    }
+
+    TSubclassOf<AActor> SelectedClass = SpawnActorMap[DrawingColor];
+    if (!SelectedClass) {
+        UE_LOG(LogTemp, Warning, TEXT("NONE SpawnActorClass"));
+        return;
+    }
+
+    AActor* SpawnActor = GetWorld()->SpawnActor<AActor>(
+        SelectedClass,
+        SelectedSpawnLocation,
+        SelectedSpawnRotation);
+
+    //유동적 사이즈로 변경
+    if (SpawnActor) {
+        SpawnActor->SetActorScale3D(GetActorSpawnScale());
+
+        FVector Origin;
+        FVector BoxExtent;
+
+        SpawnActor->GetActorBounds(
+            true,
+            Origin,
+            BoxExtent
+        );
+
+        ActorXSize = BoxExtent.X;
+
+        if (Decal) {
+            FVector f = GetActorSpawnScale();
+            f.X = f.X / 2.f;
+            Decal->SetActorScale3D(f);
+
+            FVector DecalCurLocation = Decal->GetActorLocation();
+            DecalCurLocation -= Decal->GetActorForwardVector() * ActorXSize;
+
+            Decal->SetActorLocation(DecalCurLocation);
+        }
+
+        ADrawingBaseActor* DrawingSpawnActor = Cast<ADrawingBaseActor>(SpawnActor);
+
+        DrawingSpawnActor->SetDecalActor(Decal);
+
+        TArray<UActorComponent*> Components;
+        SpawnActor->GetComponents(UPrimitiveComponent::StaticClass(), Components);
+
+        for (UActorComponent* com : Components) {
+            if (UPrimitiveComponent* primcom = Cast<UPrimitiveComponent>(com)) {
+                primcom->SetRenderCustomDepth(true);
+
+                switch (DrawingColor)
+                {
+                case EColor::RED:
+                    primcom->SetCustomDepthStencilValue(1);
+                    break;
+                case EColor::BLUE:
+                    primcom->SetCustomDepthStencilValue(4);
+                    break;
+                case EColor::YELLOW:
+                    primcom->SetCustomDepthStencilValue(2);
+                    break;
+                case EColor::GREEN:
+                    primcom->SetCustomDepthStencilValue(3);
+                    break;
+                default:
+                    break;
+                }
+
+                if (GetSpawnRandom()) primcom->SetCustomDepthStencilValue(6);
+            }
+        }
+    }
+
+    SetSpawnRandom(false);
+}
 
 void AProjectPlayerController::SpecialCameraUse()
 {
@@ -482,6 +537,11 @@ void AProjectPlayerController::Tick(float DeltaTime) {
 
     Super::Tick(DeltaTime);
     //Drawing Object FWidget
+
+    if (fDrawingEnergy < fDefaultDrawingEnergy) {
+        UpdateEnergy(fEnergyCharge * DeltaTime);
+    }
+
     CheckAccTime += DeltaTime;
 
     if (CheckAccTime >= CheckInterval) {
@@ -563,6 +623,8 @@ void AProjectPlayerController::Tick(float DeltaTime) {
             CameraColorTrans();
 
             OnActionTriggered.Broadcast();
+
+            SetMouseLocation(fCanvasSizeWidth / 2, fCanvasSizeHeight / 2);
         }
     }
 }

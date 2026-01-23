@@ -17,9 +17,6 @@
 void UBaseUserWidget::RecordPosition(FVector2D Pos)
 {
     DrawPositions.Add(Pos);
-
-    //UE_LOG(LogTemp, Warning, TEXT("add position : %s"), *Pos.ToString());
-    //UE_LOG(LogTemp, Warning, TEXT("position Num : %d"), DrawPositions.Num());
 }
 
 void UBaseUserWidget::SaveCanvasRenderTargetToPNG(UTextureRenderTarget2D* Canvas, const FString& FilePath, const FString& FileName)
@@ -65,7 +62,7 @@ void UBaseUserWidget::SaveCanvasRenderTargetToPNG(UTextureRenderTarget2D* Canvas
         Out.R = Src.R;
         Out.G = Src.G;
         Out.B = Src.B;
-        Out.A = 1.0f; // 강제로 불투명
+        Out.A = 1.0f;
 
         Bitmap[i] = Out.ToFColor(false);
     }
@@ -88,8 +85,6 @@ void UBaseUserWidget::SaveCanvasRenderTargetToPNG(UTextureRenderTarget2D* Canvas
         UE_LOG(LogTemp, Warning, TEXT("Failed to save PNG to file %s"), *FilePath);
         return;
     }
-
-    //UE_LOG(LogTemp, Log, TEXT("Saved PNG successfully: %s"), *FilePath);
 }
 
 void UBaseUserWidget::FinishDrawing()
@@ -115,6 +110,9 @@ void UBaseUserWidget::ChangeCenterCursorColor(EColor _color)
         break;
     case EColor::GREEN:
         CenterColor = FLinearColor(0.f, 1.f, 0.f, 1.f);
+        break;
+    case EColor::RANDOM:
+        CenterColor = FLinearColor(1.f, 1.f, 1.f, 1.f);
         break;
     default:
         break;
@@ -146,6 +144,9 @@ void UBaseUserWidget::ChangeBrushStartColor(EColor _color, UMaterialInstanceDyna
         break;
     case EColor::GREEN:
         CenterColor = FLinearColor(0.f, 1.f, 0.f, 1.f);
+        break;
+    case EColor::RANDOM:
+        CenterColor = FLinearColor(1.f, 1.f, 1.f, 1.f);
         break;
     default:
         break;
