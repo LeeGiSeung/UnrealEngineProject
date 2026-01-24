@@ -27,13 +27,18 @@ public:
 
 	virtual void SetHighlight(bool bEnable);
 
+	//####################Decal °ü¸®
 	void SetDecalActor(ADecalActor* Decal);
 	ADecalActor* GetDecalActor();
 	ADecalActor* Decal;
+	//###################
 
 	void SetInUse();
 
 	bool bInUse = false;
+
+	void SetRandom(bool _b) { bIsRandom = _b; }
+	bool bIsRandom = false;
 
 	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	//UMeshComponent* RenderMesh;

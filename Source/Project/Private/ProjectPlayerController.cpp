@@ -463,9 +463,18 @@ void AProjectPlayerController::SpawnCubeAtHit()
         TArray<UActorComponent*> Components;
         SpawnActor->GetComponents(UPrimitiveComponent::StaticClass(), Components);
 
+        if (GetSpawnRandom()) {
+            DrawingSpawnActor->SetRandom(true); //랜덤 액터 표시
+        }
+
         for (UActorComponent* com : Components) {
             if (UPrimitiveComponent* primcom = Cast<UPrimitiveComponent>(com)) {
                 primcom->SetRenderCustomDepth(true);
+
+                if (GetSpawnRandom()) {
+                    primcom->SetCustomDepthStencilValue(6);
+                    continue;
+                }
 
                 switch (DrawingColor)
                 {
@@ -485,7 +494,7 @@ void AProjectPlayerController::SpawnCubeAtHit()
                     break;
                 }
 
-                if (GetSpawnRandom()) primcom->SetCustomDepthStencilValue(6);
+                
             }
         }
     }
