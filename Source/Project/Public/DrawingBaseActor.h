@@ -8,6 +8,8 @@
 
 class UBoxComponent;
 class ADecalActor;
+class ADrawingActorManager;
+
 /**
  * 
  */
@@ -45,4 +47,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* RenderMesh;
+
+	ADrawingActorManager* DrawingManager;
 };

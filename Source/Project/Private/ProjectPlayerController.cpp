@@ -29,9 +29,11 @@
 #include "Components/DecalComponent.h"
 #include "DrawingActor/Drawing_Decal_Actor.h"
 #include "DrawDebugHelpers.h"
+#include "Manager/DrawingActorManager.h"
 
 #include "Energy/EnergyWidget.h"
 #include "Components/ProgressBar.h"
+#include "EngineUtils.h"
 
 AProjectPlayerController::AProjectPlayerController()
 {
@@ -165,6 +167,7 @@ void AProjectPlayerController::DrawingEnd()
 
 void AProjectPlayerController::SpawnDecalActor(TArray<FVector2D> _DrawPosition, EColor CurChoiceColor)
 {
+
     DrawPosition = _DrawPosition;
 
     FVector2D MinScale = FVector2D(FLT_MAX, FLT_MAX);
@@ -294,7 +297,7 @@ void AProjectPlayerController::DrawingObject_UseAbility()
     }
 
     DrawingActor->UseAbility();
-    DrawingActor->GetDecalActor()->Destroy();
+    DrawingActor->GetDecalActor()->Destroy(); //삭제
 }
 
 void AProjectPlayerController::RegisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor)
@@ -405,6 +408,8 @@ void AProjectPlayerController::SpawnDecalAtHit()
 void AProjectPlayerController::SpawnCubeAtHit()
 {
 
+    
+
     FVector Normal = Hit.ImpactNormal;
 
     constexpr float SurfaceThreshold = 0.7f;
@@ -466,6 +471,8 @@ void AProjectPlayerController::SpawnCubeAtHit()
         if (GetSpawnRandom()) {
             DrawingSpawnActor->SetRandom(true); //랜덤 액터 표시
         }
+
+        DrawingManager->AddDrawingActor(DrawingSpawnActor);
 
         for (UActorComponent* com : Components) {
             if (UPrimitiveComponent* primcom = Cast<UPrimitiveComponent>(com)) {
@@ -691,6 +698,19 @@ void AProjectPlayerController::OnPossess(APawn* InPawn)
     {
         InteractWidget->AddToViewport();
         InteractWidget->SetVisibility(ESlateVisibility::Hidden);
+    }
+}
+
+void AProjectPlayerController::BeginPlay() {
+
+    Super::BeginPlay();
+
+    DrawingManager = nullptr;
+
+    for (TActorIterator<ADrawingActorManager> It(GetWorld()); It; ++It)
+    {
+        DrawingManager = *It;
+        break;
     }
 }
 

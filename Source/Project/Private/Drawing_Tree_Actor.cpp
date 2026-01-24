@@ -2,7 +2,8 @@
 
 
 #include "Drawing_Tree_Actor.h"
-
+#include "Manager/DrawingActorManager.h"
+#include "EngineUtils.h"
 ADrawing_Tree_Actor::ADrawing_Tree_Actor()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -22,7 +23,11 @@ ADrawing_Tree_Actor::ADrawing_Tree_Actor()
 void ADrawing_Tree_Actor::Tick(float DeltaTime)
 {
 	if (!isGrow) return;
-	if (CurTime >= DuarationTime) Destroy();
+	if (CurTime >= DuarationTime)
+	{
+		DrawingManager->DeleteDrawingActor(this);
+		Destroy();
+	}
 
 	Super::Tick(DeltaTime);
 

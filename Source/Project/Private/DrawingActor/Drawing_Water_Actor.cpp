@@ -10,6 +10,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "ProjectPlayerController.h"
+#include "Manager/DrawingActorManager.h"
+#include "EngineUtils.h"
 
 ADrawing_Water_Actor::ADrawing_Water_Actor()
 {
@@ -26,8 +28,11 @@ void ADrawing_Water_Actor::Tick(float DeltaTime)
     Super::Tick(DeltaTime);
 
     if (!bUseAbility) return;
-    if (CurTime >= WaterTime) Destroy();
-
+    if (CurTime >= WaterTime)
+    {
+        DrawingManager->DeleteDrawingActor(this);
+        Destroy();
+    }
     CurTime += DeltaTime;
 
     FHitResult WaterHit;
@@ -71,7 +76,6 @@ void ADrawing_Water_Actor::BeginPlay()
         f = PC->GetActorSpawnScale();
     }
 
-    
 }
 
 void ADrawing_Water_Actor::UseAbility()

@@ -17,6 +17,4 @@ void AMyElectricalDevice_Door::BeginPlay()
 void AMyElectricalDevice_Door::Use_Function()
 {
 	Super::Use_Function();
-
-	UE_LOG(LogTemp, Warning, TEXT("UseFun"));
 }

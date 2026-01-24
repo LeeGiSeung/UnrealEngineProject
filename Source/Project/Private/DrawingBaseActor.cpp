@@ -5,6 +5,9 @@
 #include "ProjectPlayerController.h"
 #include "Components/BoxComponent.h"
 
+#include "Manager/DrawingActorManager.h"
+#include "EngineUtils.h"
+
 ADrawingBaseActor::ADrawingBaseActor()
 {
 
@@ -18,6 +21,14 @@ void ADrawingBaseActor::BeginPlay()
     {
         PC->RegisterDrawingActor(this);
         //UE_LOG(LogTemp, Warning, TEXT("Add Reg"));
+    }
+
+    DrawingManager = nullptr;
+
+    for (TActorIterator<ADrawingActorManager> It(GetWorld()); It; ++It)
+    {
+        DrawingManager = *It;
+        break;
     }
 
 }

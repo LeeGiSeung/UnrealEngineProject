@@ -11,6 +11,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "ProjectPlayerController.h"
 #include "BurnActor/BurnActor.h"
+#include "Manager/DrawingActorManager.h"
+#include "EngineUtils.h"
 
 ADrawing_Fire_Actor::ADrawing_Fire_Actor()
 {
@@ -29,15 +31,16 @@ void ADrawing_Fire_Actor::Tick(float DeltaTime)
     if (BurnActors.Num() == 0) {
         CurTime += DeltaTime;
         if (CurTime > BurnLimitTime) {
-            Destroy(); //만약 주위에 탈게 없으면 3초 동안 타다 끝남
+            
+            DrawingManager->DeleteDrawingActor(this);
+            Destroy();
+            
             FireComp->Deactivate();
         }
     }
 
     if (AreAllBurnActorsFinished() && BurnActors.Num() != 0) {
-        UE_LOG(LogTemp, Warning, TEXT("EMPTY"));
         BurnActors.Empty();
-        UE_LOG(LogTemp, Warning, TEXT("%f"), BurnActors.Num());
     }
 
 }

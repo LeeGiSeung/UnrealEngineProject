@@ -11,21 +11,25 @@ ADrawingActorManager::ADrawingActorManager()
 void ADrawingActorManager::AddDrawingActor(ADrawingBaseActor* _actor)
 {
 	aDrawingActorList.Add(_actor);
-	UE_LOG(LogTemp, Warning, TEXT("SIZE : "), aDrawingActorList.Num());
+	UE_LOG(LogTemp, Warning, TEXT("add size : %d"), aDrawingActorList.Num());
 }
 
 void ADrawingActorManager::DeleteDrawingActor(ADrawingBaseActor* _actor)
 {
 	aDrawingActorList.Remove(_actor);
+	UE_LOG(LogTemp, Warning, TEXT("del size %d"), aDrawingActorList.Num());
+
 }
 
 ADrawingBaseActor* ADrawingActorManager::GetDrawingActor(ADrawingBaseActor* _actor)
 {
 	ADrawingBaseActor* result = nullptr;
 
-	for (ADrawingBaseActor* actor : aDrawingActorList) {
-		if (actor == _actor) {
-			result = actor;
+	for (const TWeakObjectPtr<ADrawingBaseActor>& WeakActor : aDrawingActorList)
+	{
+		if (WeakActor.IsValid() && WeakActor.Get() == _actor)
+		{
+			result = WeakActor.Get();
 			break;
 		}
 	}

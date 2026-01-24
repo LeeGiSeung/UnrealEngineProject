@@ -30,7 +30,7 @@ void ABurnActor::Tick(float DeltaTime)
 	if (bIsBurn) {
 		CurTime += DeltaTime;
 
-		UE_LOG(LogTemp, Warning, TEXT("%f"), CurTime);
+		//UE_LOG(LogTemp, Warning, TEXT("%f"), CurTime);
 
 		if (CurTime >= BurnTime) {
 			if (DissolveMID)

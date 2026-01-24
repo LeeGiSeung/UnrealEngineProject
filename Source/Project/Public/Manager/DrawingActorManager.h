@@ -17,7 +17,7 @@ class PROJECT_API ADrawingActorManager : public ABaseActor
 	
 public:
 	ADrawingActorManager();
-	TArray<ADrawingBaseActor*> aDrawingActorList;
+	TArray<TWeakObjectPtr<ADrawingBaseActor>> aDrawingActorList;
 
 	void AddDrawingActor(ADrawingBaseActor* _actor);
 	void DeleteDrawingActor(ADrawingBaseActor* _actor);

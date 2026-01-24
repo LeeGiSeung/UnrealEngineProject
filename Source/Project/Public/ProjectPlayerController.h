@@ -20,6 +20,7 @@ class UFWidget;
 class ADrawing_Decal_Actor;
 class ADecalActor;
 class UEnergyWidget;
+class ADrawingActorManager;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActionTriggered);
 
@@ -38,6 +39,7 @@ public:
 	~AProjectPlayerController();
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void Tick(float DeltaTime) override;
+	virtual void BeginPlay() override;
 	//~Base
 
 	void SpecialCameraUse();
@@ -197,6 +199,8 @@ public:
 	float DashSpeed = 1100.f;
 	float ViewDistance = 10000.f;
 	bool bIsDashing = false;
+
+	ADrawingActorManager* DrawingManager;
 
 	FHitResult GetHit();
 

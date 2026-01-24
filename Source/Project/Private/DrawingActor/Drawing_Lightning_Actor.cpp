@@ -11,6 +11,8 @@
 
 #include "Components/StaticMeshComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Manager/DrawingActorManager.h"
+#include "EngineUtils.h"
 
 ADrawing_Lightning_Actor::ADrawing_Lightning_Actor()
 {
@@ -92,7 +94,8 @@ void ADrawing_Lightning_Actor::UseAbility()
         }
     }
 
-
+    DrawingManager->DeleteDrawingActor(this);
     Destroy();
+    
 }
 
