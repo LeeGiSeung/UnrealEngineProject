@@ -8,6 +8,7 @@
 
 class UBoxComponent;
 class ADecalActor;
+class UMaterialInstance;
 class ADrawingActorManager;
 
 /**
@@ -31,6 +32,16 @@ public:
 
 	//####################Decal °ü¸®
 	void SetDecalActor(ADecalActor* Decal);
+	UMaterialInterface* OriginalDecalMaterial = nullptr;
+
+	void SetDcalMaterial(UMaterialInterface* Material) {
+		OriginalDecalMaterial = Material;
+	}
+
+	UMaterialInterface* GetDecalMaterial() {
+		return OriginalDecalMaterial;
+	}
+
 	ADecalActor* GetDecalActor();
 	ADecalActor* Decal;
 	//###################
@@ -40,6 +51,7 @@ public:
 	bool bInUse = false;
 
 	void SetRandom(bool _b) { bIsRandom = _b; }
+	bool GetRandom() { return bIsRandom; }
 	bool bIsRandom = false;
 
 	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite)

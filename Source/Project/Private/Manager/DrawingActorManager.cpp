@@ -2,6 +2,7 @@
 
 
 #include "Manager/DrawingActorManager.h"
+#include "Engine/DecalActor.h"
 #include "DrawingBaseActor.h"
 
 ADrawingActorManager::ADrawingActorManager()
@@ -11,14 +12,33 @@ ADrawingActorManager::ADrawingActorManager()
 void ADrawingActorManager::AddDrawingActor(ADrawingBaseActor* _actor)
 {
 	aDrawingActorList.Add(_actor);
-	UE_LOG(LogTemp, Warning, TEXT("add size : %d"), aDrawingActorList.Num());
 }
 
 void ADrawingActorManager::DeleteDrawingActor(ADrawingBaseActor* _actor)
 {
 	aDrawingActorList.Remove(_actor);
-	UE_LOG(LogTemp, Warning, TEXT("del size %d"), aDrawingActorList.Num());
+}
 
+void ADrawingActorManager::ChangeRandomActorDecalBlack()
+{
+	for (const TWeakObjectPtr<ADrawingBaseActor>& WeakActor : aDrawingActorList) {
+		if (WeakActor.IsValid() && WeakActor->GetRandom()) {
+			ADecalActor* decal = WeakActor->Decal;
+			
+			decal->SetDecalMaterial(BlackDecal);
+		}
+	}
+}
+
+void ADrawingActorManager::ChangeRandomActorOriginalColor()
+{
+	for (const TWeakObjectPtr<ADrawingBaseActor>& WeakActor : aDrawingActorList) {
+		if (WeakActor.IsValid() && WeakActor->GetRandom()) {
+			ADecalActor* decal = WeakActor->Decal;
+
+			decal->SetDecalMaterial(WeakActor->GetDecalMaterial());
+		}
+	}
 }
 
 ADrawingBaseActor* ADrawingActorManager::GetDrawingActor(ADrawingBaseActor* _actor)

@@ -69,6 +69,8 @@ void AProjectPlayerController::StartRealTimeTimer()
 
     CameraGrayTrans();
 
+    DrawingManager->ChangeRandomActorDecalBlack();
+
     UGameplayStatics::SetGlobalTimeDilation(GetWorld(), TimeDilation);
 }
 
@@ -465,6 +467,8 @@ void AProjectPlayerController::SpawnCubeAtHit()
 
         DrawingSpawnActor->SetDecalActor(Decal);
 
+
+
         TArray<UActorComponent*> Components;
         SpawnActor->GetComponents(UPrimitiveComponent::StaticClass(), Components);
 
@@ -473,6 +477,8 @@ void AProjectPlayerController::SpawnCubeAtHit()
         }
 
         DrawingManager->AddDrawingActor(DrawingSpawnActor);
+
+        DrawingSpawnActor->SetDcalMaterial(DecalMaterialMap[DrawingColor]);
 
         for (UActorComponent* com : Components) {
             if (UPrimitiveComponent* primcom = Cast<UPrimitiveComponent>(com)) {
@@ -600,16 +606,6 @@ void AProjectPlayerController::Tick(float DeltaTime) {
 
             if (bHit)
             {
-                //DrawDebugLine(
-                //    GetWorld(),
-                //    Start,
-                //    DrawingObjectHit.ImpactPoint,
-                //    FColor::Green,
-                //    false,
-                //    1.f,
-                //    0,
-                //    2.f
-                //);
 
                 DrawDebugPoint(
                     GetWorld(),
@@ -631,6 +627,8 @@ void AProjectPlayerController::Tick(float DeltaTime) {
         const float CurrentTime = FPlatformTime::Seconds();
 
         if (CurrentTime - StartTime >= TimeDuration) {
+
+            DrawingManager->ChangeRandomActorOriginalColor();
 
             UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
 
@@ -658,8 +656,6 @@ void AProjectPlayerController::OnPossess(APawn* InPawn)
 
     PCamera = PCharacter->FindComponentByClass<UCameraComponent>();
     if (!PCamera) return;
-
-    //PCamera->PostProcessSettings.bOverride_ColorSaturation = true;
 
     TArray<AActor*> FoundVolumes;
     UGameplayStatics::GetAllActorsOfClass(

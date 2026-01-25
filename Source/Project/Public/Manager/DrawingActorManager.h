@@ -7,6 +7,7 @@
 #include "DrawingActorManager.generated.h"
 
 class ADrawingBaseActor;
+class ADecalActor;
 /**
  * 
  */
@@ -21,6 +22,10 @@ public:
 
 	void AddDrawingActor(ADrawingBaseActor* _actor);
 	void DeleteDrawingActor(ADrawingBaseActor* _actor);
-	ADrawingBaseActor* GetDrawingActor(ADrawingBaseActor* _actor);
+	void ChangeRandomActorDecalBlack();
+	void ChangeRandomActorOriginalColor();
 
+	ADrawingBaseActor* GetDrawingActor(ADrawingBaseActor* _actor);
+	UPROPERTY(BlueprintReadWrite, Category = "BlackDecal")
+	UMaterialInterface* BlackDecal;
 };
