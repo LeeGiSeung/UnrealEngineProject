@@ -34,11 +34,14 @@ void ABP_CablePouch::Tick(float DeltaTime)
 
 	if (!PlayerController || !ProjectChacter) return;
 
-	FVector2D PlayerInput = ProjectChacter->GetMoveInput();
+	FVector2D PlayerInput = -(ProjectChacter->GetMoveInput());
+	FVector CurLocation = GetActorLocation();
 
-	fInitalPosition = GetActorLocation() + fInitalPosition;
-	
-	SetActorLocation(fInitalPosition);
+	CurLocation.X += PlayerInput.X;
+	CurLocation.Y += PlayerInput.Y;
+
+	if (PlayerInput.X == 0 && PlayerInput.Y == 0) return;
+	SetActorLocation(CurLocation);
 }
 
 void ABP_CablePouch::UsePouch(FVector2D _Value)

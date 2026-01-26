@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "ProjectPlayerController.h"
 
 #include "GameFramework/Controller.h"
 
@@ -87,14 +88,15 @@ void AProjectCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	//Add Input Mapping Context
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	if (APlayerController* Pc = Cast<APlayerController>(Controller))
 	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(Pc->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
 
+	PlayerController = Cast<AProjectPlayerController>(GetWorld()->GetFirstPlayerController());
 	
 }
 
@@ -127,7 +129,11 @@ void AProjectCharacter::Move(const FInputActionValue& Value)
 
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
-	SetMoveInput(MovementVector);
+
+	if (PlayerController->GetUseCablePouch()) {
+		SetMoveInput(MovementVector);
+	}
+	
 	if (Controller != nullptr)
 	{
 		// find out which way is forward

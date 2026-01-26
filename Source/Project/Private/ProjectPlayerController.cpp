@@ -800,6 +800,7 @@ void AProjectPlayerController::UseCable() {
         if (!actor) return;
 
         if (ABP_CablePouch* CablePouch = Cast<ABP_CablePouch>(actor)) {
+            PCharacter->bUseControllerRotationYaw = true;
             SetUseCablePouch(true);
         }
     }
