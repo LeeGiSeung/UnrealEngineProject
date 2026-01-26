@@ -124,9 +124,10 @@ void AProjectCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 void AProjectCharacter::Move(const FInputActionValue& Value)
 {
+
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
-
+	SetMoveInput(MovementVector);
 	if (Controller != nullptr)
 	{
 		// find out which way is forward

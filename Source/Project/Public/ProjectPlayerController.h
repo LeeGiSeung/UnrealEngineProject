@@ -81,6 +81,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Drawing_Object")
 	void DrawingObject_UseAbility();
 
+	UFUNCTION(BlueprintCallable, Category = "CablePouch")
+	void UseCable();
+
+
 	void RegisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor);
 	void UnregisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor);
 
@@ -219,5 +223,12 @@ private:
 	UBaseAnimInstance* ABP_Player;
 
 	float StartTime;
+
+//Cable Pouch
+public:
+	bool bUseCablePouch = false;
+
+	void SetUseCablePouch(bool _value) { bUseCablePouch = _value; }
+	bool GetUseCablePouch() { return bUseCablePouch; }
 
 };

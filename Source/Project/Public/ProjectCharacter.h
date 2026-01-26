@@ -66,7 +66,17 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
-			
+
+public:
+	FVector2D CachedMoveInput;
+
+	void SetMoveInput(FVector2D value) { CachedMoveInput = value; }
+
+	FVector2D GetMoveInput() {
+		FVector2D result = CachedMoveInput;
+		CachedMoveInput = FVector2D::Zero();
+		return result;
+	}
 
 protected:
 	// APawn interface

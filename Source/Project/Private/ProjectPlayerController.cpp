@@ -31,9 +31,13 @@
 #include "DrawDebugHelpers.h"
 #include "Manager/DrawingActorManager.h"
 
+//Energy
 #include "Energy/EnergyWidget.h"
 #include "Components/ProgressBar.h"
 #include "EngineUtils.h"
+
+//Cable
+#include "Cable/BP_CablePouch.h"
 
 AProjectPlayerController::AProjectPlayerController()
 {
@@ -762,4 +766,42 @@ void AProjectPlayerController::ReturnToPlayerCamera()
     //시야, 이동 변경 허용
     SetIgnoreLookInput(false);
     SetIgnoreMoveInput(false);
+}
+
+void AProjectPlayerController::UseCable() {
+    TArray<FOverlapResult> Overlaps;
+
+    bool bHit = GetWorld()->OverlapMultiByChannel(
+        Overlaps,
+        ProjectChar->GetActorLocation(),
+        FQuat::Identity,
+        ECC_WorldDynamic,
+        FCollisionShape::MakeSphere(500.f)
+    );
+
+    DrawDebugSphere(GetWorld(),
+        ProjectChar->GetActorLocation(),
+        150.f,
+        24,                 // 세그먼트 (부드러움)
+        FColor::Red,
+        false,              // false = 한 프레임
+        1.0f,               // 유지 시간
+        0,
+        2.0f                // 두께
+    );
+
+    if (Overlaps.Num() == 0 || GetUseCablePouch() == true) { //주위 감지를 못했거나, 이미 사용중인 상태면 취소 하겠다는 거임
+        SetUseCablePouch(false);
+        return;
+    }
+
+    for (const FOverlapResult& result : Overlaps) {
+        AActor* actor = result.GetActor();
+        if (!actor) return;
+
+        if (ABP_CablePouch* CablePouch = Cast<ABP_CablePouch>(actor)) {
+            SetUseCablePouch(true);
+        }
+    }
+
 }
