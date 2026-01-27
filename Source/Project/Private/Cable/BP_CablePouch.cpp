@@ -42,8 +42,10 @@ void ABP_CablePouch::Tick(float DeltaTime)
 
 	// 입력을 방향 벡터로 변환
 	FVector MoveDir =
-		(Forward * PlayerInput.Y) +
-		(Right * PlayerInput.X);
+		(Forward * PlayerInput.X) +
+		(Right * -(PlayerInput.Y));
+
+	MoveDir = MoveDir.GetSafeNormal();
 
 	// 이동량 (속도 조절)
 	float MoveSpeed = 100.f;

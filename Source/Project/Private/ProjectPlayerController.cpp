@@ -774,6 +774,7 @@ void AProjectPlayerController::UseCable() {
         PCharacter->bUseControllerRotationYaw = false;
         SetUseCablePouch(false);
         CurUsePouch->UnUsePouch();
+        ProjectChar->GetCharacterMovement()->MaxWalkSpeed = 500;
         return;
     }
 
@@ -813,6 +814,7 @@ void AProjectPlayerController::UseCable() {
             PCharacter->bUseControllerRotationYaw = true;
             CurUsePouch->UsePouch();
             SetUseCablePouch(true);
+            ProjectChar->GetCharacterMovement()->MaxWalkSpeed = 100;
             break;
         }
     }
