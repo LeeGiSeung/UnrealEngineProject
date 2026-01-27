@@ -21,6 +21,7 @@ class ADrawing_Decal_Actor;
 class ADecalActor;
 class UEnergyWidget;
 class ADrawingActorManager;
+class ABP_CablePouch;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActionTriggered);
 
@@ -231,4 +232,5 @@ public:
 	void SetUseCablePouch(bool _value) { bUseCablePouch = _value; }
 	bool GetUseCablePouch() { return bUseCablePouch; }
 
+	ABP_CablePouch* CurUsePouch;
 };

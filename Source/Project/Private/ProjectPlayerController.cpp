@@ -769,19 +769,29 @@ void AProjectPlayerController::ReturnToPlayerCamera()
 }
 
 void AProjectPlayerController::UseCable() {
+
+    if (GetUseCablePouch() && CurUsePouch) { //이미 사용중이면 그냥 풀면됨
+        PCharacter->bUseControllerRotationYaw = false;
+        SetUseCablePouch(false);
+        CurUsePouch->UnUsePouch();
+        return;
+    }
+
     TArray<FOverlapResult> Overlaps;
+
+    float PouchSphere = 150.f;
 
     bool bHit = GetWorld()->OverlapMultiByChannel(
         Overlaps,
         ProjectChar->GetActorLocation(),
         FQuat::Identity,
         ECC_WorldDynamic,
-        FCollisionShape::MakeSphere(500.f)
+        FCollisionShape::MakeSphere(PouchSphere)
     );
 
     DrawDebugSphere(GetWorld(),
         ProjectChar->GetActorLocation(),
-        150.f,
+        PouchSphere,
         24,                 // 세그먼트 (부드러움)
         FColor::Red,
         false,              // false = 한 프레임
@@ -790,18 +800,20 @@ void AProjectPlayerController::UseCable() {
         2.0f                // 두께
     );
 
-    if (Overlaps.Num() == 0 || GetUseCablePouch() == true) { //주위 감지를 못했거나, 이미 사용중인 상태면 취소 하겠다는 거임
-        SetUseCablePouch(false);
-        return;
-    }
+    UE_LOG(LogTemp, Warning, TEXT("Overlaps size %d"), Overlaps.Num());
 
     for (const FOverlapResult& result : Overlaps) {
         AActor* actor = result.GetActor();
         if (!actor) return;
 
+        UE_LOG(LogTemp, Warning, TEXT("%s"), *actor->GetName());
+
         if (ABP_CablePouch* CablePouch = Cast<ABP_CablePouch>(actor)) {
+            CurUsePouch = CablePouch;
             PCharacter->bUseControllerRotationYaw = true;
+            CurUsePouch->UsePouch();
             SetUseCablePouch(true);
+            break;
         }
     }
 

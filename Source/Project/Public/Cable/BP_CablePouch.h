@@ -27,13 +27,18 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-	void UsePouch(FVector2D _Value);
+	void UsePouch();
+	void UnUsePouch();
 
 	FVector fInitalPosition;
 
 	float XPower;
 	float YPower;
 	float ZPower;
+
+	bool bUsePouch = false;
+	void SetbUsePouch(bool value) { bUsePouch = value; }
+	bool GetbUsePouch() { return bUsePouch; }
 
 private:
 	AProjectPlayerController* PlayerController;

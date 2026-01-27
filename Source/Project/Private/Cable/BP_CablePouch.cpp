@@ -27,24 +27,44 @@ void ABP_CablePouch::BeginPlay()
 void ABP_CablePouch::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (!PlayerController || !ProjectChacter) return;
 
-	if (PlayerController->GetUseCablePouch() == false) {
+	if (!PlayerController->GetUseCablePouch() || !GetbUsePouch()) {
 		return;
 	}
 
-	if (!PlayerController || !ProjectChacter) return;
-
-	FVector2D PlayerInput = -(ProjectChacter->GetMoveInput());
+	FVector2D PlayerInput = ProjectChacter->GetMoveInput();
 	FVector CurLocation = GetActorLocation();
 
-	CurLocation.X += PlayerInput.X;
-	CurLocation.Y += PlayerInput.Y;
+	// Pouch 기준 방향
+	FVector Forward = GetActorForwardVector();
+	FVector Right = GetActorRightVector();
 
-	if (PlayerInput.X == 0 && PlayerInput.Y == 0) return;
+	// 입력을 방향 벡터로 변환
+	FVector MoveDir =
+		(Forward * PlayerInput.Y) +
+		(Right * PlayerInput.X);
+
+	// 이동량 (속도 조절)
+	float MoveSpeed = 100.f;
+
+	// 최종 위치
+	CurLocation += MoveDir * MoveSpeed * GetWorld()->GetDeltaSeconds();
+
 	SetActorLocation(CurLocation);
 }
 
-void ABP_CablePouch::UsePouch(FVector2D _Value)
+void ABP_CablePouch::UsePouch()
 {
 
+	SetbUsePouch(true);
+
+	//플레이어의 상하 시야각 + Pouch의 기준 위치에서 좌우 위치 = 플레이어가 날라갈 위치
+	
+	UE_LOG(LogTemp, Warning, TEXT("right vector : %s"), *GetActorRightVector().ToString());
+}
+
+void ABP_CablePouch::UnUsePouch()
+{
+	SetbUsePouch(false);
 }
