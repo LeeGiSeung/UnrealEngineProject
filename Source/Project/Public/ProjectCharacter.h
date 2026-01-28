@@ -71,16 +71,26 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 
-public:
+public: //내가 추가한거
 	FVector2D CachedMoveInput;
+	FVector2D CachedLookInput;
 
 	void SetMoveInput(FVector2D value) { CachedMoveInput = value; }
+	void SetLookInput(FVector2D value) { CachedLookInput = value; }
 
 	FVector2D GetMoveInput() {
 		FVector2D result = CachedMoveInput;
 		CachedMoveInput = FVector2D::Zero();
 		return result;
 	}
+
+	FVector2D GetLookInput() {
+		FVector2D result = CachedLookInput;
+		CachedLookInput = FVector2D::Zero();
+		return result;
+	}
+
+	void OnSpacePressed();
 
 protected:
 	// APawn interface

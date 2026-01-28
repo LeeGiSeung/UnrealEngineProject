@@ -103,13 +103,20 @@ void AProjectCharacter::BeginPlay()
 //////////////////////////////////////////////////////////////////////////
 // Input
 
+void AProjectCharacter::OnSpacePressed()
+{
+	if (PlayerController->GetUseCablePouch()) return;
+
+	Jump();
+}
+
 void AProjectCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
 		
 		// Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AProjectCharacter::OnSpacePressed);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
 		// Moving
@@ -159,8 +166,9 @@ void AProjectCharacter::Look(const FInputActionValue& Value)
 
 	if (Controller != nullptr && !bIsDrawing)
 	{
-		// add yaw and pitch input to controller
-		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
+		// add yaw and pitch input to controller
+		if (PlayerController->GetUseCablePouch()) return;
+		AddControllerYawInput(LookAxisVector.X);
 	}
 }

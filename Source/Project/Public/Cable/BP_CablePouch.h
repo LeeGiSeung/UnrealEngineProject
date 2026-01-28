@@ -30,11 +30,19 @@ public:
 	void UsePouch();
 	void UnUsePouch();
 
+	void FlyPlayer();
+
+	void ResetPosition();
+
 	FVector fInitalPosition;
+	FRotator fInitalRotation;
 
 	float XPower;
 	float YPower;
 	float ZPower;
+
+	float MoveSpeed = 100.f;
+	float LookSpeed = 100.f;
 
 	bool bUsePouch = false;
 	void SetbUsePouch(bool value) { bUsePouch = value; }

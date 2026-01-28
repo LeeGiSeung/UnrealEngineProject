@@ -85,6 +85,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CablePouch")
 	void UseCable();
 
+	void UnUseCable();
+
 
 	void RegisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor);
 	void UnregisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor);
@@ -231,6 +233,9 @@ public:
 
 	void SetUseCablePouch(bool _value) { bUseCablePouch = _value; }
 	bool GetUseCablePouch() { return bUseCablePouch; }
+
+	UFUNCTION(BlueprintCallable, Category = "Cable Pouch")
+	void UsePouchFly();
 
 	ABP_CablePouch* CurUsePouch;
 };

@@ -771,10 +771,7 @@ void AProjectPlayerController::ReturnToPlayerCamera()
 void AProjectPlayerController::UseCable() {
 
     if (GetUseCablePouch() && CurUsePouch) { //이미 사용중이면 그냥 풀면됨
-        PCharacter->bUseControllerRotationYaw = false;
-        SetUseCablePouch(false);
-        CurUsePouch->UnUsePouch();
-        ProjectChar->GetCharacterMovement()->MaxWalkSpeed = 500;
+        UnUseCable();
         return;
     }
 
@@ -801,13 +798,9 @@ void AProjectPlayerController::UseCable() {
         2.0f                // 두께
     );
 
-    UE_LOG(LogTemp, Warning, TEXT("Overlaps size %d"), Overlaps.Num());
-
     for (const FOverlapResult& result : Overlaps) {
         AActor* actor = result.GetActor();
         if (!actor) return;
-
-        UE_LOG(LogTemp, Warning, TEXT("%s"), *actor->GetName());
 
         if (ABP_CablePouch* CablePouch = Cast<ABP_CablePouch>(actor)) {
             CurUsePouch = CablePouch;
@@ -819,4 +812,20 @@ void AProjectPlayerController::UseCable() {
         }
     }
 
+}
+
+void AProjectPlayerController::UnUseCable()
+{
+    PCharacter->bUseControllerRotationYaw = false;
+    SetUseCablePouch(false);
+    CurUsePouch->UnUsePouch();
+    ProjectChar->GetCharacterMovement()->MaxWalkSpeed = 500;
+}
+
+void AProjectPlayerController::UsePouchFly() {
+    if (!GetUseCablePouch()) return; //파우치 사용중 아니면 return;
+
+    CurUsePouch->FlyPlayer();
+
+    //UnUseCable();
 }
