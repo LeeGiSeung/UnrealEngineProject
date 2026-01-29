@@ -85,7 +85,7 @@ void ABP_CablePouch::FlyPlayer()
 	FRotator CameraRot = PlayerController->GetControlRotation();
 	FVector LaunchDir = FRotationMatrix(CameraRot).GetUnitAxis(EAxis::X);
 		
-	FVector LaunchVel = LaunchDir * PullPower * 3;
+	FVector LaunchVel = LaunchDir * PullPower * 4;
 
 	ProjectChacter->LaunchCharacter(LaunchVel, true, true);
 

@@ -141,7 +141,14 @@ void AProjectCharacter::Move(const FInputActionValue& Value)
 
 	if (PlayerController->GetUseCablePouch()) {
 		SetMoveInput(MovementVector);
-		PouchPush += 1;
+		if (MovementVector.Y == 1) {
+			if (PouchPush > 0) {
+				PouchPush -= 1;
+			}
+		}
+		else if (MovementVector.Y == -1) {
+			PouchPush += 1;
+		}
 	}
 	
 	if (Controller != nullptr)

@@ -827,5 +827,5 @@ void AProjectPlayerController::UsePouchFly() {
 
     CurUsePouch->FlyPlayer();
 
-    //UnUseCable();
+    UnUseCable();
 }
