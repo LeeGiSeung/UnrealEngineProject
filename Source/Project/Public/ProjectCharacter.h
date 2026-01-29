@@ -46,6 +46,9 @@ class AProjectCharacter : public ACharacter
 	UInputAction* LookAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SitAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* BlackWhiteAction;
 
 public:
@@ -71,6 +74,8 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 
+	void Sit(const FInputActionValue& Value);
+
 public: //내가 추가한거
 	FVector2D CachedMoveInput;
 	FVector2D CachedLookInput;
@@ -89,6 +94,11 @@ public: //내가 추가한거
 		CachedLookInput = FVector2D::Zero();
 		return result;
 	}
+
+	float PouchPush = 0.f;
+
+	float GetPouchPush() { return PouchPush; }
+	void ResetPouch() { PouchPush = 0.f; }
 
 	void OnSpacePressed();
 

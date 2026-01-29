@@ -41,6 +41,8 @@ public:
 	float YPower;
 	float ZPower;
 
+	float correction = 2.f;
+
 	float MoveSpeed = 100.f;
 	float LookSpeed = 100.f;
 

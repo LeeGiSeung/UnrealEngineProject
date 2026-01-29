@@ -124,6 +124,8 @@ void AProjectCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AProjectCharacter::Look);
+
+		EnhancedInputComponent->BindAction(SitAction, ETriggerEvent::Started, this, &AProjectCharacter::Sit);
 	}
 	else
 	{
@@ -139,6 +141,7 @@ void AProjectCharacter::Move(const FInputActionValue& Value)
 
 	if (PlayerController->GetUseCablePouch()) {
 		SetMoveInput(MovementVector);
+		PouchPush += 1;
 	}
 	
 	if (Controller != nullptr)
@@ -171,4 +174,9 @@ void AProjectCharacter::Look(const FInputActionValue& Value)
 		if (PlayerController->GetUseCablePouch()) return;
 		AddControllerYawInput(LookAxisVector.X);
 	}
+}
+
+void AProjectCharacter::Sit(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("DASF"));
 }
