@@ -238,4 +238,11 @@ public:
 	void UsePouchFly();
 
 	ABP_CablePouch* CurUsePouch;
+
+public:
+	UAnimInstance* AnimInst;
+	UBaseAnimInstance* MyABP;
+
+	UFUNCTION(BlueprintCallable, Category = "CrouchBack")
+	void StartCrouchBack();
 };

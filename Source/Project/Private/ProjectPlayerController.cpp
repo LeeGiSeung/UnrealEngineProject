@@ -88,8 +88,8 @@ void AProjectPlayerController::StartSpecialAttack()
     SetIgnoreLookInput(true);
     SetIgnoreMoveInput(true);
 
-    UAnimInstance* AnimInst = PCharacter->GetMesh()->GetAnimInstance();
-    UBaseAnimInstance* MyABP = Cast<UBaseAnimInstance>(AnimInst);
+    //UAnimInstance* AnimInst = PCharacter->GetMesh()->GetAnimInstance();
+    //UBaseAnimInstance* MyABP = Cast<UBaseAnimInstance>(AnimInst);
 
     if (!MyABP) {
         UE_LOG(LogTemp, Warning, TEXT("No ABP"));
@@ -712,6 +712,9 @@ void AProjectPlayerController::BeginPlay() {
         DrawingManager = *It;
         break;
     }
+
+    AnimInst = PCharacter->GetMesh()->GetAnimInstance();
+    MyABP = Cast<UBaseAnimInstance>(AnimInst);
 }
 
 void AProjectPlayerController::SpecialCameraSetting()
@@ -725,14 +728,14 @@ void AProjectPlayerController::SpecialCameraSetting()
     if (FaceCameraActor) return;
     FaceCameraActor = GetWorld()->SpawnActor<ACameraActor>();
 
-    UAnimInstance* AnimInst = PCharacter->GetMesh()->GetAnimInstance();
-    ABP_Player = Cast<UBaseAnimInstance>(AnimInst);
+    //UAnimInstance* AnimInst = PCharacter->GetMesh()->GetAnimInstance();
+    //ABP_Player = Cast<UBaseAnimInstance>(AnimInst);
 
-    if (!ABP_Player)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("AnimInstance is not UBaseAnimInstance"));
-        return;
-    }
+    //if (!ABP_Player)
+    //{
+    //    UE_LOG(LogTemp, Warning, TEXT("AnimInstance is not UBaseAnimInstance"));
+    //    return;
+    //}
 }
 
 void AProjectPlayerController::CameraGrayTrans()
@@ -811,21 +814,34 @@ void AProjectPlayerController::UseCable() {
             break;
         }
     }
-
-}
-
-void AProjectPlayerController::UnUseCable()
-{
-    PCharacter->bUseControllerRotationYaw = false;
-    SetUseCablePouch(false);
-    CurUsePouch->UnUsePouch();
-    ProjectChar->GetCharacterMovement()->MaxWalkSpeed = 500;
 }
 
 void AProjectPlayerController::UsePouchFly() {
     if (!GetUseCablePouch()) return; //파우치 사용중 아니면 return;
 
     CurUsePouch->FlyPlayer();
+}
 
-    UnUseCable();
+void AProjectPlayerController::UnUseCable()
+{
+    PCharacter->bUseControllerRotationYaw = false;
+    SetUseCablePouch(false);
+    ProjectChar->GetCharacterMovement()->MaxWalkSpeed = 500;
+}
+
+
+void AProjectPlayerController::StartCrouchBack()
+{
+    //PCharacter->GetCharacterMovement()->StopMovementImmediately();
+
+    //시야, 이동 변경 금지
+    SetIgnoreLookInput(true);
+    SetIgnoreMoveInput(true);
+
+    if (!MyABP) {
+        UE_LOG(LogTemp, Warning, TEXT("No ABP"));
+        return;
+    }
+
+    MyABP->PlayCrouchBackMontage(PCharacter);
 }

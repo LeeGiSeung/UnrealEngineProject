@@ -41,6 +41,14 @@ public:
 	float YPower;
 	float ZPower;
 
+	bool bHasMovedAway = false;
+	bool bSuccesFly = false;
+
+
+	float Distance;
+	float FlyDistance = 0.f;
+	float MinFlyPower = 50.f;
+
 	float correction = 2.f;
 
 	float MoveSpeed = 100.f;
@@ -51,7 +59,10 @@ public:
 	bool GetbUsePouch() { return bUsePouch; }
 
 private:
+	UPROPERTY();
 	AProjectPlayerController* PlayerController;
+
+	UPROPERTY();
 	AProjectCharacter* ProjectChacter;
 
 };

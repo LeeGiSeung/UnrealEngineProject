@@ -35,6 +35,14 @@ void ABP_CablePouch::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (!PlayerController || !ProjectChacter) return;
 
+	if (bSuccesFly) {
+		FlyDistance += GetWorld()->GetDeltaSeconds();
+		if (FlyDistance >= MinFlyPower / 100) {
+			bSuccesFly = false;
+			ResetPosition();
+		}
+	}
+
 	if (!PlayerController->GetUseCablePouch() || !GetbUsePouch()) {
 		return;
 	}
@@ -48,6 +56,19 @@ void ABP_CablePouch::Tick(float DeltaTime)
 	}
 	else if (InputX == 1) {
 		ProjectChacter->AddControllerYawInput(-1.f * GetWorld()->GetDeltaSeconds() * correction);
+	}
+
+	if (GetbUsePouch()) {
+		Distance = FVector::Dist(fInitalPosition, GetActorLocation());
+		
+		if (Distance > 10.f && !bHasMovedAway) // 먼저 충분히 멀어져야 함
+		{
+			bHasMovedAway = true;
+		}
+
+		if (Distance < 30.f && bHasMovedAway) {
+			UnUsePouch();
+		}
 	}
 
 }
@@ -69,16 +90,28 @@ void ABP_CablePouch::UsePouch()
 
 void ABP_CablePouch::UnUsePouch()
 {
+	if (!PlayerController || GetbUsePouch() == false) {
+		UE_LOG(LogTemp, Warning, TEXT("NONE PLAYERCONTROLLER || UsePouch False"));
+		return;
+	}
+
 	SetbUsePouch(false);
+
+	bHasMovedAway = false;
 
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
 	ResetPosition();
+
+	PlayerController->UnUseCable();
 }
 
 void ABP_CablePouch::FlyPlayer()
 {
-	if (!ProjectChacter) return;
+	if (!ProjectChacter || !PlayerController) return;
+	if (ProjectChacter->GetPouchPush() < MinFlyPower) {
+		UE_LOG(LogTemp, Warning, TEXT("%f min distance"), Distance);
+	}
 
 	float PullPower = ProjectChacter->GetPouchPush();
 
@@ -89,14 +122,19 @@ void ABP_CablePouch::FlyPlayer()
 
 	ProjectChacter->LaunchCharacter(LaunchVel, true, true);
 
-	ProjectChacter->ResetPouch();
+	UnUsePouch();
+
+	bSuccesFly = true;
 
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 }
 
 void ABP_CablePouch::ResetPosition() {
+
 	SetActorLocation(fInitalPosition);
 	SetActorRotation(fInitalRotation);
 
 	ProjectChacter->ResetPouch();
+
+	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 }
