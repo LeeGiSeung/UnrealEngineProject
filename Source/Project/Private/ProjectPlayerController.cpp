@@ -774,7 +774,6 @@ void AProjectPlayerController::ReturnToPlayerCamera()
 void AProjectPlayerController::UseCable() {
 
     if (GetUseCablePouch() && CurUsePouch) { //이미 사용중이면 그냥 풀면됨
-        UnUseCable();
         return;
     }
 
@@ -788,17 +787,6 @@ void AProjectPlayerController::UseCable() {
         FQuat::Identity,
         ECC_WorldDynamic,
         FCollisionShape::MakeSphere(PouchSphere)
-    );
-
-    DrawDebugSphere(GetWorld(),
-        ProjectChar->GetActorLocation(),
-        PouchSphere,
-        24,                 // 세그먼트 (부드러움)
-        FColor::Red,
-        false,              // false = 한 프레임
-        1.0f,               // 유지 시간
-        0,
-        2.0f                // 두께
     );
 
     for (const FOverlapResult& result : Overlaps) {
