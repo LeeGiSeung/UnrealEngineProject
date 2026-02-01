@@ -12,3 +12,4 @@ enum class EColor : uint8
 	GREEN,
 	RANDOM
 };
+

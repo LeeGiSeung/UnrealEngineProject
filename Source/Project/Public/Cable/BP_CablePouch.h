@@ -51,6 +51,12 @@ public:
 
 	float correction = 2.f;
 
+	UPROPERTY(EditAnywhere, Category = "LimitPouchExtend")
+	float fLimitextend = 200.f;
+
+	float GetLimitExtent() { return fLimitextend; }
+	void GetLimitExtent(float value) { fLimitextend = value; }
+
 	float MoveSpeed = 100.f;
 	float LookSpeed = 100.f;
 

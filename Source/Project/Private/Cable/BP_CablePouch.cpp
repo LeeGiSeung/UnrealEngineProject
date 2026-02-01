@@ -37,7 +37,7 @@ void ABP_CablePouch::Tick(float DeltaTime)
 
 	if (bSuccesFly) {
 		FlyDistance += GetWorld()->GetDeltaSeconds();
-		UE_LOG(LogTemp, Warning, TEXT("%f"), FlyDistance);
+
 		if (FlyDistance >= MinFlyPower / 100) {
 			bSuccesFly = false;
 			ResetPosition();
@@ -77,7 +77,6 @@ void ABP_CablePouch::Tick(float DeltaTime)
 void ABP_CablePouch::UsePouch()
 {
 	SetbUsePouch(true);
-	UE_LOG(LogTemp, Warning, TEXT("UsePouch"));
 	if (ProjectChacter)
 	{
 		AttachToComponent(
@@ -115,6 +114,7 @@ void ABP_CablePouch::FlyPlayer()
 	if (!ProjectChacter || !PlayerController) return;
 	if (ProjectChacter->GetPouchPush() < MinFlyPower) {
 		UE_LOG(LogTemp, Warning, TEXT("%f min distance"), Distance);
+		return;
 	}
 
 	float PullPower = ProjectChacter->GetPouchPush();

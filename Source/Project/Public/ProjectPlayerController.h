@@ -239,6 +239,11 @@ public:
 
 	ABP_CablePouch* CurUsePouch;
 
+	ABP_CablePouch* GetUsingPouch() {
+		ABP_CablePouch* Pouch = CurUsePouch;
+		return Pouch;
+	}
+
 public:
 	UAnimInstance* AnimInst;
 	UBaseAnimInstance* MyABP;

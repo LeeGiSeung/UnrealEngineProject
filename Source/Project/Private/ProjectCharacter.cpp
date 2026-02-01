@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "ProjectPlayerController.h"
+#include "Cable/BP_CablePouch.h"
 
 #include "GameFramework/Controller.h"
 
@@ -140,9 +141,12 @@ void AProjectCharacter::Move(const FInputActionValue& Value)
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
 	if (PlayerController->GetUseCablePouch()) {
+
+		//float LimitExtend = PlayerController->GetUsingPouch()->GetLimitExtent();
+
 		SetMoveInput(MovementVector);
 		if (MovementVector.Y == 1) {
-			if (PouchPush > 0) {
+			if (PouchPush > 0) { //PouchPush 각 Pouch가 관리하도록 변경해야함 
 				PouchPush -= 1;
 			}
 		}

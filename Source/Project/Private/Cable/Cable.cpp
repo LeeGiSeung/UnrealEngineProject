@@ -10,9 +10,6 @@ ACable::ACable() {
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	SetRootComponent(Root);
 
-	/* =======================
-	   Cable Component (∫Ò¡÷æÛ)
-	   ======================= */
 	Cable = CreateDefaultSubobject<UCableComponent>(TEXT("Cable"));
 	Cable->SetupAttachment(Root);
 
