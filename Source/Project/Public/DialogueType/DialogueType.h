@@ -10,5 +10,13 @@ enum class EDialogueUIType : uint8
     Normal,
     Choice,
     Auto,
-    Cinematic
+    Cinematic,
+    End
+};
+
+UENUM(BlueprintType)
+enum class EDialogueEventType : uint8
+{
+    Normal,
+    CameraSlowAroundMove
 };

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "FDialogueRow/FDialogueRow.h"
 #include "DialogueManager.generated.h"
 
 UCLASS()
@@ -17,7 +18,16 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	void StartDialogue(FName name);
+	void StartDialogue(FName _ID);
 	void ShowCurDialogue();
 
+protected:
+	UPROPERTY()
+	EDialogueUIType UIType;
+
+	UPROPERTY()
+	FName ID;
+
+	UPROPERTY()
+	FName EventKey;
 };
