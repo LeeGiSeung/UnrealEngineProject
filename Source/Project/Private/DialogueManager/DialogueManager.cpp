@@ -22,11 +22,14 @@ void ADialogueManager::StartDialogue(FName ID)
 {
 	//현재 보여줘야 하는 컷신을 정해줌
 	ShowCurDialogue();
+
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *ID.ToString());
 }
 
 //현재 적용돼있는 ID에 해당하는 Dialogue를 보여줌
 void ADialogueManager::ShowCurDialogue()
 {
+
 	//연출도 해야함
 	//DirectingManager에 연출 row 보내서 연출 시작
 }

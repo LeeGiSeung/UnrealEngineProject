@@ -17,4 +17,7 @@ class PROJECT_API ADialogueTestActor : public ADialogueBaseActor
 public:
 	ADialogueTestActor();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UStaticMeshComponent* StaticMeshComp;
+
 };

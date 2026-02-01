@@ -98,6 +98,9 @@ public:
 	void UpdateEnergy(float _Energy);
 
 	void SetEnergyPercentGage();
+
+	UFUNCTION(BlueprintCallable, Category = "Dialogue")
+	void StartDialogue();
 	//~BluePrint Function
 	
 

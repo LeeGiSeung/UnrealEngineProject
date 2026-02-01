@@ -5,5 +5,11 @@
 
 ADialogueTestActor::ADialogueTestActor()
 {
-	DialogueName = "ID_0";
+	DialogueName = "ID_TEST_0";
+
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+
+	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
+	StaticMeshComp->SetupAttachment(RootComponent);
+
 }

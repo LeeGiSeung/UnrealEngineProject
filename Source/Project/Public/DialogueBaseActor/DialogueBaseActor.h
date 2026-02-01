@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+
 #include "DialogueBaseActor.generated.h"
+
+class ADialogueManager;
 
 UCLASS()
 class PROJECT_API ADialogueBaseActor : public AActor
@@ -22,6 +25,11 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	void StartDialogue();
+
+	UPROPERTY()
+	ADialogueManager* DialogueManager;
 
 	FName DialogueName;
 

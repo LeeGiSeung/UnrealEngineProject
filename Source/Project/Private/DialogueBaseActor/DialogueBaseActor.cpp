@@ -2,6 +2,8 @@
 
 
 #include "DialogueBaseActor/DialogueBaseActor.h"
+#include "DialogueManager/DialogueManager.h"
+#include "EngineUtils.h"
 
 // Sets default values
 ADialogueBaseActor::ADialogueBaseActor()
@@ -15,7 +17,15 @@ ADialogueBaseActor::ADialogueBaseActor()
 void ADialogueBaseActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+    for (TActorIterator<ADialogueManager> It(GetWorld()); It; ++It)
+    {
+        DialogueManager = *It;
+        break;
+    }
+
+    check(DialogueManager); // 없으면 바로 알 수 있게
+
 }
 
 // Called every frame
@@ -23,5 +33,10 @@ void ADialogueBaseActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ADialogueBaseActor::StartDialogue()
+{
+    DialogueManager->StartDialogue(DialogueName); 
 }
 
