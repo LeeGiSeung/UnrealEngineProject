@@ -37,6 +37,12 @@ void ADialogueBaseActor::Tick(float DeltaTime)
 
 void ADialogueBaseActor::StartDialogue()
 {
-    DialogueManager->StartDialogue(DialogueName); 
+
+    if (!DialogueManager->GetUseDialogue()) {
+        DialogueManager->StartDialogue(DialogueName);
+    }
+    else {
+        DialogueManager->NextDialogue();
+    }
 }
 

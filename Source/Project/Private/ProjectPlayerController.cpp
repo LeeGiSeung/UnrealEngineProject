@@ -840,31 +840,6 @@ void AProjectPlayerController::StartCrouchBack()
 
 
 void AProjectPlayerController::StartDialogue() {
-    //TArray<FOverlapResult> Overlaps;
-
-    //float PouchSphere = 150.f;
-
-    //bool bHit = GetWorld()->OverlapMultiByChannel(
-    //    Overlaps,
-    //    ProjectChar->GetActorLocation(),
-    //    FQuat::Identity,
-    //    ECC_WorldDynamic,
-    //    FCollisionShape::MakeSphere(PouchSphere)
-    //);
-
-    //for (const FOverlapResult& result : Overlaps) {
-    //    AActor* actor = result.GetActor();
-    //    if (!actor) return;
-
-    //    if (ABP_CablePouch* CablePouch = Cast<ABP_CablePouch>(actor)) {
-    //        CurUsePouch = CablePouch;
-    //        PCharacter->bUseControllerRotationYaw = true;
-    //        CurUsePouch->UsePouch();
-    //        SetUseCablePouch(true);
-    //        ProjectChar->GetCharacterMovement()->MaxWalkSpeed = 100;
-    //        break;
-    //    }
-    //}
 
     TArray<FOverlapResult> Overlaps;
 

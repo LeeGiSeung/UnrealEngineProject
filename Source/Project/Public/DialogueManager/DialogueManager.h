@@ -7,6 +7,9 @@
 #include "FDialogueRow/FDialogueRow.h"
 #include "DialogueManager.generated.h"
 
+class UNormalDialogueWidget;
+class UBaseDialogueWidget;
+
 UCLASS()
 class PROJECT_API ADialogueManager : public AActor
 {
@@ -20,6 +23,17 @@ protected:
 public:	
 	void StartDialogue(FName _ID);
 	void ShowCurDialogue();
+	void NextDialogue();
+
+	void RemoveCurDialogueWidget();
+	void ChangeCurDialogueWidgetText();
+	void EndDialogue();
+
+	UPROPERTY(EditAnywhere, Category = "Dialogue")
+	UDataTable* DialogueTable;
+
+	bool GetUseDialogue();
+	void SetUseIdalogue(bool _value);
 
 protected:
 	UPROPERTY()
@@ -29,5 +43,20 @@ protected:
 	FName ID;
 
 	UPROPERTY()
+	FName NextID;
+
+	UPROPERTY()
 	FName EventKey;
+
+private: //DialogueWidgetList
+
+	UPROPERTY(EditAnywhere, Category = "CurWidget")
+	UBaseDialogueWidget* CurDialogueWidget;
+
+	UPROPERTY(EditAnywhere, Category = "DialogueWidget")
+	TMap< EDialogueUIType, TSubclassOf<UBaseDialogueWidget>> DialogueWidgetMap;
+
+	bool bDialogue = false;
+
+	const FDialogueRow* Row;
 };
