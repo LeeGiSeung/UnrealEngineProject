@@ -23,6 +23,7 @@ protected:
 public:	
 	void StartDialogue(FName _ID);
 	void ShowCurDialogue();
+	void WidgetAddViewPort();
 	void NextDialogue();
 
 	void RemoveCurDialogueWidget();

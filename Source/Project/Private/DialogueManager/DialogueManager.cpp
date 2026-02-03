@@ -68,14 +68,36 @@ void ADialogueManager::ShowCurDialogue()
 	CurDialogueWidget = CreateWidget<UBaseDialogueWidget>(GetWorld()->GetFirstPlayerController(), DialogueWidgetMap[Row->UIType]);
 	
 	if (CurDialogueWidget) {
-		CurDialogueWidget->AddToViewport();
-		CurDialogueWidget->SetText(Row->Line);
+		WidgetAddViewPort();
+		ChangeCurDialogueWidgetText();
 	}
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("NO WIDGET"));
 		return;
 	}
 	//연출도 해야함 DirectingManager에 연출 row 보내서 연출 시작
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void ADialogueManager::WidgetAddViewPort()
+{
+	CurDialogueWidget->AddToViewport();
 }
 
 void ADialogueManager::RemoveCurDialogueWidget()
@@ -88,7 +110,29 @@ void ADialogueManager::ChangeCurDialogueWidgetText()
 {
 	check(CurDialogueWidget);
 
-	CurDialogueWidget->GetTextBlock()->SetText(Row->Line);
+	//Row의 FirstText, SecondText를 통해 Text 배열 판단
+
+	if (Row->FirstText.IsEmptyOrWhitespace() && Row->SecondText.IsEmptyOrWhitespace()) {
+		//둘다 비어있으면 넘김
+		return;
+	}
+	else if (Row->FirstText.IsEmptyOrWhitespace() || Row->SecondText.IsEmptyOrWhitespace()) {
+		//둘중 하나만 비어있으면 MiddleText만
+
+		if (Row->FirstText.IsEmptyOrWhitespace()) CurDialogueWidget->SetMiddleText(Row->SecondText);
+		else if (Row->SecondText.IsEmptyOrWhitespace()) CurDialogueWidget->SetMiddleText(Row->FirstText);
+
+		CurDialogueWidget->SetUpEmpty();
+		CurDialogueWidget->SetDownEmpty();
+	}
+	else {
+		CurDialogueWidget->SetUpText(Row->FirstText);
+		CurDialogueWidget->SetDownText(Row->SecondText);
+
+		CurDialogueWidget->SetMiddleEmpty();
+
+	}
+
 }
 
 void ADialogueManager::EndDialogue()

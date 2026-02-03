@@ -16,11 +16,27 @@ class PROJECT_API UBaseDialogueWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	UTextBlock* GetTextBlock() { return TextBlock; }
-	void SetText(FText _value) { TextBlock->SetText(_value); }
+	UTextBlock* GetUpTextBlock() { return TextBlockUp; }
+	void SetUpText(FText _value) { TextBlockUp->SetText(_value); }
+
+	UTextBlock* GetMiddleTextBlock() { return TextBlockMiddle; }
+	void SetMiddleText(FText _value) { TextBlockMiddle->SetText(_value); }
+
+	UTextBlock* GetDownTextBlock() { return TextBlockDown; }
+	void SetDownText(FText _value) { TextBlockDown->SetText(_value); }
+
+	void SetUpEmpty() { TextBlockUp->SetText(FText::GetEmpty()); }
+	void SetMiddleEmpty() { TextBlockMiddle->SetText(FText::GetEmpty()); }
+	void SetDownEmpty() { TextBlockDown->SetText(FText::GetEmpty()); }
 
 private:
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* TextBlock;
+	UTextBlock* TextBlockUp;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* TextBlockMiddle;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* TextBlockDown;
 
 };

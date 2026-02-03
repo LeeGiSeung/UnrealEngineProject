@@ -17,7 +17,10 @@ struct FDialogueRow : public FTableRowBase
     FText Speaker;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FText Line;
+    FText FirstText;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FText SecondText;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FName NextID;
