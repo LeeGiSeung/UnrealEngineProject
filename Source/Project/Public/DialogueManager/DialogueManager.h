@@ -28,6 +28,7 @@ public:
 
 	void RemoveCurDialogueWidget();
 	void ChangeCurDialogueWidgetText();
+	void ChangeCurDialogueWidgetChoice();
 	void EndDialogue();
 
 	UPROPERTY(EditAnywhere, Category = "Dialogue")

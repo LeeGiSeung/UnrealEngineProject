@@ -8,6 +8,7 @@
 #include "DirectingManager/DirectingManager.h"
 
 //#각 Widget들
+#include "DialogueWidget/ChoiceDialogueWidget/ChoiceDialogueWidget.h"
 #include "DialogueWidget/NormalDialogueWidget/NormalDialogueWidget.h"
 #include "DialogueWidget/BaseDialogueWidget.h"
 
@@ -49,7 +50,8 @@ void ADialogueManager::ShowCurDialogue()
 
 	Row = DialogueTable->FindRow<FDialogueRow>(ID, TEXT("DialogueText"));
 
-	if (!Row) {
+	if (!Row || Row->NextID.IsNone()) {
+		EndDialogue();
 		UE_LOG(LogTemp, Warning, TEXT("No Row"));
 		return;
 	}
@@ -57,6 +59,7 @@ void ADialogueManager::ShowCurDialogue()
 	NextID = Row->NextID;
 
 	if (Row->UIType == EDialogueUIType::End) {
+		UE_LOG(LogTemp, Warning, TEXT("End"));
 		EndDialogue();
 		return;
 	}
@@ -68,8 +71,27 @@ void ADialogueManager::ShowCurDialogue()
 	CurDialogueWidget = CreateWidget<UBaseDialogueWidget>(GetWorld()->GetFirstPlayerController(), DialogueWidgetMap[Row->UIType]);
 	
 	if (CurDialogueWidget) {
+
+		switch (Row->UIType)
+		{
+		case::EDialogueUIType::Normal:
+			ChangeCurDialogueWidgetText();
+			break;
+			//선택지 넘길 수 있게 추가해야함
+
+		case::EDialogueUIType::Choice:
+			ChangeCurDialogueWidgetText();
+			ChangeCurDialogueWidgetChoice();
+			break;
+
+		case::EDialogueUIType::Auto:
+			
+			break;
+		}
+
 		WidgetAddViewPort();
-		ChangeCurDialogueWidgetText();
+		//각 UiType에 따라서 추가 작업 배정
+
 	}
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("NO WIDGET"));
@@ -102,6 +124,10 @@ void ADialogueManager::WidgetAddViewPort()
 
 void ADialogueManager::RemoveCurDialogueWidget()
 {
+	CurDialogueWidget->SetUpEmpty();
+	CurDialogueWidget->SetMiddleEmpty();
+	CurDialogueWidget->SetDownEmpty();
+
 	CurDialogueWidget->RemoveFromParent();
 	CurDialogueWidget = nullptr;
 }
@@ -109,8 +135,6 @@ void ADialogueManager::RemoveCurDialogueWidget()
 void ADialogueManager::ChangeCurDialogueWidgetText()
 {
 	check(CurDialogueWidget);
-
-	//Row의 FirstText, SecondText를 통해 Text 배열 판단
 
 	if (Row->FirstText.IsEmptyOrWhitespace() && Row->SecondText.IsEmptyOrWhitespace()) {
 		//둘다 비어있으면 넘김
@@ -130,14 +154,19 @@ void ADialogueManager::ChangeCurDialogueWidgetText()
 		CurDialogueWidget->SetDownText(Row->SecondText);
 
 		CurDialogueWidget->SetMiddleEmpty();
-
 	}
+
+}
+
+void ADialogueManager::ChangeCurDialogueWidgetChoice()
+{
 
 }
 
 void ADialogueManager::EndDialogue()
 {
 	RemoveCurDialogueWidget();
+	SetUseIdalogue(false);
 }
 
 void ADialogueManager::NextDialogue() 

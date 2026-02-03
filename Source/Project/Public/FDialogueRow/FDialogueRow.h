@@ -23,6 +23,18 @@ struct FDialogueRow : public FTableRowBase
     FText SecondText;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FText Choice1;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FText Choice2;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FText Choice3;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FText Choice4;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FName NextID;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
