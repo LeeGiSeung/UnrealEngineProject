@@ -40,6 +40,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
 	UDataTable* DialogueChoiceTable;
 
+	UFUNCTION()
+	void OnPlayerChoiceSelected(int32 ChoiceNumber);
+
 	bool GetUseDialogue();
 	void SetUseIdalogue(bool _value);
 
@@ -58,6 +61,9 @@ protected:
 
 	UPROPERTY()
 	FName EventKey;
+
+	UFUNCTION(BlueprintCallable, Category = "Dialogue")
+	void testButtonClick();
 
 private: //DialogueWidgetList
 

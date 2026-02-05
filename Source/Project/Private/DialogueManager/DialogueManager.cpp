@@ -254,6 +254,13 @@ void ADialogueManager::NextDialogue()
 	StartDialogue(NextID, UIType);
 }
 
+void ADialogueManager::OnPlayerChoiceSelected(int32 ChoiceNumber)
+{
+	iPlayerChoiceNumber = ChoiceNumber;
+	PlayerChoiceNumberCheck();
+	NextDialogue();
+}
+
 bool ADialogueManager::GetUseDialogue()
 {
 	return bDialogue;
@@ -262,5 +269,10 @@ bool ADialogueManager::GetUseDialogue()
 void ADialogueManager::SetUseIdalogue(bool _value)
 {
 	bDialogue = _value;
+}
+
+void ADialogueManager::testButtonClick()
+{
+	UE_LOG(LogTemp, Warning, TEXT("SDAF"));
 }
 

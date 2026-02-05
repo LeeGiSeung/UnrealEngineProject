@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "DialogueWidget/BaseDialogueWidget.h"
+#include "DialogueManager/DialogueManager.h"
+
 #include "ChoiceDialogueWidget.generated.h"
 
 class UButton;
-
+class ADialogueManager;
 /**
  * 
  */
@@ -17,15 +19,29 @@ class PROJECT_API UChoiceDialogueWidget : public UBaseDialogueWidget
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(meta = (BindWidget))
-	UButton* Button1;
+	virtual void NativeConstruct() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DialogueManager")
+	ADialogueManager* DialogueManager;
 
 	UPROPERTY(meta = (BindWidget))
-	UButton* Button2;
+	UButton* Button3_1;
 
 	UPROPERTY(meta = (BindWidget))
-	UButton* Button3;
+	UButton* Button3_2;
 
 	UPROPERTY(meta = (BindWidget))
-	UButton* Button4;
+	UButton* Button3_3;
+
+	UPROPERTY(meta = (BindWidget))
+	UButton* Button4_1;
+
+	UPROPERTY(meta = (BindWidget))
+	UButton* Button4_2;
+
+	UPROPERTY(meta = (BindWidget))
+	UButton* Button4_3;
+
+	UPROPERTY(meta = (BindWidget))
+	UButton* Button4_4;
 };
