@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "FDialogueRow/FDialogueRow.h"
+#include "DialogueRow/ChoiceDialogueRow.h"
 #include "DialogueManager.generated.h"
 
 class UNormalDialogueWidget;
@@ -21,18 +22,23 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	void StartDialogue(FName _ID);
+	void StartDialogue(FName _ID, EDialogueUIType _Type);
 	void ShowCurDialogue();
+	void PlayerChoiceNumberCheck();
 	void WidgetAddViewPort();
 	void NextDialogue();
 
 	void RemoveCurDialogueWidget();
-	void ChangeCurDialogueWidgetText();
+	void ChangeCurDialogueWidgetNormalText();
+	void ChangeCurDialogueWidgetChoiceText();
 	void ChangeCurDialogueWidgetChoice();
 	void EndDialogue();
 
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
-	UDataTable* DialogueTable;
+	UDataTable* DialogueNormalTable;
+
+	UPROPERTY(EditAnywhere, Category = "Dialogue")
+	UDataTable* DialogueChoiceTable;
 
 	bool GetUseDialogue();
 	void SetUseIdalogue(bool _value);
@@ -48,6 +54,9 @@ protected:
 	FName NextID;
 
 	UPROPERTY()
+	EDialogueUIType NextUIType;
+
+	UPROPERTY()
 	FName EventKey;
 
 private: //DialogueWidgetList
@@ -60,5 +69,9 @@ private: //DialogueWidgetList
 
 	bool bDialogue = false;
 
-	const FDialogueRow* Row;
+	const FDialogueRow* NormalRow;
+	const FChoiceDialogueRow* ChoiceRow;
+
+	UPROPERTY()
+	int iPlayerChoiceNumber;
 };

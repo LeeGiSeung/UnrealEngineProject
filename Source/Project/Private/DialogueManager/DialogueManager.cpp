@@ -25,11 +25,12 @@ void ADialogueManager::BeginPlay()
 }
 
 //외부 Actor로 부터 상호작용해 컷신 시작하기
-void ADialogueManager::StartDialogue(FName _ID)
+void ADialogueManager::StartDialogue(FName _ID, EDialogueUIType _Type)
 {
 	//여기서 csv에 접근해서 ID, eventkey 등 여러개 가져와야함
 
-	ID = _ID;
+	ID = _ID; //처음 아이디 지정
+	UIType = _Type; //처음 UITYPE 지정
 	SetUseIdalogue(true);
 	//현재 보여줘야 하는 컷신을 정해줌
 	ShowCurDialogue();
@@ -38,29 +39,13 @@ void ADialogueManager::StartDialogue(FName _ID)
 //현재 적용돼있는 ID에 해당하는 Dialogue를 보여줌
 void ADialogueManager::ShowCurDialogue()
 {
-	if (!DialogueTable) {
+	if (!DialogueNormalTable || !DialogueChoiceTable) {
 		UE_LOG(LogTemp, Warning, TEXT("No DataTable"));
 		return;
 	}
-	
+
 	if (DialogueWidgetMap.Num() == 0) {
 		UE_LOG(LogTemp, Warning, TEXT("No Widget Map"));
-		return;
-	}
-
-	Row = DialogueTable->FindRow<FDialogueRow>(ID, TEXT("DialogueText"));
-
-	if (!Row || Row->NextID.IsNone()) {
-		EndDialogue();
-		UE_LOG(LogTemp, Warning, TEXT("No Row"));
-		return;
-	}
-
-	NextID = Row->NextID;
-
-	if (Row->UIType == EDialogueUIType::End) {
-		UE_LOG(LogTemp, Warning, TEXT("End"));
-		EndDialogue();
 		return;
 	}
 
@@ -68,24 +53,67 @@ void ADialogueManager::ShowCurDialogue()
 		RemoveCurDialogueWidget();
 	}
 
-	CurDialogueWidget = CreateWidget<UBaseDialogueWidget>(GetWorld()->GetFirstPlayerController(), DialogueWidgetMap[Row->UIType]);
-	
+	switch (UIType) {
+	case EDialogueUIType::Normal:
+		
+		
+		NormalRow = DialogueNormalTable->FindRow<FDialogueRow>(ID, TEXT("DialogueText"));
+		
+		if (!NormalRow) {
+			EndDialogue();
+			UE_LOG(LogTemp, Warning, TEXT("No Row"));
+			return;
+		}
+
+		NextID = NormalRow->NextID;
+
+		break;
+		//선택지 넘길 수 있게 추가해야함
+
+	case EDialogueUIType::Choice:
+		ChoiceRow = DialogueChoiceTable->FindRow<FChoiceDialogueRow>(ID, TEXT("DialogueText"));
+
+		if (!ChoiceRow) {
+			EndDialogue();
+			UE_LOG(LogTemp, Warning, TEXT("No Row"));
+			return;
+		}
+
+		PlayerChoiceNumberCheck();
+
+		break;
+
+	case EDialogueUIType::Auto:
+
+		break;
+
+
+	case EDialogueUIType::End:
+		UE_LOG(LogTemp, Warning, TEXT("End"));
+		EndDialogue();
+		return;
+	}
+
+	CurDialogueWidget = CreateWidget<UBaseDialogueWidget>(GetWorld()->GetFirstPlayerController(), DialogueWidgetMap[UIType]);
+
 	if (CurDialogueWidget) {
 
-		switch (Row->UIType)
+		switch (UIType)
 		{
-		case::EDialogueUIType::Normal:
-			ChangeCurDialogueWidgetText();
-			break;
-			//선택지 넘길 수 있게 추가해야함
-
-		case::EDialogueUIType::Choice:
-			ChangeCurDialogueWidgetText();
-			ChangeCurDialogueWidgetChoice();
-			break;
-
-		case::EDialogueUIType::Auto:
+		case EDialogueUIType::Normal:
+			ChangeCurDialogueWidgetNormalText();
+			UIType = NormalRow->UIType;
 			
+			break;
+
+		case EDialogueUIType::Choice:
+			ChangeCurDialogueWidgetChoiceText();
+			ChangeCurDialogueWidgetChoice();
+
+			UIType = ChoiceRow->UIType;
+			break;
+
+		case EDialogueUIType::Auto:
 			break;
 		}
 
@@ -98,6 +126,32 @@ void ADialogueManager::ShowCurDialogue()
 		return;
 	}
 	//연출도 해야함 DirectingManager에 연출 row 보내서 연출 시작
+}
+
+void ADialogueManager::PlayerChoiceNumberCheck()
+{
+	switch (iPlayerChoiceNumber)
+	{
+	case 1:
+		NextID = ChoiceRow->ChoiceTextAnswer1;
+		break;
+
+	case 2:
+		NextID = ChoiceRow->ChoiceTextAnswer2;
+		break;
+
+	case 3:
+		NextID = ChoiceRow->ChoiceTextAnswer3;
+		break;
+
+	case 4:
+		NextID = ChoiceRow->ChoiceTextAnswer4;
+		break;
+
+	default:
+		NextID = ChoiceRow->ChoiceTextAnswer1; //일단 첫번째 걸로 
+		break;
+	}
 }
 
 
@@ -132,46 +186,72 @@ void ADialogueManager::RemoveCurDialogueWidget()
 	CurDialogueWidget = nullptr;
 }
 
-void ADialogueManager::ChangeCurDialogueWidgetText()
+void ADialogueManager::ChangeCurDialogueWidgetNormalText()
 {
 	check(CurDialogueWidget);
 
-	if (Row->FirstText.IsEmptyOrWhitespace() && Row->SecondText.IsEmptyOrWhitespace()) {
+	if (NormalRow->FirstText.IsEmptyOrWhitespace() && NormalRow->SecondText.IsEmptyOrWhitespace()) {
 		//둘다 비어있으면 넘김
 		return;
 	}
-	else if (Row->FirstText.IsEmptyOrWhitespace() || Row->SecondText.IsEmptyOrWhitespace()) {
+	else if (NormalRow->FirstText.IsEmptyOrWhitespace() || NormalRow->SecondText.IsEmptyOrWhitespace()) {
 		//둘중 하나만 비어있으면 MiddleText만
 
-		if (Row->FirstText.IsEmptyOrWhitespace()) CurDialogueWidget->SetMiddleText(Row->SecondText);
-		else if (Row->SecondText.IsEmptyOrWhitespace()) CurDialogueWidget->SetMiddleText(Row->FirstText);
+		if (NormalRow->FirstText.IsEmptyOrWhitespace()) CurDialogueWidget->SetMiddleText(NormalRow->SecondText);
+		else if (NormalRow->SecondText.IsEmptyOrWhitespace()) CurDialogueWidget->SetMiddleText(NormalRow->FirstText);
 
 		CurDialogueWidget->SetUpEmpty();
 		CurDialogueWidget->SetDownEmpty();
 	}
 	else {
-		CurDialogueWidget->SetUpText(Row->FirstText);
-		CurDialogueWidget->SetDownText(Row->SecondText);
+		CurDialogueWidget->SetUpText(NormalRow->FirstText);
+		CurDialogueWidget->SetDownText(NormalRow->SecondText);
 
 		CurDialogueWidget->SetMiddleEmpty();
 	}
 
 }
 
+void ADialogueManager::ChangeCurDialogueWidgetChoiceText()
+{
+	check(CurDialogueWidget);
+
+	if (ChoiceRow->FirstText.IsEmptyOrWhitespace() && ChoiceRow->SecondText.IsEmptyOrWhitespace()) {
+		//둘다 비어있으면 넘김
+		return;
+	}
+	else if (ChoiceRow->FirstText.IsEmptyOrWhitespace() || ChoiceRow->SecondText.IsEmptyOrWhitespace()) {
+		//둘중 하나만 비어있으면 MiddleText만
+
+		if (ChoiceRow->FirstText.IsEmptyOrWhitespace()) CurDialogueWidget->SetMiddleText(ChoiceRow->SecondText);
+		else if (ChoiceRow->SecondText.IsEmptyOrWhitespace()) CurDialogueWidget->SetMiddleText(ChoiceRow->FirstText);
+
+		CurDialogueWidget->SetUpEmpty();
+		CurDialogueWidget->SetDownEmpty();
+	}
+	else {
+		CurDialogueWidget->SetUpText(ChoiceRow->FirstText);
+		CurDialogueWidget->SetDownText(ChoiceRow->SecondText);
+
+		CurDialogueWidget->SetMiddleEmpty();
+	}
+}
+
 void ADialogueManager::ChangeCurDialogueWidgetChoice()
 {
-
+	CurDialogueWidget;
 }
 
 void ADialogueManager::EndDialogue()
 {
-	RemoveCurDialogueWidget();
+	if(CurDialogueWidget) RemoveCurDialogueWidget();
+	
 	SetUseIdalogue(false);
 }
 
 void ADialogueManager::NextDialogue() 
 {
-	StartDialogue(NextID);
+	StartDialogue(NextID, UIType);
 }
 
 bool ADialogueManager::GetUseDialogue()

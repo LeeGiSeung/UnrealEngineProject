@@ -5,7 +5,8 @@
 
 ADialogueTestActor::ADialogueTestActor()
 {
-	DialogueName = "ID_TEST_0";
+	DialogueName = "ID_NORMAL_0";
+	StartUIType = EDialogueUIType::Normal;
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 

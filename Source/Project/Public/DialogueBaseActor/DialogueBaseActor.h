@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "DialogueType/DialogueType.h"
 
 #include "DialogueBaseActor.generated.h"
 
@@ -33,4 +34,6 @@ public:
 
 	FName DialogueName;
 
+	UPROPERTY()
+	EDialogueUIType StartUIType;
 };
