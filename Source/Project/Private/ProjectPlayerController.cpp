@@ -768,10 +768,31 @@ void AProjectPlayerController::ReturnToPlayerCamera()
         0.f,
         EViewTargetBlendFunction::VTBlend_EaseInOut
     );
+    AllowLookMove();
+}
 
-    //시야, 이동 변경 허용
+void AProjectPlayerController::AllowLookMove()
+{
+    if (!IsLookInputIgnored()) return;
+
+    SetInputMode(FInputModeGameOnly());
+
+    bShowMouseCursor = false;
+    bEnableClickEvents = false;
+    bEnableMouseOverEvents = false;
+
     SetIgnoreLookInput(false);
     SetIgnoreMoveInput(false);
+
+    FSlateApplication::Get().SetAllUserFocusToGameViewport();
+}
+
+void AProjectPlayerController::IgnoreLookMove()
+{
+    if (IsLookInputIgnored()) return;
+
+    SetIgnoreLookInput(true);
+    SetIgnoreMoveInput(true);
 }
 
 void AProjectPlayerController::UseCable() {
@@ -857,7 +878,7 @@ void AProjectPlayerController::StartDialogue() {
         AActor* actor = result.GetActor();
 
         if (ADialogueBaseActor* diaActor = Cast<ADialogueBaseActor>(actor)) {
-            diaActor->StartDialogue();
+            if(diaActor) diaActor->StartDialogue();
             break;
         }
     }

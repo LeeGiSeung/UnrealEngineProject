@@ -5,6 +5,7 @@
 #include "DialogueType/DialogueType.h"
 #include "Engine/DataTable.h"
 
+#include "EngineUtils.h"
 #include "DirectingManager/DirectingManager.h"
 
 //#각 Widget들
@@ -21,7 +22,8 @@ ADialogueManager::ADialogueManager()
 void ADialogueManager::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	ProjectPlayerController = Cast<AProjectPlayerController>(GetWorld()->GetFirstPlayerController());
 }
 
 //외부 Actor로 부터 상호작용해 컷신 시작하기
@@ -33,6 +35,8 @@ void ADialogueManager::StartDialogue(FName _ID, EDialogueUIType _Type)
 	UIType = _Type; //처음 UITYPE 지정
 	SetUseIdalogue(true);
 	//현재 보여줘야 하는 컷신을 정해줌
+	ProjectPlayerController->IgnoreLookMove();
+
 	ShowCurDialogue();
 }
 
@@ -41,11 +45,13 @@ void ADialogueManager::ShowCurDialogue()
 {
 	if (!DialogueNormalTable || !DialogueChoiceTable) {
 		UE_LOG(LogTemp, Warning, TEXT("No DataTable"));
+		ProjectPlayerController->AllowLookMove();
 		return;
 	}
 
 	if (DialogueWidgetMap.Num() == 0) {
 		UE_LOG(LogTemp, Warning, TEXT("No Widget Map"));
+		ProjectPlayerController->AllowLookMove();
 		return;
 	}
 
@@ -89,7 +95,6 @@ void ADialogueManager::ShowCurDialogue()
 
 
 	case EDialogueUIType::End:
-		UE_LOG(LogTemp, Warning, TEXT("End"));
 		EndDialogue();
 		return;
 	}
@@ -240,25 +245,47 @@ void ADialogueManager::ChangeCurDialogueWidgetChoiceText()
 void ADialogueManager::ChangeCurDialogueWidgetChoice()
 {
 	CurDialogueWidget;
+	ChoiceRow;
+
+	int NumCount = 0;
+
+	if (!ChoiceRow->ChoiceTextAnswer1.IsNone()) NumCount++;
+	if (!ChoiceRow->ChoiceTextAnswer2.IsNone()) NumCount++;
+	if (!ChoiceRow->ChoiceTextAnswer3.IsNone()) NumCount++;
+	if (!ChoiceRow->ChoiceTextAnswer4.IsNone()) NumCount++;
+
+	if (NumCount == 2) {
+		Cast<UChoiceDialogueWidget>(CurDialogueWidget)->SetTwoChoice();
+	}
+	else if (NumCount == 3) {
+		Cast<UChoiceDialogueWidget>(CurDialogueWidget)->SetThreeChoice();
+	}
+	else if(NumCount == 4){
+		Cast<UChoiceDialogueWidget>(CurDialogueWidget)->SetFourChoice();
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("NO CHOICENUM"));
+		return;
+	}
+
 }
 
 void ADialogueManager::EndDialogue()
 {
 	if(CurDialogueWidget) RemoveCurDialogueWidget();
 	
+	ProjectPlayerController->AllowLookMove();
 	SetUseIdalogue(false);
 }
 
-void ADialogueManager::NextDialogue() 
+void ADialogueManager::NextNormalDialogue() 
 {
 	StartDialogue(NextID, UIType);
 }
 
-void ADialogueManager::OnPlayerChoiceSelected(int32 ChoiceNumber)
+void ADialogueManager::NextChoiceDialogue()
 {
-	iPlayerChoiceNumber = ChoiceNumber;
-	PlayerChoiceNumberCheck();
-	NextDialogue();
+
 }
 
 bool ADialogueManager::GetUseDialogue()
@@ -269,10 +296,5 @@ bool ADialogueManager::GetUseDialogue()
 void ADialogueManager::SetUseIdalogue(bool _value)
 {
 	bDialogue = _value;
-}
-
-void ADialogueManager::testButtonClick()
-{
-	UE_LOG(LogTemp, Warning, TEXT("SDAF"));
 }
 

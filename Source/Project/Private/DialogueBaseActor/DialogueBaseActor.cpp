@@ -42,7 +42,7 @@ void ADialogueBaseActor::StartDialogue()
         DialogueManager->StartDialogue(DialogueName, StartUIType);
     }
     else {
-        DialogueManager->NextDialogue();
+        DialogueManager->NextNormalDialogue();
     }
 }
 

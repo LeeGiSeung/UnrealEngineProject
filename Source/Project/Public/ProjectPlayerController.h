@@ -47,6 +47,8 @@ public:
 	void CameraGrayTrans();
 	void CameraColorTrans();
 	void ReturnToPlayerCamera();
+	void AllowLookMove();
+	void IgnoreLookMove();
 	void SpecialCameraSetting();
 
 	//BluePrint Function

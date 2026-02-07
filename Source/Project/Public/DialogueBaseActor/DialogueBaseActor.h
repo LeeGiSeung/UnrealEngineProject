@@ -32,6 +32,7 @@ public:
 	UPROPERTY()
 	ADialogueManager* DialogueManager;
 
+	UPROPERTY(BlueprintReadWrite, Category = "DialogueName")
 	FName DialogueName;
 
 	UPROPERTY()

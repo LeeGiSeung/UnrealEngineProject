@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "FDialogueRow/FDialogueRow.h"
 #include "DialogueRow/ChoiceDialogueRow.h"
+#include "ProjectPlayerController.h"
 #include "DialogueManager.generated.h"
 
 class UNormalDialogueWidget;
@@ -26,7 +27,9 @@ public:
 	void ShowCurDialogue();
 	void PlayerChoiceNumberCheck();
 	void WidgetAddViewPort();
-	void NextDialogue();
+	void NextNormalDialogue();
+	void NextChoiceDialogue();
+	
 
 	void RemoveCurDialogueWidget();
 	void ChangeCurDialogueWidgetNormalText();
@@ -40,11 +43,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
 	UDataTable* DialogueChoiceTable;
 
-	UFUNCTION()
-	void OnPlayerChoiceSelected(int32 ChoiceNumber);
-
 	bool GetUseDialogue();
 	void SetUseIdalogue(bool _value);
+
+	const FDialogueRow* GetNormalRow() { return NormalRow; }
+	const FChoiceDialogueRow* GetChoiceRow() { return ChoiceRow; };
 
 protected:
 	UPROPERTY()
@@ -62,9 +65,6 @@ protected:
 	UPROPERTY()
 	FName EventKey;
 
-	UFUNCTION(BlueprintCallable, Category = "Dialogue")
-	void testButtonClick();
-
 private: //DialogueWidgetList
 
 	UPROPERTY(EditAnywhere, Category = "CurWidget")
@@ -80,4 +80,7 @@ private: //DialogueWidgetList
 
 	UPROPERTY()
 	int iPlayerChoiceNumber;
+
+	UPROPERTY(VisibleAnywhere, Category = "DialogueManager")
+	AProjectPlayerController* ProjectPlayerController;
 };
