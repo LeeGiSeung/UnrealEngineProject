@@ -45,6 +45,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
 	UDataTable* DialogueChoiceTable;
 
+	UPROPERTY(EditAnywhere, Category = "Dialogue")
+	UDataTable* DialogueAutoTable;
+
 	bool GetUseDialogue();
 	void SetUseIdalogue(bool _value);
 
