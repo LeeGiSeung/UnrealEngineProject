@@ -37,11 +37,13 @@ void ADialogueBaseActor::Tick(float DeltaTime)
 
 void ADialogueBaseActor::StartDialogue()
 {
+    if (!DialogueManager) return;
 
     if (!DialogueManager->GetUseDialogue()) {
         DialogueManager->StartDialogue(DialogueName, StartUIType);
     }
     else {
+        if(DialogueManager->GetUIType() != EDialogueUIType::Auto && DialogueManager->GetUIType() != EDialogueUIType::Choice)
         DialogueManager->NextNormalDialogue();
     }
 }

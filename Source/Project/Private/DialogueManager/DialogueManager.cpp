@@ -7,6 +7,7 @@
 
 #include "EngineUtils.h"
 #include "DirectingManager/DirectingManager.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
 
 //#각 Widget들
 #include "DialogueWidget/ChoiceDialogueWidget/ChoiceDialogueWidget.h"
@@ -36,6 +37,8 @@ void ADialogueManager::StartDialogue(FName _ID, EDialogueUIType _Type)
 	SetUseIdalogue(true);
 	//현재 보여줘야 하는 컷신을 정해줌
 	ProjectPlayerController->IgnoreLookMove();
+
+	SaveAndRemoveAllWidgets();
 
 	ShowCurDialogue();
 }
@@ -98,6 +101,8 @@ void ADialogueManager::ShowCurDialogue()
 		EndDialogue();
 		return;
 	}
+
+	CurUIType = UIType;
 
 	CurDialogueWidget = CreateWidget<UBaseDialogueWidget>(GetWorld()->GetFirstPlayerController(), DialogueWidgetMap[UIType]);
 
@@ -275,7 +280,48 @@ void ADialogueManager::EndDialogue()
 	if(CurDialogueWidget) RemoveCurDialogueWidget();
 	
 	ProjectPlayerController->AllowLookMove();
+	ShowAllWidget();
 	SetUseIdalogue(false);
+}
+
+void ADialogueManager::SaveAndRemoveAllWidgets()
+{
+	if (StoredWidgets.Num() != 0) return; //이미 들어가있으면 return;
+
+	TArray<UUserWidget*> FoundWidgets;
+
+	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(
+		GetWorld(),
+		FoundWidgets,
+		UUserWidget::StaticClass(),
+		false   // TopLevelOnly (보통 false 추천)
+	);
+
+	for (UUserWidget* Widget : FoundWidgets)
+	{
+		if (!Widget) continue;
+
+		StoredWidgets.Add(Widget);
+		Widget->RemoveFromParent();
+	}
+}
+
+void ADialogueManager::ShowAllWidget()
+{
+	if (StoredWidgets.Num() == 0) return;
+
+	for (UUserWidget* Widget : StoredWidgets)
+	{
+		if (!Widget) continue;
+
+		if (!Widget->IsInViewport())
+		{
+			Widget->AddToViewport();
+		}
+	}
+
+	StoredWidgets.Empty();
+
 }
 
 void ADialogueManager::NextNormalDialogue() 

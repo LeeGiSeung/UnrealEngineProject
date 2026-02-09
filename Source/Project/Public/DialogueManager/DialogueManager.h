@@ -36,6 +36,8 @@ public:
 	void ChangeCurDialogueWidgetChoiceText();
 	void ChangeCurDialogueWidgetChoice();
 	void EndDialogue();
+	void SaveAndRemoveAllWidgets();
+	void ShowAllWidget();
 
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
 	UDataTable* DialogueNormalTable;
@@ -49,9 +51,14 @@ public:
 	const FDialogueRow* GetNormalRow() { return NormalRow; }
 	const FChoiceDialogueRow* GetChoiceRow() { return ChoiceRow; };
 
+	EDialogueUIType GetUIType() {return CurUIType;}
+
 protected:
 	UPROPERTY()
 	EDialogueUIType UIType;
+
+	UPROPERTY()
+	EDialogueUIType CurUIType;
 
 	UPROPERTY()
 	FName ID;
@@ -83,4 +90,7 @@ private: //DialogueWidgetList
 
 	UPROPERTY(VisibleAnywhere, Category = "DialogueManager")
 	AProjectPlayerController* ProjectPlayerController;
+
+	UPROPERTY()
+	TArray<UUserWidget*> StoredWidgets;
 };
