@@ -50,4 +50,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EDialogueUIType UIType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName Speaker;
 };

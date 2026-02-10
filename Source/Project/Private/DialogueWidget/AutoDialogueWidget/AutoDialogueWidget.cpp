@@ -24,14 +24,14 @@ void UAutoDialogueWidget::NativeConstruct()
     TextTime += AutoRow->FirstText.ToString().Len();
     TextTime += AutoRow->SecondText.ToString().Len();
 
-    UE_LOG(LogTemp, Warning, TEXT("%f"), TextTime);
+    //UE_LOG(LogTemp, Warning, TEXT("%f"), TextTime);
 }
 
 void UAutoDialogueWidget::CheckAutoDialogueTime(float DeltaTime)
 {
     CurAutoTime += DeltaTime * 3;
 
-    UE_LOG(LogTemp, Warning, TEXT("%f"), CurAutoTime);
+    //UE_LOG(LogTemp, Warning, TEXT("%f"), CurAutoTime);
 
     if (CurAutoTime >= TextTime) {
         UE_LOG(LogTemp, Warning, TEXT("Next Dialogue"));

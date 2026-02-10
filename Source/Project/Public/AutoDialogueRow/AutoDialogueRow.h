@@ -16,7 +16,7 @@ struct FAutoDialogueRow : public FTableRowBase
     FName ID;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FText Speaker;
+    FName Speaker;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FText FirstText;

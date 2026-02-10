@@ -12,6 +12,7 @@
 
 class UNormalDialogueWidget;
 class UBaseDialogueWidget;
+class USoundManager;
 
 UCLASS()
 class PROJECT_API ADialogueManager : public AActor
@@ -91,6 +92,9 @@ private: //DialogueWidgetList
 	const FDialogueRow* NormalRow;
 	const FChoiceDialogueRow* ChoiceRow;
 	const FAutoDialogueRow* AutoRow;
+
+	UPROPERTY()
+	USoundManager* SoundManager;
 
 	UPROPERTY()
 	int iPlayerChoiceNumber;

@@ -14,6 +14,9 @@
 #include "DialogueWidget/NormalDialogueWidget/NormalDialogueWidget.h"
 #include "DialogueWidget/BaseDialogueWidget.h"
 
+//#SoundManager
+#include "Manager/SoundManager.h"
+
 ADialogueManager::ADialogueManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -25,6 +28,13 @@ void ADialogueManager::BeginPlay()
 	Super::BeginPlay();
 
 	ProjectPlayerController = Cast<AProjectPlayerController>(GetWorld()->GetFirstPlayerController());
+
+	SoundManager = GetWorld()->GetGameInstance()->GetSubsystem<USoundManager>();
+		
+	if (!SoundManager)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("NO SOUNDMANAGER"));
+	}
 }
 
 //외부 Actor로 부터 상호작용해 컷신 시작하기
@@ -76,6 +86,10 @@ void ADialogueManager::ShowCurDialogue()
 
 		NextID = NormalRow->NextID;
 
+		if (!NormalRow->Speaker.IsNone()) {
+			SoundManager->PlayDialogueSound(NormalRow->Speaker);
+		}
+
 		break;
 		//선택지 넘길 수 있게 추가해야함
 
@@ -90,6 +104,10 @@ void ADialogueManager::ShowCurDialogue()
 
 		PlayerChoiceNumberCheck();
 
+		if (!ChoiceRow->Speaker.IsNone()) {
+			SoundManager->PlayDialogueSound(ChoiceRow->Speaker);
+		}
+
 		break;
 
 	case EDialogueUIType::Auto:
@@ -100,6 +118,10 @@ void ADialogueManager::ShowCurDialogue()
 			EndDialogue();
 			UE_LOG(LogTemp, Warning, TEXT("No AutoRow"));
 			return;
+		}
+
+		if (!AutoRow->Speaker.IsNone()) {
+			SoundManager->PlayDialogueSound(AutoRow->Speaker);
 		}
 
 		break;
