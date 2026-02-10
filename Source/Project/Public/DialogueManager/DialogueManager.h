@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "FDialogueRow/FDialogueRow.h"
+#include "AutoDialogueRow/AutoDialogueRow.h"
 #include "DialogueRow/ChoiceDialogueRow.h"
 #include "ProjectPlayerController.h"
 #include "DialogueManager.generated.h"
@@ -34,6 +35,7 @@ public:
 	void RemoveCurDialogueWidget();
 	void ChangeCurDialogueWidgetNormalText();
 	void ChangeCurDialogueWidgetChoiceText();
+	void ChangeCurDialogueWidgetAutoText();
 	void ChangeCurDialogueWidgetChoice();
 	void EndDialogue();
 	void SaveAndRemoveAllWidgets();
@@ -53,6 +55,7 @@ public:
 
 	const FDialogueRow* GetNormalRow() { return NormalRow; }
 	const FChoiceDialogueRow* GetChoiceRow() { return ChoiceRow; };
+	const FAutoDialogueRow* GetAutoRow() { return AutoRow; };
 
 	EDialogueUIType GetUIType() {return CurUIType;}
 
@@ -87,6 +90,7 @@ private: //DialogueWidgetList
 
 	const FDialogueRow* NormalRow;
 	const FChoiceDialogueRow* ChoiceRow;
+	const FAutoDialogueRow* AutoRow;
 
 	UPROPERTY()
 	int iPlayerChoiceNumber;

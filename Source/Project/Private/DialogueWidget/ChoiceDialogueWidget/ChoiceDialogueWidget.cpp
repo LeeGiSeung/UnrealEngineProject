@@ -17,7 +17,6 @@ void UChoiceDialogueWidget::NativeConstruct()
     check(DialogueManager); // 없으면 바로 알 수 있게
 
     ProjectPlayerController = Cast<AProjectPlayerController>(GetWorld()->GetFirstPlayerController());
-    UE_LOG(LogTemp, Warning, TEXT("Choice"));
     
     //ProjectPlayerController->IgnoreLookMove();
    

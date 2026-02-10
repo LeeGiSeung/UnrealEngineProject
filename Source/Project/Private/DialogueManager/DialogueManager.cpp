@@ -70,7 +70,7 @@ void ADialogueManager::ShowCurDialogue()
 		
 		if (!NormalRow) {
 			EndDialogue();
-			UE_LOG(LogTemp, Warning, TEXT("No Row"));
+			UE_LOG(LogTemp, Warning, TEXT("No NormalRow"));
 			return;
 		}
 
@@ -80,11 +80,11 @@ void ADialogueManager::ShowCurDialogue()
 		//선택지 넘길 수 있게 추가해야함
 
 	case EDialogueUIType::Choice:
-		ChoiceRow = DialogueChoiceTable->FindRow<FChoiceDialogueRow>(ID, TEXT("DialogueText"));
+		ChoiceRow = DialogueChoiceTable->FindRow<FChoiceDialogueRow>(ID, TEXT("No Choice"));
 
 		if (!ChoiceRow) {
 			EndDialogue();
-			UE_LOG(LogTemp, Warning, TEXT("No Row"));
+			UE_LOG(LogTemp, Warning, TEXT("No ChoiceRow"));
 			return;
 		}
 
@@ -93,6 +93,14 @@ void ADialogueManager::ShowCurDialogue()
 		break;
 
 	case EDialogueUIType::Auto:
+
+		AutoRow = DialogueAutoTable->FindRow<FAutoDialogueRow>(ID, TEXT("No Auto"));
+
+		if (!AutoRow) {
+			EndDialogue();
+			UE_LOG(LogTemp, Warning, TEXT("No AutoRow"));
+			return;
+		}
 
 		break;
 
@@ -124,6 +132,8 @@ void ADialogueManager::ShowCurDialogue()
 			break;
 
 		case EDialogueUIType::Auto:
+			ChangeCurDialogueWidgetAutoText();
+			UIType = AutoRow->UIType;
 			break;
 		}
 
@@ -242,6 +252,29 @@ void ADialogueManager::ChangeCurDialogueWidgetChoiceText()
 	else {
 		CurDialogueWidget->SetUpText(ChoiceRow->FirstText);
 		CurDialogueWidget->SetDownText(ChoiceRow->SecondText);
+
+		CurDialogueWidget->SetMiddleEmpty();
+	}
+}
+
+void ADialogueManager::ChangeCurDialogueWidgetAutoText()
+{
+	if (AutoRow->FirstText.IsEmptyOrWhitespace() && AutoRow->SecondText.IsEmptyOrWhitespace()) {
+		//둘다 비어있으면 넘김
+		return;
+	}
+	else if (AutoRow->FirstText.IsEmptyOrWhitespace() || AutoRow->SecondText.IsEmptyOrWhitespace()) {
+		//둘중 하나만 비어있으면 MiddleText만
+
+		if (AutoRow->FirstText.IsEmptyOrWhitespace()) CurDialogueWidget->SetMiddleText(AutoRow->SecondText);
+		else if (AutoRow->SecondText.IsEmptyOrWhitespace()) CurDialogueWidget->SetMiddleText(AutoRow->FirstText);
+
+		CurDialogueWidget->SetUpEmpty();
+		CurDialogueWidget->SetDownEmpty();
+	}
+	else {
+		CurDialogueWidget->SetUpText(AutoRow->FirstText);
+		CurDialogueWidget->SetDownText(AutoRow->SecondText);
 
 		CurDialogueWidget->SetMiddleEmpty();
 	}
