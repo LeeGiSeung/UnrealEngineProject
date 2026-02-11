@@ -29,6 +29,11 @@ public:
 	void SetMiddleEmpty() { TextBlockMiddle->SetText(FText::GetEmpty()); }
 	void SetDownEmpty() { TextBlockDown->SetText(FText::GetEmpty()); }
 
+//CALLBACKFUNCTION
+public:
+	UFUNCTION()
+	virtual void OnFinishedPlayDialogueSound();
+
 private:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* TextBlockUp;

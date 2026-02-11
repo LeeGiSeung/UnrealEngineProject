@@ -6,6 +6,9 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "DialogueType/DialogueType.h"
+#include "DialogueManager/DialogueManager.h"
+
 #include "SoundManager.generated.h"
 
 class USoundGameInstance;
@@ -19,11 +22,26 @@ class PROJECT_API USoundManager : public UGameInstanceSubsystem
 
 public:
 	void PlaySFX();
-	void PlayDialogueSound(FName ID);
 	void PlayBGM();
-	
+
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	UPROPERTY()
 	const UDataTable* SoundTable;
+
+	UPROPERTY()
+	ADialogueManager* DialogueManager;
+
+//CALLBACKFUNCTION
+public:
+	UFUNCTION()
+	void OnFinishedPlayDialogueSound();
+
+//AutoDialogue
+public:
+	void PlayDialogueSound(FName ID, EDialogueUIType type);
+
+	FTimerHandle SoundDelayHandle;
+
+	EDialogueUIType CurType;
 };

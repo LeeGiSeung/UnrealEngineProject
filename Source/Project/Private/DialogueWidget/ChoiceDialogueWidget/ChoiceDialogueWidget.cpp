@@ -18,12 +18,6 @@ void UChoiceDialogueWidget::NativeConstruct()
 
     ProjectPlayerController = Cast<AProjectPlayerController>(GetWorld()->GetFirstPlayerController());
     
-    //ProjectPlayerController->IgnoreLookMove();
-   
-    //ProjectPlayerController->bShowMouseCursor = true;
-
-    //DialogueManager에서 Row 가져와서 Input 가져오는걸 통해 DialogueManager로 넘겨서 PlayerChoiceDialogue를 보냄
-    
     ChoiceRow = DialogueManager->GetChoiceRow(); //현재 선택지 Row 가져옴
 
 }

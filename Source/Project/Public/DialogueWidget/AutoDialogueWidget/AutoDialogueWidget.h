@@ -34,4 +34,8 @@ public:
 
 	//virtual void EventTick() override;
 
+	//CALLBACKFUNCTION
+public:
+	void OnFinishedPlayDialogueSound() override;
+
 };

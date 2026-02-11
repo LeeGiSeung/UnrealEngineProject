@@ -29,13 +29,18 @@ void UAutoDialogueWidget::NativeConstruct()
 
 void UAutoDialogueWidget::CheckAutoDialogueTime(float DeltaTime)
 {
+    if (!AutoRow->Speaker.IsNone()) return; //혹시 Speaker가 지정돼있으면 안됨
+
     CurAutoTime += DeltaTime * 3;
 
-    //UE_LOG(LogTemp, Warning, TEXT("%f"), CurAutoTime);
-
     if (CurAutoTime >= TextTime) {
-        UE_LOG(LogTemp, Warning, TEXT("Next Dialogue"));
         CurAutoTime = 0.f;
         DialogueManager->StartDialogue(AutoRow->NextID, AutoRow->UIType);
     }
+}
+
+void UAutoDialogueWidget::OnFinishedPlayDialogueSound()
+{
+    UE_LOG(LogTemp, Warning, TEXT("Finish Auto Dialogue"));
+    return;
 }

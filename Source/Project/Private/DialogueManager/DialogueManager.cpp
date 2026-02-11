@@ -56,6 +56,7 @@ void ADialogueManager::StartDialogue(FName _ID, EDialogueUIType _Type)
 //현재 적용돼있는 ID에 해당하는 Dialogue를 보여줌
 void ADialogueManager::ShowCurDialogue()
 {
+
 	if (!DialogueNormalTable || !DialogueChoiceTable) {
 		UE_LOG(LogTemp, Warning, TEXT("No DataTable"));
 		ProjectPlayerController->AllowLookMove();
@@ -87,7 +88,7 @@ void ADialogueManager::ShowCurDialogue()
 		NextID = NormalRow->NextID;
 
 		if (!NormalRow->Speaker.IsNone()) {
-			SoundManager->PlayDialogueSound(NormalRow->Speaker);
+			SoundManager->PlayDialogueSound(NormalRow->Speaker, EDialogueUIType::Normal);
 		}
 
 		break;
@@ -105,7 +106,7 @@ void ADialogueManager::ShowCurDialogue()
 		PlayerChoiceNumberCheck();
 
 		if (!ChoiceRow->Speaker.IsNone()) {
-			SoundManager->PlayDialogueSound(ChoiceRow->Speaker);
+			SoundManager->PlayDialogueSound(ChoiceRow->Speaker, EDialogueUIType::Choice);
 		}
 
 		break;
@@ -120,8 +121,10 @@ void ADialogueManager::ShowCurDialogue()
 			return;
 		}
 
+		NextID = AutoRow->NextID;
+
 		if (!AutoRow->Speaker.IsNone()) {
-			SoundManager->PlayDialogueSound(AutoRow->Speaker);
+			SoundManager->PlayDialogueSound(AutoRow->Speaker, EDialogueUIType::Auto);
 		}
 
 		break;
