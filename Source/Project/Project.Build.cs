@@ -9,6 +9,7 @@ public class Project : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "Water", "Niagara", "GameplayTags", "CableComponent",    "Slate",
-    "SlateCore" });
+    "SlateCore",    "LevelSequence",
+    "MovieScene" });
 	}
 }

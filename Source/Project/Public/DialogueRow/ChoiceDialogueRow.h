@@ -53,4 +53,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName Speaker;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName DirectingKey;
 };

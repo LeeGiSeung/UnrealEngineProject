@@ -6,7 +6,6 @@
 #include "Engine/DataTable.h"
 
 #include "EngineUtils.h"
-#include "DirectingManager/DirectingManager.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
 //#각 Widget들
@@ -34,6 +33,17 @@ void ADialogueManager::BeginPlay()
 	if (!SoundManager)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("NO SOUNDMANAGER"));
+	}
+
+	for (TActorIterator<ADirectingManager> It(GetWorld()); It; ++It)
+	{
+		DirectingManager = *It;
+		break;
+	}
+
+	if (!DirectingManager)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("NO DIRECTINGMANAGER"));
 	}
 }
 
@@ -91,6 +101,8 @@ void ADialogueManager::ShowCurDialogue()
 			SoundManager->PlayDialogueSound(NormalRow->Speaker, EDialogueUIType::Normal);
 		}
 
+		EventKey = NormalRow->DirectingKey;
+
 		break;
 		//선택지 넘길 수 있게 추가해야함
 
@@ -109,6 +121,8 @@ void ADialogueManager::ShowCurDialogue()
 			SoundManager->PlayDialogueSound(ChoiceRow->Speaker, EDialogueUIType::Choice);
 		}
 
+		EventKey = ChoiceRow->DirectingKey;
+
 		break;
 
 	case EDialogueUIType::Auto:
@@ -126,6 +140,8 @@ void ADialogueManager::ShowCurDialogue()
 		if (!AutoRow->Speaker.IsNone()) {
 			SoundManager->PlayDialogueSound(AutoRow->Speaker, EDialogueUIType::Auto);
 		}
+
+		EventKey = AutoRow->DirectingKey;
 
 		break;
 
@@ -170,7 +186,8 @@ void ADialogueManager::ShowCurDialogue()
 		UE_LOG(LogTemp, Warning, TEXT("NO WIDGET"));
 		return;
 	}
-	//연출도 해야함 DirectingManager에 연출 row 보내서 연출 시작
+	
+	DirectingManager->PlayEvent(EventKey);
 }
 
 void ADialogueManager::PlayerChoiceNumberCheck()

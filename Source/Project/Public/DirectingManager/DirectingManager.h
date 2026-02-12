@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+//#include "LevelSequence.h"
+
 #include "DirectingManager.generated.h"
 
 UCLASS()
@@ -22,5 +24,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	void PlayEvent(FName DirectingKey);
 
 };

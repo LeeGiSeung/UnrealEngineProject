@@ -21,3 +21,9 @@ void ADirectingManager::Tick(float DeltaTime)
 
 }
 
+void ADirectingManager::PlayEvent(FName DirectingKey)
+{
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *DirectingKey.ToString());
+	return;
+}
+

@@ -8,6 +8,7 @@
 #include "AutoDialogueRow/AutoDialogueRow.h"
 #include "DialogueRow/ChoiceDialogueRow.h"
 #include "ProjectPlayerController.h"
+#include "DirectingManager/DirectingManager.h"
 #include "DialogueManager.generated.h"
 
 class UNormalDialogueWidget;
@@ -104,4 +105,7 @@ private: //DialogueWidgetList
 
 	UPROPERTY()
 	TArray<UUserWidget*> StoredWidgets;
+
+	UPROPERTY()
+	ADirectingManager* DirectingManager;
 };
