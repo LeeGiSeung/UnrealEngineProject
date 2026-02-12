@@ -151,6 +151,10 @@ void ADialogueManager::ShowCurDialogue()
 		return;
 	}
 
+	if (!EventKey.IsNone()) {
+		DirectingManager->PlayEvent(EventKey);
+	}
+
 	CurUIType = UIType;
 
 	CurDialogueWidget = CreateWidget<UBaseDialogueWidget>(GetWorld()->GetFirstPlayerController(), DialogueWidgetMap[UIType]);
@@ -187,7 +191,6 @@ void ADialogueManager::ShowCurDialogue()
 		return;
 	}
 	
-	DirectingManager->PlayEvent(EventKey);
 }
 
 void ADialogueManager::PlayerChoiceNumberCheck()

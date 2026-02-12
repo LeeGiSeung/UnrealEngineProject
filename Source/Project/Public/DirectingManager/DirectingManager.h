@@ -4,7 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-//#include "LevelSequence.h"
+#include "LevelSequence.h"
+#include "RowFolder/EventRow.h"
 
 #include "DirectingManager.generated.h"
 
@@ -26,5 +27,11 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void PlayEvent(FName DirectingKey);
+	void PlayLevelSequence(ULevelSequence* Sequence);
 
+	UPROPERTY(EditAnywhere, Category = "LevelSequence")
+	UDataTable* EventTable;
+
+	const FEventRow* Row;
+	
 };

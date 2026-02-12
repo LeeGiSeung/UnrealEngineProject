@@ -2,6 +2,9 @@
 
 
 #include "DirectingManager/DirectingManager.h"
+#include "LevelSequencePlayer.h"
+#include "LevelSequenceActor.h"
+#include "Kismet/GameplayStatics.h"
 
 ADirectingManager::ADirectingManager()
 {
@@ -23,7 +26,35 @@ void ADirectingManager::Tick(float DeltaTime)
 
 void ADirectingManager::PlayEvent(FName DirectingKey)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *DirectingKey.ToString());
-	return;
+    if (!EventTable) return;
+
+	Row = EventTable->FindRow<FEventRow>(DirectingKey, TEXT("NO FIND EVENT KEY"));
+
+    if (!Row) return;
+
+    PlayLevelSequence(Row->LevelSequence);
+
+}
+
+void ADirectingManager::PlayLevelSequence(ULevelSequence* Sequence)
+{
+    if (!Sequence) return;
+
+    ALevelSequenceActor* SeqActor = nullptr;
+
+    FMovieSceneSequencePlaybackSettings Settings;
+
+    ULevelSequencePlayer* SequencePlayer =
+        ULevelSequencePlayer::CreateLevelSequencePlayer(
+            GetWorld(),
+            Sequence,
+            Settings,
+            SeqActor
+        );
+
+    if (SequencePlayer)
+    {
+        SequencePlayer->Play();
+    }
 }
 
