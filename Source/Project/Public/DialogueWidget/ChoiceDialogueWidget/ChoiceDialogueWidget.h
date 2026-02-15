@@ -8,6 +8,7 @@
 #include "ProjectPlayerController.h"
 #include "Components/Button.h"
 #include "DialogueManager/DialogueManager.h"
+#include "DirectingManager/DirectingManager.h"
 
 #include "ChoiceDialogueWidget.generated.h"
 
@@ -92,5 +93,8 @@ private:
 	FName NextID;
 
 	const FChoiceDialogueRow* ChoiceRow;
+
+	UPROPERTY()
+	ADirectingManager* DirectingManager;
 
 };

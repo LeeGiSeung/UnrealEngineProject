@@ -19,4 +19,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<ULevelSequence> LevelSequence;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 LoopFrame;
 };

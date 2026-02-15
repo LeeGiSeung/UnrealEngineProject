@@ -20,6 +20,17 @@ void UChoiceDialogueWidget::NativeConstruct()
     
     ChoiceRow = DialogueManager->GetChoiceRow(); //현재 선택지 Row 가져옴
 
+    for (TActorIterator<ADirectingManager> It(GetWorld()); It; ++It)
+    {
+        DirectingManager = *It;
+        break;
+    }
+
+    if (!DirectingManager)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("NO DIRECTINGMANAGER"));
+    }
+
 }
 
 void UChoiceDialogueWidget::PlayerChoiceSelect(int _num)
@@ -36,6 +47,8 @@ void UChoiceDialogueWidget::PlayerChoiceSelect(int _num)
     //UE_LOG(LogTemp, Warning, TEXT("%s"), *NextID.ToString());
 
     ProjectPlayerController->bShowMouseCursor = false;
+
+    DirectingManager->SetLevelSequencePlay(true);
 
     DialogueManager->StartDialogue(NextID, ChoiceRow->UIType);
 }

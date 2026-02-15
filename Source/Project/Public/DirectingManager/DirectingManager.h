@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "LevelSequence.h"
 #include "RowFolder/EventRow.h"
+#include "LevelSequenceActor.h"
 
 #include "DirectingManager.generated.h"
 
@@ -33,5 +34,29 @@ public:
 	UDataTable* EventTable;
 
 	const FEventRow* Row;
-	
+
+	APawn* PlayerPawn;
+
+	UPROPERTY(VisibleAnywhere, Category = "TagMap")
+	TMap<FName, TWeakObjectPtr<AActor>> SequenceTagMap;
+
+	ADirectingManager* GetDirectingManager(UWorld* World);
+
+	void SetLevelSequencePlay(bool _value);
+	bool GetLevelSequencePlay();
+
+	UFUNCTION(BlueprintCallable, Category = "DirectingManager")
+	void EndLevelSequence();
+
+	void SetNextFrame(bool _value);
+	bool GetNextFrame();
+
+private:
+	bool bLevelSequencePlay = false;
+	bool bNextFrame = false;
+
+	ULevelSequencePlayer* SequencePlayer;
+
+	int32 LoopFrame;
+
 };

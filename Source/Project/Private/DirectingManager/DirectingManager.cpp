@@ -8,6 +8,7 @@
 #include "MovieSceneObjectBindingID.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
+#include "MovieSceneBinding.h"
 #include "MovieSceneObjectBindingID.h"
 
 ADirectingManager::ADirectingManager()
@@ -20,12 +21,13 @@ void ADirectingManager::BeginPlay()
 {
 	Super::BeginPlay();
 	
+    PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
+
 }
 
 void ADirectingManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void ADirectingManager::PlayEvent(FName DirectingKey)
@@ -36,6 +38,8 @@ void ADirectingManager::PlayEvent(FName DirectingKey)
 
     if (!Row) return;
 
+    LoopFrame = Row->LoopFrame; //LoopFrame
+    SetLevelSequencePlay(false);
     PlayLevelSequence(Row->LevelSequence);
 
 }
@@ -44,7 +48,7 @@ void ADirectingManager::PlayLevelSequence(ULevelSequence* Sequence)
 {
     ALevelSequenceActor* SeqActor = nullptr;
 
-    ULevelSequencePlayer* SequencePlayer =
+    SequencePlayer =
         ULevelSequencePlayer::CreateLevelSequencePlayer(
             GetWorld(),
             Sequence,
@@ -53,26 +57,67 @@ void ADirectingManager::PlayLevelSequence(ULevelSequence* Sequence)
         );
 
     if (!SequencePlayer || !SeqActor)
-    {
         return;
-    }
 
-    if (SeqActor)
+    for (const auto& Pair : SequenceTagMap)
     {
-        // 실제 플레이어 폰 참조 획득
-        APawn* PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
-
-        if (PlayerPawn)
+        if (AActor* FoundActor = Pair.Value.Get())
         {
             TArray<AActor*> Actors;
-            Actors.Add(PlayerPawn);
+            Actors.Add(FoundActor);
 
-            // 태그를 사용하여 바인딩 수행
-            // bAllowBindingsFromAsset가 false인 경우 기존 에셋의 바인딩을 무시함 
-            SeqActor->SetBindingByTag("Player", Actors, false);
+            SeqActor->SetBindingByTag(Pair.Key, Actors, false);
         }
     }
-
     SequencePlayer->Play();
 }
+
+ADirectingManager* ADirectingManager::GetDirectingManager(UWorld* World)
+{
+    return Cast<ADirectingManager>(
+        UGameplayStatics::GetActorOfClass(World, ADirectingManager::StaticClass())
+    );
+}
+
+void ADirectingManager::SetLevelSequencePlay(bool _value)
+{
+    bLevelSequencePlay = _value;
+
+    if (bLevelSequencePlay == true) { //끝났으면
+        SequencePlayer->Stop();
+    }
+}
+
+bool ADirectingManager::GetLevelSequencePlay()
+{
+    return bLevelSequencePlay;
+}
+
+void ADirectingManager::EndLevelSequence()
+{
+
+    if (!SequencePlayer) return;
+
+    if (!GetLevelSequencePlay()) {
+        UE_LOG(LogTemp, Error, TEXT("RESET FRAME"));
+
+        FMovieSceneSequencePlaybackParams Params;
+        Params.Frame = FFrameTime(LoopFrame);
+        Params.PositionType = EMovieScenePositionType::Frame;
+
+        SequencePlayer->SetPlaybackPosition(Params);
+    }    
+}
+
+void ADirectingManager::SetNextFrame(bool _value)
+{
+    bNextFrame = _value;
+}
+
+bool ADirectingManager::GetNextFrame()
+{
+    return bNextFrame;
+}
+
+
 

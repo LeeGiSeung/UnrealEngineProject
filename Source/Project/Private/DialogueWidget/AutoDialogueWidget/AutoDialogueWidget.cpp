@@ -18,6 +18,16 @@ void UAutoDialogueWidget::NativeConstruct()
 
     check(DialogueManager); // 없으면 바로 알 수 있게
 
+    for (TActorIterator<ADirectingManager> It(GetWorld()); It; ++It)
+    {
+        DirectingManager = *It;
+        break;
+    }
+
+    if (!DirectingManager)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("NO DIRECTINGMANAGER"));
+    }
     
     AutoRow = DialogueManager->GetAutoRow();
 
@@ -35,6 +45,7 @@ void UAutoDialogueWidget::CheckAutoDialogueTime(float DeltaTime)
 
     if (CurAutoTime >= TextTime) {
         CurAutoTime = 0.f;
+        DirectingManager->SetLevelSequencePlay(true);
         DialogueManager->StartDialogue(AutoRow->NextID, AutoRow->UIType);
     }
 }

@@ -6,6 +6,8 @@
 #include "DialogueWidget/BaseDialogueWidget.h"
 #include "DialogueManager/DialogueManager.h"
 #include "AutoDialogueRow/AutoDialogueRow.h"
+#include "DirectingManager/DirectingManager.h"
+
 #include "AutoDialogueWidget.generated.h"
 
 class ADialogueManager;
@@ -28,6 +30,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DialogueManager")
 	ADialogueManager* DialogueManager;
+
+	UPROPERTY()
+	ADirectingManager* DirectingManager;
 
 	UFUNCTION(BlueprintCallable)
 	void CheckAutoDialogueTime(float DeltaTime);

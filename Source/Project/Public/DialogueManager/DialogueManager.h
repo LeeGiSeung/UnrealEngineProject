@@ -11,6 +11,8 @@
 #include "DirectingManager/DirectingManager.h"
 #include "DialogueManager.generated.h"
 
+
+
 class UNormalDialogueWidget;
 class UBaseDialogueWidget;
 class USoundManager;

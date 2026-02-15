@@ -55,6 +55,7 @@ void ADialogueManager::StartDialogue(FName _ID, EDialogueUIType _Type)
 	ID = _ID; //처음 아이디 지정
 	UIType = _Type; //처음 UITYPE 지정
 	SetUseIdalogue(true);
+	
 	//현재 보여줘야 하는 컷신을 정해줌
 	ProjectPlayerController->IgnoreLookMove();
 
@@ -404,6 +405,7 @@ void ADialogueManager::ShowAllWidget()
 
 void ADialogueManager::NextNormalDialogue() 
 {
+	DirectingManager->SetLevelSequencePlay(true);
 	StartDialogue(NextID, UIType);
 }
 
