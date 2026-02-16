@@ -51,6 +51,9 @@ public:
 	void SetNextFrame(bool _value);
 	bool GetNextFrame();
 
+	UFUNCTION(BlueprintCallable, Category = "DirectingManager")
+	void RegisterSequenceActor(FName Tag, AActor* Actor);
+
 private:
 	bool bLevelSequencePlay = false;
 	bool bNextFrame = false;

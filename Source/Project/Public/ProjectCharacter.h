@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "DirectingManager/DirectingManager.h"
 #include "ProjectCharacter.generated.h"
 
 class USpringArmComponent;
@@ -62,6 +63,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SpecialCamera")
 	bool bIsDrawing;
+
+	UPROPERTY()
+	ADirectingManager* DirectingManager;
 
 private:
 	AProjectPlayerController* PlayerController;

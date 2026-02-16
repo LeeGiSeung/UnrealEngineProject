@@ -23,8 +23,11 @@ class PROJECT_API USoundManager : public UGameInstanceSubsystem
 public:
 	void PlaySFX();
 	void PlayBGM();
+	void StopDialogueSound();
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+
+
 
 	UPROPERTY()
 	const UDataTable* SoundTable;
@@ -44,4 +47,7 @@ public:
 	FTimerHandle SoundDelayHandle;
 
 	EDialogueUIType CurType;
+
+private:
+	UAudioComponent* AudioComp;
 };

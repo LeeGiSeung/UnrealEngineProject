@@ -406,6 +406,7 @@ void ADialogueManager::ShowAllWidget()
 void ADialogueManager::NextNormalDialogue() 
 {
 	DirectingManager->SetLevelSequencePlay(true);
+	SoundManager->StopDialogueSound();
 	StartDialogue(NextID, UIType);
 }
 

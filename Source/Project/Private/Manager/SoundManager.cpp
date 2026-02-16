@@ -36,7 +36,7 @@ void USoundManager::PlayDialogueSound(FName ID, EDialogueUIType type)
 
 	FSoundRow* SoundRow = SoundTable->FindRow<FSoundRow>(ID, TEXT("No SoundTable"));
 
-	UAudioComponent* AudioComp = UGameplayStatics::SpawnSound2D(this, SoundRow->Sound);
+	AudioComp = UGameplayStatics::SpawnSound2D(this, SoundRow->Sound);
 
 	if (AudioComp) {
 		CurType = type;
@@ -47,6 +47,13 @@ void USoundManager::PlayDialogueSound(FName ID, EDialogueUIType type)
 
 void USoundManager::PlayBGM()
 {
+}
+
+void USoundManager::StopDialogueSound()
+{
+	if (AudioComp && AudioComp->IsPlaying()) {
+		AudioComp->Stop();
+	}
 }
 
 void USoundManager::OnFinishedPlayDialogueSound()
@@ -70,6 +77,4 @@ void USoundManager::OnFinishedPlayDialogueSound()
 		1.0f,      // µÙ∑π¿Ã Ω√∞£
 		false      // π›∫π æ∆¥‘
 	);
-
-
 }

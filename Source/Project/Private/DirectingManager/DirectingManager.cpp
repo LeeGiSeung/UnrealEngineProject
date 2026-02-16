@@ -82,7 +82,7 @@ ADirectingManager* ADirectingManager::GetDirectingManager(UWorld* World)
 void ADirectingManager::SetLevelSequencePlay(bool _value)
 {
     bLevelSequencePlay = _value;
-
+    
     if (bLevelSequencePlay == true) { //³¡³µÀ¸¸é
         SequencePlayer->Stop();
     }
@@ -117,6 +117,21 @@ void ADirectingManager::SetNextFrame(bool _value)
 bool ADirectingManager::GetNextFrame()
 {
     return bNextFrame;
+}
+
+void ADirectingManager::RegisterSequenceActor(FName Tag, AActor* Actor)
+{
+    if (!Actor)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("RegisterSequenceActor: Actor is null"));
+        return;
+    }
+
+    SequenceTagMap.Add(Tag, Actor);
+
+    UE_LOG(LogTemp, Log, TEXT("Registered %s with tag %s"),
+        *Actor->GetName(),
+        *Tag.ToString());
 }
 
 
