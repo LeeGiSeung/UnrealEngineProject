@@ -6,6 +6,9 @@
 #include "GameFramework/PlayerController.h"
 #include "Colorenum/Colorenum.h"
 
+//Dialouge
+#include "DialogueBaseActor/DialogueBaseActor.h"
+
 #include "ProjectPlayerController.generated.h"
 
 class APawn;
@@ -22,6 +25,7 @@ class ADecalActor;
 class UEnergyWidget;
 class ADrawingActorManager;
 class ABP_CablePouch;
+class ADialogueManager;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActionTriggered);
 
@@ -255,4 +259,13 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "CrouchBack")
 	void StartCrouchBack();
+
+//DialobueActor
+public:
+	void ResetDialogueActor();
+	ADialogueBaseActor* diaActor;
+
+
+private:
+	ADialogueManager* DialogueManager;
 };

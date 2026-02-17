@@ -39,8 +39,8 @@
 //Cable
 #include "Cable/BP_CablePouch.h"
 
-//Dialouge
-#include "DialogueBaseActor/DialogueBaseActor.h"
+//DialogueManager
+#include "DialogueManager/DialogueManager.h"
 
 AProjectPlayerController::AProjectPlayerController()
 {
@@ -858,28 +858,39 @@ void AProjectPlayerController::StartCrouchBack()
     MyABP->PlayCrouchBackMontage(PCharacter);
 }
 
+void AProjectPlayerController::ResetDialogueActor()
+{
+    diaActor = nullptr;
+}
+
 
 
 void AProjectPlayerController::StartDialogue() {
 
-    TArray<FOverlapResult> Overlaps;
+    if (diaActor) {
+        diaActor->StartDialogue();
+    }
+    else {
+        TArray<FOverlapResult> Overlaps;
 
-    float fOverlapSize = 150.f;
+        float fOverlapSize = 150.f;
 
-    bool bHit = GetWorld()->OverlapMultiByChannel(
-        Overlaps,
-        ProjectChar->GetActorLocation(),
-        FQuat::Identity,
-        ECC_WorldDynamic,
-        FCollisionShape::MakeSphere(fOverlapSize)
-    );
+        bool bHit = GetWorld()->OverlapMultiByChannel(
+            Overlaps,
+            ProjectChar->GetActorLocation(),
+            FQuat::Identity,
+            ECC_WorldDynamic,
+            FCollisionShape::MakeSphere(fOverlapSize)
+        );
 
-    for (const FOverlapResult& result : Overlaps) {
-        AActor* actor = result.GetActor();
+        for (const FOverlapResult& result : Overlaps) {
+            AActor* actor = result.GetActor();
 
-        if (ADialogueBaseActor* diaActor = Cast<ADialogueBaseActor>(actor)) {
-            if(diaActor) diaActor->StartDialogue();
-            break;
+            if (ADialogueBaseActor *TestAcftor = Cast<ADialogueBaseActor>(actor)) {
+                diaActor = TestAcftor;
+                if (diaActor) diaActor->StartDialogue();
+                break;
+            }
         }
     }
 

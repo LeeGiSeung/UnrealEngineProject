@@ -20,6 +20,7 @@ void USoundManager::PlaySFX()
 
 void USoundManager::PlayDialogueSound(FName ID, EDialogueUIType type)
 {
+	
 	USoundGameInstance* GI = Cast<USoundGameInstance>(GetGameInstance());
 	if (!GI)
 	{
@@ -47,11 +48,16 @@ void USoundManager::PlayDialogueSound(FName ID, EDialogueUIType type)
 
 void USoundManager::PlayBGM()
 {
+
 }
 
 void USoundManager::StopDialogueSound()
 {
-	if (AudioComp && AudioComp->IsPlaying()) {
+	if (!AudioComp)
+		return;
+
+	if (AudioComp->IsPlaying())
+	{
 		AudioComp->Stop();
 	}
 }

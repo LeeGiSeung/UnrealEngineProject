@@ -69,6 +69,7 @@ void ADirectingManager::PlayLevelSequence(ULevelSequence* Sequence)
             SeqActor->SetBindingByTag(Pair.Key, Actors, false);
         }
     }
+
     SequencePlayer->Play();
 }
 
@@ -81,6 +82,8 @@ ADirectingManager* ADirectingManager::GetDirectingManager(UWorld* World)
 
 void ADirectingManager::SetLevelSequencePlay(bool _value)
 {
+    if (!SequencePlayer) return;
+
     bLevelSequencePlay = _value;
     
     if (bLevelSequencePlay == true) { //³¡³µÀ¸¸é

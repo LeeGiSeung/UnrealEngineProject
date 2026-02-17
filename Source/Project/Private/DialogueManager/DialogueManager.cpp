@@ -57,10 +57,12 @@ void ADialogueManager::StartDialogue(FName _ID, EDialogueUIType _Type)
 	SetUseIdalogue(true);
 	
 	//현재 보여줘야 하는 컷신을 정해줌
+
 	ProjectPlayerController->IgnoreLookMove();
 
 	SaveAndRemoveAllWidgets();
-
+	
+	
 	ShowCurDialogue();
 }
 
@@ -359,13 +361,14 @@ void ADialogueManager::EndDialogue()
 	if(CurDialogueWidget) RemoveCurDialogueWidget();
 	
 	ProjectPlayerController->AllowLookMove();
+	ProjectPlayerController->ResetDialogueActor();
 	ShowAllWidget();
 	SetUseIdalogue(false);
 }
 
 void ADialogueManager::SaveAndRemoveAllWidgets()
 {
-	if (StoredWidgets.Num() != 0) return; //이미 들어가있으면 return;
+	StoredWidgets.Empty();
 
 	TArray<UUserWidget*> FoundWidgets;
 
@@ -383,6 +386,9 @@ void ADialogueManager::SaveAndRemoveAllWidgets()
 		StoredWidgets.Add(Widget);
 		Widget->RemoveFromParent();
 	}
+
+	UE_LOG(LogTemp, Error, TEXT("ADD WIDGET"));
+	UE_LOG(LogTemp, Error, TEXT("StoredWidgets Size : %d"), StoredWidgets.Num());
 }
 
 void ADialogueManager::ShowAllWidget()
@@ -405,8 +411,11 @@ void ADialogueManager::ShowAllWidget()
 
 void ADialogueManager::NextNormalDialogue() 
 {
+	if (!DirectingManager || !SoundManager) return;
+
 	DirectingManager->SetLevelSequencePlay(true);
 	SoundManager->StopDialogueSound();
+
 	StartDialogue(NextID, UIType);
 }
 
