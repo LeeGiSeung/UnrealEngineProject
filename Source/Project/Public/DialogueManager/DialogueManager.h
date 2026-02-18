@@ -15,6 +15,8 @@ class UBaseDialogueWidget;
 class UNormalDialogueWidget;
 class UChoiceDialogueWidget;
 class UAutoDialogueWidget;
+class UEnergyWidget;
+class UBaseUserWidget;
 class USoundManager;
 
 UCLASS()
@@ -63,6 +65,9 @@ public:
 
 	EDialogueUIType GetUIType() {return CurUIType;}
 
+	void SetCursorWidget(UBaseUserWidget* widget);
+	void SetEnergyWidget(UEnergyWidget* widget);
+
 protected:
 	UPROPERTY()
 	EDialogueUIType UIType;
@@ -93,6 +98,12 @@ private: //DialogueWidgetList
 	UChoiceDialogueWidget* ChoiceWidget;
 	UPROPERTY()
 	UAutoDialogueWidget* AutoWidget;
+
+	UPROPERTY()
+	UBaseUserWidget* CursorWidget;
+
+	UPROPERTY()
+	UEnergyWidget* EnergyWidget;
 
 	UPROPERTY(EditAnywhere, Category = "DialogueWidget")
 	TMap< EDialogueUIType, TSubclassOf<UBaseDialogueWidget>> DialogueWidgetMap;

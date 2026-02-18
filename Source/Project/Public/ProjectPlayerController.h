@@ -26,6 +26,7 @@ class UEnergyWidget;
 class ADrawingActorManager;
 class ABP_CablePouch;
 class ADialogueManager;
+class UBaseUserWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActionTriggered);
 
@@ -93,6 +94,12 @@ public:
 
 	void UnUseCable();
 
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void SetCursorWidget(UBaseUserWidget* widget);
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void SetEnergyWidget(UEnergyWidget* widget);
+
 
 	void RegisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor);
 	void UnregisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor);
@@ -111,6 +118,13 @@ public:
 	
 
 	//BluePrint Uproperty
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TObjectPtr<UBaseUserWidget> CursorWidget;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TObjectPtr<UEnergyWidget> EnergyWidget;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DrawingObject")
 	TSubclassOf<UFWidget> InteractWidgetClass;
 

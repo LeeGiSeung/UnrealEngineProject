@@ -41,6 +41,8 @@
 
 //DialogueManager
 #include "DialogueManager/DialogueManager.h"
+#include "BaseUserWidget.h"
+#include "Energy/EnergyWidget.h"
 
 AProjectPlayerController::AProjectPlayerController()
 {
@@ -731,21 +733,10 @@ void AProjectPlayerController::SpecialCameraSetting()
     if (FaceCameraActor) return;
     FaceCameraActor = GetWorld()->SpawnActor<ACameraActor>();
 
-    //UAnimInstance* AnimInst = PCharacter->GetMesh()->GetAnimInstance();
-    //ABP_Player = Cast<UBaseAnimInstance>(AnimInst);
-
-    //if (!ABP_Player)
-    //{
-    //    UE_LOG(LogTemp, Warning, TEXT("AnimInstance is not UBaseAnimInstance"));
-    //    return;
-    //}
 }
 
 void AProjectPlayerController::CameraGrayTrans()
 {
-    //if (!PCamera) return;
-    //PCamera->PostProcessSettings.ColorSaturation = FVector4(0, 0, 0, 1);
-    //UE_LOG(LogTemp, Warning, TEXT("Gray"));
 
     if (!PostProcessVolume) return;
     PostProcessVolume->BlendWeight = 1.f;
@@ -839,6 +830,34 @@ void AProjectPlayerController::UnUseCable()
     PCharacter->bUseControllerRotationYaw = false;
     SetUseCablePouch(false);
     ProjectChar->GetCharacterMovement()->MaxWalkSpeed = 500;
+}
+
+void AProjectPlayerController::SetCursorWidget(UBaseUserWidget* widget)
+{
+    if (!DialogueManager) {
+        for (TActorIterator<ADialogueManager> It(GetWorld()); It; ++It)
+        {
+            DialogueManager = *It;
+            break;
+        }
+    }
+
+    CursorWidget = widget;
+    DialogueManager->SetCursorWidget(CursorWidget);
+}
+
+void AProjectPlayerController::SetEnergyWidget(UEnergyWidget* widget)
+{
+    if (!DialogueManager) {
+        for (TActorIterator<ADialogueManager> It(GetWorld()); It; ++It)
+        {
+            DialogueManager = *It;
+            break;
+        }
+    }
+
+    EnergyWidget = widget;
+    DialogueManager->SetEnergyWidget(EnergyWidget);
 }
 
 

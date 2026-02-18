@@ -12,6 +12,8 @@
 #include "DialogueWidget/ChoiceDialogueWidget/ChoiceDialogueWidget.h"
 #include "DialogueWidget/NormalDialogueWidget/NormalDialogueWidget.h"
 #include "DialogueWidget/AutoDialogueWidget/AutoDialogueWidget.h"
+#include "BaseUserWidget.h"
+#include "Energy/EnergyWidget.h"
 #include "DialogueWidget/BaseDialogueWidget.h"
 
 //#SoundManager
@@ -399,6 +401,15 @@ void ADialogueManager::EndDialogue()
 
 void ADialogueManager::SaveAndRemoveAllWidgets()
 {
+	if (CursorWidget && EnergyWidget) {
+		CursorWidget->SetVisibility(ESlateVisibility::Collapsed);
+		EnergyWidget->SetVisibility(ESlateVisibility::Collapsed);
+		return;
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("NO WIDGET"));
+		return;
+	}
 	//StoredWidgets.Empty();
 
 	//TArray<UUserWidget*> FoundWidgets;
@@ -424,6 +435,16 @@ void ADialogueManager::SaveAndRemoveAllWidgets()
 
 void ADialogueManager::ShowAllWidget()
 {
+	if (CursorWidget && EnergyWidget) {
+		CursorWidget->SetVisibility(ESlateVisibility::Visible);
+		EnergyWidget->SetVisibility(ESlateVisibility::Visible);
+		return;
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("NO WIDGET"));
+		return;
+	}
+
 	//if (StoredWidgets.Num() == 0) return;
 
 	//for (UUserWidget* Widget : StoredWidgets)
@@ -466,3 +487,12 @@ void ADialogueManager::SetUseIdalogue(bool _value)
 	bDialogue = _value;
 }
 
+void ADialogueManager::SetCursorWidget(UBaseUserWidget* widget) {
+	if (CursorWidget) return;
+	CursorWidget = widget;
+}
+
+void ADialogueManager::SetEnergyWidget(UEnergyWidget* widget) {
+	if (EnergyWidget) return;
+	EnergyWidget = widget;
+}
