@@ -10,6 +10,13 @@ void UAutoDialogueWidget::NativeConstruct()
 {
     Super::NativeConstruct();
 
+    //SetAutoBaseSetting();
+
+    //UE_LOG(LogTemp, Warning, TEXT("%f"), TextTime);
+}
+
+void UAutoDialogueWidget::SetAutoBaseSetting()
+{
     for (TActorIterator<ADialogueManager> It(GetWorld()); It; ++It)
     {
         DialogueManager = *It;
@@ -28,13 +35,11 @@ void UAutoDialogueWidget::NativeConstruct()
     {
         UE_LOG(LogTemp, Warning, TEXT("NO DIRECTINGMANAGER"));
     }
-    
+
     AutoRow = DialogueManager->GetAutoRow();
 
     TextTime += AutoRow->FirstText.ToString().Len();
     TextTime += AutoRow->SecondText.ToString().Len();
-
-    //UE_LOG(LogTemp, Warning, TEXT("%f"), TextTime);
 }
 
 void UAutoDialogueWidget::CheckAutoDialogueTime(float DeltaTime)

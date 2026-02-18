@@ -26,6 +26,8 @@ class PROJECT_API UChoiceDialogueWidget : public UBaseDialogueWidget
 public:
 	virtual void NativeConstruct() override;
 
+	void SetChoiceBaseSetting();
+
 	UFUNCTION(BlueprintCallable, Category = "Dialogue|Choice")
 	void PlayerChoiceSelect(int _num);
 

@@ -11,6 +11,7 @@
 //#각 Widget들
 #include "DialogueWidget/ChoiceDialogueWidget/ChoiceDialogueWidget.h"
 #include "DialogueWidget/NormalDialogueWidget/NormalDialogueWidget.h"
+#include "DialogueWidget/AutoDialogueWidget/AutoDialogueWidget.h"
 #include "DialogueWidget/BaseDialogueWidget.h"
 
 //#SoundManager
@@ -45,6 +46,30 @@ void ADialogueManager::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("NO DIRECTINGMANAGER"));
 	}
+
+	NormalWidget = CreateWidget<UNormalDialogueWidget>(
+		GetWorld()->GetFirstPlayerController(),
+		DialogueWidgetMap[EDialogueUIType::Normal]
+	);
+
+	ChoiceWidget = CreateWidget<UChoiceDialogueWidget>(
+		GetWorld()->GetFirstPlayerController(),
+		DialogueWidgetMap[EDialogueUIType::Choice]
+	);
+
+	AutoWidget = CreateWidget<UAutoDialogueWidget>(
+		GetWorld()->GetFirstPlayerController(),
+		DialogueWidgetMap[EDialogueUIType::Auto]
+	);
+
+	NormalWidget->AddToViewport();
+	ChoiceWidget->AddToViewport();
+	AutoWidget->AddToViewport();
+
+	NormalWidget->SetVisibility(ESlateVisibility::Collapsed);
+	ChoiceWidget->SetVisibility(ESlateVisibility::Collapsed);
+	AutoWidget->SetVisibility(ESlateVisibility::Collapsed);
+
 }
 
 //외부 Actor로 부터 상호작용해 컷신 시작하기
@@ -61,7 +86,6 @@ void ADialogueManager::StartDialogue(FName _ID, EDialogueUIType _Type)
 	ProjectPlayerController->IgnoreLookMove();
 
 	SaveAndRemoveAllWidgets();
-	
 	
 	ShowCurDialogue();
 }
@@ -82,13 +106,10 @@ void ADialogueManager::ShowCurDialogue()
 		return;
 	}
 
-	if (CurDialogueWidget) { //현재 사용되고있는 Widget이 있으면 그 위젯을 지우고 새로운 위젯
-		RemoveCurDialogueWidget();
-	}
-
+	ResetCurDialogueWidget();
+	
 	switch (UIType) {
 	case EDialogueUIType::Normal:
-		
 		
 		NormalRow = DialogueNormalTable->FindRow<FDialogueRow>(ID, TEXT("DialogueText"));
 		
@@ -160,39 +181,46 @@ void ADialogueManager::ShowCurDialogue()
 
 	CurUIType = UIType;
 
-	CurDialogueWidget = CreateWidget<UBaseDialogueWidget>(GetWorld()->GetFirstPlayerController(), DialogueWidgetMap[UIType]);
+	//CurDialogueWidget = CreateWidget<UBaseDialogueWidget>(
+	//	GetWorld()->GetFirstPlayerController(),
+	//	DialogueWidgetMap[UIType]);
 
-	if (CurDialogueWidget) {
 
-		switch (UIType)
-		{
-		case EDialogueUIType::Normal:
-			ChangeCurDialogueWidgetNormalText();
-			UIType = NormalRow->UIType;
+	switch (UIType)
+	{
+	case EDialogueUIType::Normal:
+		
+		CurDialogueWidget = NormalWidget;
+		ChangeCurDialogueWidgetNormalText();
+
+		UIType = NormalRow->UIType;
 			
-			break;
+		break;
 
-		case EDialogueUIType::Choice:
-			ChangeCurDialogueWidgetChoiceText();
-			ChangeCurDialogueWidgetChoice();
+	case EDialogueUIType::Choice:
+		ChoiceWidget->SetChoiceBaseSetting();
+		CurDialogueWidget = ChoiceWidget;
+		
+		ChangeCurDialogueWidgetChoiceText();
+		ChangeCurDialogueWidgetChoice();
 
-			UIType = ChoiceRow->UIType;
-			break;
+		UIType = ChoiceRow->UIType;
+		break;
 
-		case EDialogueUIType::Auto:
-			ChangeCurDialogueWidgetAutoText();
-			UIType = AutoRow->UIType;
-			break;
-		}
+	case EDialogueUIType::Auto:
+		
+		AutoWidget->SetAutoBaseSetting();
 
-		WidgetAddViewPort();
-		//각 UiType에 따라서 추가 작업 배정
+		ChangeCurDialogueWidgetAutoText();
 
+		CurDialogueWidget = AutoWidget;
+		UIType = AutoRow->UIType;
+		break;
 	}
-	else {
-		UE_LOG(LogTemp, Warning, TEXT("NO WIDGET"));
-		return;
-	}
+
+	//WidgetAddViewPort();
+	CurDialogueWidget->SetVisibility(ESlateVisibility::Visible);
+
 	
 }
 
@@ -244,14 +272,17 @@ void ADialogueManager::WidgetAddViewPort()
 	CurDialogueWidget->AddToViewport();
 }
 
-void ADialogueManager::RemoveCurDialogueWidget()
+void ADialogueManager::ResetCurDialogueWidget()
 {
+	if (!CurDialogueWidget) return;
 	CurDialogueWidget->SetUpEmpty();
 	CurDialogueWidget->SetMiddleEmpty();
 	CurDialogueWidget->SetDownEmpty();
 
-	CurDialogueWidget->RemoveFromParent();
-	CurDialogueWidget = nullptr;
+	CurDialogueWidget->SetVisibility(ESlateVisibility::Collapsed);
+
+	//CurDialogueWidget->RemoveFromParent();
+	//CurDialogueWidget = nullptr;
 }
 
 void ADialogueManager::ChangeCurDialogueWidgetNormalText()
@@ -358,7 +389,7 @@ void ADialogueManager::ChangeCurDialogueWidgetChoice()
 
 void ADialogueManager::EndDialogue()
 {
-	if(CurDialogueWidget) RemoveCurDialogueWidget();
+	if(CurDialogueWidget) ResetCurDialogueWidget();
 	
 	ProjectPlayerController->AllowLookMove();
 	ProjectPlayerController->ResetDialogueActor();
@@ -368,44 +399,45 @@ void ADialogueManager::EndDialogue()
 
 void ADialogueManager::SaveAndRemoveAllWidgets()
 {
-	StoredWidgets.Empty();
+	//StoredWidgets.Empty();
 
-	TArray<UUserWidget*> FoundWidgets;
+	//TArray<UUserWidget*> FoundWidgets;
 
-	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(
-		GetWorld(),
-		FoundWidgets,
-		UUserWidget::StaticClass(),
-		false   // TopLevelOnly (보통 false 추천)
-	);
+	//UWidgetBlueprintLibrary::GetAllWidgetsOfClass(
+	//	GetWorld(),
+	//	FoundWidgets,
+	//	UUserWidget::StaticClass(),
+	//	false   // TopLevelOnly (보통 false 추천)
+	//);
 
-	for (UUserWidget* Widget : FoundWidgets)
-	{
-		if (!Widget) continue;
+	//for (UUserWidget* Widget : FoundWidgets)
+	//{
+	//	if (!Widget) continue;
 
-		StoredWidgets.Add(Widget);
-		Widget->RemoveFromParent();
-	}
+	//	StoredWidgets.Add(Widget);
+	//	Widget->RemoveFromParent();
+	//}
 
-	UE_LOG(LogTemp, Error, TEXT("ADD WIDGET"));
-	UE_LOG(LogTemp, Error, TEXT("StoredWidgets Size : %d"), StoredWidgets.Num());
+	//기존 Widget Middle, EnerhyBar 등 따로 참조한다음에 이걸 끊어야함
+
 }
 
 void ADialogueManager::ShowAllWidget()
 {
-	if (StoredWidgets.Num() == 0) return;
+	//if (StoredWidgets.Num() == 0) return;
 
-	for (UUserWidget* Widget : StoredWidgets)
-	{
-		if (!Widget) continue;
+	//for (UUserWidget* Widget : StoredWidgets)
+	//{
+	//	if (!Widget) continue;
 
-		if (!Widget->IsInViewport())
-		{
-			Widget->AddToViewport();
-		}
-	}
+	//	if (!Widget->IsInViewport())
+	//	{
+	//		Widget->AddToViewport();
+	//	}
+	//}
 
-	StoredWidgets.Empty();
+	//StoredWidgets.Empty();
+	//기존 Widget Middle, EnerhyBar 등 따로 참조한걸 다시 visibitlity 해줘야함
 
 }
 

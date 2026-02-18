@@ -21,6 +21,7 @@ class PROJECT_API UAutoDialogueWidget : public UBaseDialogueWidget
 	GENERATED_BODY()
 public:
 	virtual void NativeConstruct() override;
+	void SetAutoBaseSetting();
 	float CurAutoTime = 0.f;
 	float TextTime = 0.f;
 

@@ -7,7 +7,13 @@
 
 void UChoiceDialogueWidget::NativeConstruct()
 {
+    Super::NativeConstruct();
+    //SetChoiceBaseSetting();
 
+}
+
+void UChoiceDialogueWidget::SetChoiceBaseSetting()
+{
     for (TActorIterator<ADialogueManager> It(GetWorld()); It; ++It)
     {
         DialogueManager = *It;
@@ -17,7 +23,7 @@ void UChoiceDialogueWidget::NativeConstruct()
     check(DialogueManager); // 없으면 바로 알 수 있게
 
     ProjectPlayerController = Cast<AProjectPlayerController>(GetWorld()->GetFirstPlayerController());
-    
+
     ChoiceRow = DialogueManager->GetChoiceRow(); //현재 선택지 Row 가져옴
 
     for (TActorIterator<ADirectingManager> It(GetWorld()); It; ++It)
@@ -30,7 +36,6 @@ void UChoiceDialogueWidget::NativeConstruct()
     {
         UE_LOG(LogTemp, Warning, TEXT("NO DIRECTINGMANAGER"));
     }
-
 }
 
 void UChoiceDialogueWidget::PlayerChoiceSelect(int _num)

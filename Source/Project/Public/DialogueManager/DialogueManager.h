@@ -11,10 +11,10 @@
 #include "DirectingManager/DirectingManager.h"
 #include "DialogueManager.generated.h"
 
-
-
-class UNormalDialogueWidget;
 class UBaseDialogueWidget;
+class UNormalDialogueWidget;
+class UChoiceDialogueWidget;
+class UAutoDialogueWidget;
 class USoundManager;
 
 UCLASS()
@@ -36,7 +36,7 @@ public:
 	void NextChoiceDialogue();
 	
 
-	void RemoveCurDialogueWidget();
+	void ResetCurDialogueWidget();
 	void ChangeCurDialogueWidgetNormalText();
 	void ChangeCurDialogueWidgetChoiceText();
 	void ChangeCurDialogueWidgetAutoText();
@@ -86,6 +86,13 @@ private: //DialogueWidgetList
 
 	UPROPERTY(EditAnywhere, Category = "CurWidget")
 	UBaseDialogueWidget* CurDialogueWidget;
+
+	UPROPERTY()
+	UNormalDialogueWidget* NormalWidget;
+	UPROPERTY()
+	UChoiceDialogueWidget* ChoiceWidget;
+	UPROPERTY()
+	UAutoDialogueWidget* AutoWidget;
 
 	UPROPERTY(EditAnywhere, Category = "DialogueWidget")
 	TMap< EDialogueUIType, TSubclassOf<UBaseDialogueWidget>> DialogueWidgetMap;
