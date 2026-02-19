@@ -52,4 +52,8 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "CenterCursor")
 	UMaterialInstanceDynamic* BrushMaterial;
+
+private:
+	int number = 0;
+
 };

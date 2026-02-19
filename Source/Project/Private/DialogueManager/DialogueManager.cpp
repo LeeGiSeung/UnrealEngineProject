@@ -178,7 +178,7 @@ void ADialogueManager::ShowCurDialogue()
 	}
 
 	if (!EventKey.IsNone()) {
-		DirectingManager->PlayEvent(EventKey);
+		DirectingManager->PlayEvent(EventKey, UIType);
 	}
 
 	CurUIType = UIType;
@@ -212,10 +212,10 @@ void ADialogueManager::ShowCurDialogue()
 	case EDialogueUIType::Auto:
 		
 		AutoWidget->SetAutoBaseSetting();
+		CurDialogueWidget = AutoWidget;
 
 		ChangeCurDialogueWidgetAutoText();
 
-		CurDialogueWidget = AutoWidget;
 		UIType = AutoRow->UIType;
 		break;
 	}
@@ -346,10 +346,12 @@ void ADialogueManager::ChangeCurDialogueWidgetAutoText()
 	}
 	else if (AutoRow->FirstText.IsEmptyOrWhitespace() || AutoRow->SecondText.IsEmptyOrWhitespace()) {
 		//둘중 하나만 비어있으면 MiddleText만
-
+		
 		if (AutoRow->FirstText.IsEmptyOrWhitespace()) CurDialogueWidget->SetMiddleText(AutoRow->SecondText);
-		else if (AutoRow->SecondText.IsEmptyOrWhitespace()) CurDialogueWidget->SetMiddleText(AutoRow->FirstText);
-
+		else if (AutoRow->SecondText.IsEmptyOrWhitespace()) {
+			CurDialogueWidget->SetMiddleText(AutoRow->FirstText);
+			UE_LOG(LogTemp, Warning, TEXT("FDSAFS"));
+		}
 		CurDialogueWidget->SetUpEmpty();
 		CurDialogueWidget->SetDownEmpty();
 	}
@@ -410,26 +412,6 @@ void ADialogueManager::SaveAndRemoveAllWidgets()
 		UE_LOG(LogTemp, Error, TEXT("NO WIDGET"));
 		return;
 	}
-	//StoredWidgets.Empty();
-
-	//TArray<UUserWidget*> FoundWidgets;
-
-	//UWidgetBlueprintLibrary::GetAllWidgetsOfClass(
-	//	GetWorld(),
-	//	FoundWidgets,
-	//	UUserWidget::StaticClass(),
-	//	false   // TopLevelOnly (보통 false 추천)
-	//);
-
-	//for (UUserWidget* Widget : FoundWidgets)
-	//{
-	//	if (!Widget) continue;
-
-	//	StoredWidgets.Add(Widget);
-	//	Widget->RemoveFromParent();
-	//}
-
-	//기존 Widget Middle, EnerhyBar 등 따로 참조한다음에 이걸 끊어야함
 
 }
 
@@ -444,21 +426,6 @@ void ADialogueManager::ShowAllWidget()
 		UE_LOG(LogTemp, Error, TEXT("NO WIDGET"));
 		return;
 	}
-
-	//if (StoredWidgets.Num() == 0) return;
-
-	//for (UUserWidget* Widget : StoredWidgets)
-	//{
-	//	if (!Widget) continue;
-
-	//	if (!Widget->IsInViewport())
-	//	{
-	//		Widget->AddToViewport();
-	//	}
-	//}
-
-	//StoredWidgets.Empty();
-	//기존 Widget Middle, EnerhyBar 등 따로 참조한걸 다시 visibitlity 해줘야함
 
 }
 

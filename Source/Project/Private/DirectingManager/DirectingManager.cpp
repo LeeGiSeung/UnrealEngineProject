@@ -11,6 +11,8 @@
 #include "MovieSceneBinding.h"
 #include "MovieSceneObjectBindingID.h"
 
+
+
 ADirectingManager::ADirectingManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -30,7 +32,7 @@ void ADirectingManager::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ADirectingManager::PlayEvent(FName DirectingKey)
+void ADirectingManager::PlayEvent(FName DirectingKey, EDialogueUIType value)
 {
     if (!EventTable) return;
 
@@ -38,6 +40,7 @@ void ADirectingManager::PlayEvent(FName DirectingKey)
 
     if (!Row) return;
 
+    UIType = value;
     LoopFrame = Row->LoopFrame; //LoopFrame
     SetLevelSequencePlay(false);
     PlayLevelSequence(Row->LevelSequence);
@@ -101,9 +104,9 @@ void ADirectingManager::EndLevelSequence()
 
     if (!SequencePlayer) return;
 
-    if (!GetLevelSequencePlay()) {
-        UE_LOG(LogTemp, Error, TEXT("RESET FRAME"));
+    if (UIType == EDialogueUIType::Auto) return; //auto면 반복할 필요 없음
 
+    if (!GetLevelSequencePlay()) {
         FMovieSceneSequencePlaybackParams Params;
         Params.Frame = FFrameTime(LoopFrame);
         Params.PositionType = EMovieScenePositionType::Frame;

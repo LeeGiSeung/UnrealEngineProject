@@ -21,6 +21,7 @@ void UBaseUserWidget::RecordPosition(FVector2D Pos)
 
 void UBaseUserWidget::SaveCanvasRenderTargetToPNG(UTextureRenderTarget2D* Canvas, const FString& FilePath, const FString& FileName)
 {
+
     if (!Canvas)
     {
         UE_LOG(LogTemp, Warning, TEXT("Canvas is null"));
@@ -78,13 +79,22 @@ void UBaseUserWidget::SaveCanvasRenderTargetToPNG(UTextureRenderTarget2D* Canvas
 
     const TArray64<uint8>& PNGData = ImageWrapper->GetCompressed(100);
 
-    FString Name = FilePath + FileName;
+    FString NewFileName = FString::Printf(TEXT("CaptureImg%d.png"), number);
 
-    if (!FFileHelper::SaveArrayToFile(PNGData, *FilePath))
+    FString FullFilePath = FPaths::Combine(FilePath, NewFileName);
+
+    if (!FFileHelper::SaveArrayToFile(PNGData, *FullFilePath))
     {
-        UE_LOG(LogTemp, Warning, TEXT("Failed to save PNG to file %s"), *FilePath);
+        UE_LOG(LogTemp, Warning, TEXT("Failed to save PNG to file %s"), *FullFilePath);
         return;
     }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Success Png %s"), *FullFilePath);
+    }
+    
+    number++;
+
 }
 
 void UBaseUserWidget::FinishDrawing()

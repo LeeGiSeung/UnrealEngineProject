@@ -7,8 +7,10 @@
 #include "LevelSequence.h"
 #include "RowFolder/EventRow.h"
 #include "LevelSequenceActor.h"
+#include "DialogueType/DialogueType.h"
 
 #include "DirectingManager.generated.h"
+
 
 UCLASS()
 class PROJECT_API ADirectingManager : public AActor
@@ -27,7 +29,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void PlayEvent(FName DirectingKey);
+	void PlayEvent(FName DirectingKey, EDialogueUIType value);
 	void PlayLevelSequence(ULevelSequence* Sequence);
 
 	UPROPERTY(EditAnywhere, Category = "LevelSequence")
@@ -57,7 +59,7 @@ public:
 private:
 	bool bLevelSequencePlay = false;
 	bool bNextFrame = false;
-
+	EDialogueUIType UIType;
 	ULevelSequencePlayer* SequencePlayer;
 
 	int32 LoopFrame;
