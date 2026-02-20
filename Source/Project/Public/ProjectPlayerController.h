@@ -9,6 +9,11 @@
 //Dialouge
 #include "DialogueBaseActor/DialogueBaseActor.h"
 
+//ONNX Model
+#include "NNE.h"
+#include "NNERuntimeCPU.h"
+#include "NNERuntime.h"
+
 #include "ProjectPlayerController.generated.h"
 
 class APawn;
@@ -27,6 +32,8 @@ class ADrawingActorManager;
 class ABP_CablePouch;
 class ADialogueManager;
 class UBaseUserWidget;
+class UNNEModelData;
+class NNE;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActionTriggered);
 
@@ -282,4 +289,28 @@ public:
 
 private:
 	ADialogueManager* DialogueManager;
+
+	
+
+//Model
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NNE Model")
+	UNNEModelData* ModelData;
+
+	TSharedPtr<UE::NNE::IModelCPU> Model;
+	TSharedPtr<UE::NNE::IModelInstanceCPU> ModelInstance;
+
+	TArray<float> FireFeature;      // Fire 기준 벡터
+	TArray<float> TreeFeature;      // 필요하면 추가
+
+	float CosineSimilarity(const TArray<float>& A, const TArray<float>& B);
+	bool RunONNX(const FString& ImagePath, TArray<float>& OutFeature);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NNE Model")
+	UTexture2D* CaptureTexture;
+
+	bool LoadPNG(const FString& FilePath,
+		TArray<float>& OutFloatData,
+		int32& OutWidth,
+		int32& OutHeight);
 };

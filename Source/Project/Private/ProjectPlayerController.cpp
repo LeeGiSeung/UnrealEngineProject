@@ -42,7 +42,16 @@
 //DialogueManager
 #include "DialogueManager/DialogueManager.h"
 #include "BaseUserWidget.h"
-#include "Energy/EnergyWidget.h"
+
+//Model
+#include "Misc/FileHelper.h"
+#include "Misc/Paths.h"
+
+#include "IImageWrapper.h"
+#include "IImageWrapperModule.h"
+#include "Modules/ModuleManager.h"
+#include "ImageUtils.h"
+#include "ImageCore.h"
 
 AProjectPlayerController::AProjectPlayerController()
 {
@@ -178,6 +187,36 @@ void AProjectPlayerController::DrawingEnd()
 
 void AProjectPlayerController::SpawnDecalActor(TArray<FVector2D> _DrawPosition, EColor CurChoiceColor)
 {
+
+    FString ImagePath =
+        FPaths::ProjectContentDir() +
+        TEXT("DrawingImage/CaptureImg.png");
+
+    TArray<float> InputFeature;
+
+    if (!RunONNX(ImagePath, InputFeature))
+    {
+        UE_LOG(LogTemp, Error, TEXT("ONNX Run Failed"));
+        return;
+    }
+
+    if (CurChoiceColor == EColor::RED)
+    {
+        float Similarity =
+            CosineSimilarity(InputFeature, FireFeature);
+
+        UE_LOG(LogTemp, Warning,
+            TEXT("Fire Similarity: %f"), Similarity);
+
+        if (Similarity < 0.75f)
+        {
+            UE_LOG(LogTemp, Warning,
+                TEXT("Not Fire! Cancel."));
+            return;
+        }
+    }
+
+    //제대로 그렸는지 OXNN 검사
 
     DrawPosition = _DrawPosition;
 
@@ -718,8 +757,41 @@ void AProjectPlayerController::BeginPlay() {
         break;
     }
 
-    AnimInst = PCharacter->GetMesh()->GetAnimInstance();
-    MyABP = Cast<UBaseAnimInstance>(AnimInst);
+    auto Runtime = UE::NNE::GetRuntime<INNERuntimeCPU>(TEXT("NNERuntimeORTCpu"));
+    if (!Runtime.IsValid())
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to get ORT Runtime"));
+        return;
+    }
+
+    // 1. 모델 생성 및 할당
+    TUniquePtr<UE::NNE::IModelCPU> TempModel = Runtime->CreateModel(ModelData);
+    if (TempModel.IsValid())
+    {
+        // Release()로 소유권을 추출하여 SharedPtr에 수동으로 전달
+        this->Model = TSharedPtr<UE::NNE::IModelCPU>(TempModel.Release());
+    }
+
+    if (!this->Model.IsValid())
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to create model"));
+        return;
+    }
+
+    // 2. 모델 인스턴스 생성 및 할당
+    TUniquePtr<UE::NNE::IModelInstanceCPU> TempInstance = Model->CreateModelInstance();
+    if (TempInstance.IsValid())
+    {
+        // 마찬가지로 Release()를 사용해 SharedPtr로 변환
+        this->ModelInstance = TSharedPtr<UE::NNE::IModelInstanceCPU>(TempInstance.Release());
+    }
+
+    if (!this->ModelInstance.IsValid())
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to create model instance"));
+        return;
+    }
+
 }
 
 void AProjectPlayerController::SpecialCameraSetting()
@@ -732,7 +804,6 @@ void AProjectPlayerController::SpecialCameraSetting()
     //FaceCameraActor : 카메라
     if (FaceCameraActor) return;
     FaceCameraActor = GetWorld()->SpawnActor<ACameraActor>();
-
 }
 
 void AProjectPlayerController::CameraGrayTrans()
@@ -882,8 +953,6 @@ void AProjectPlayerController::ResetDialogueActor()
     diaActor = nullptr;
 }
 
-
-
 void AProjectPlayerController::StartDialogue() {
 
     if (diaActor) {
@@ -915,4 +984,92 @@ void AProjectPlayerController::StartDialogue() {
 
     return;
 
+}
+
+
+float AProjectPlayerController::CosineSimilarity(const TArray<float>& A, const TArray<float>& B)
+{
+    if (A.Num() != B.Num()) return 0.f;
+
+    float Dot = 0.f;
+    float NormA = 0.f;
+    float NormB = 0.f;
+
+    for (int32 i = 0; i < A.Num(); i++)
+    {
+        Dot += A[i] * B[i];
+        NormA += A[i] * A[i];
+        NormB += B[i] * B[i];
+    }
+
+    float Denom = FMath::Sqrt(NormA) * FMath::Sqrt(NormB);
+    if (Denom <= KINDA_SMALL_NUMBER)
+        return 0.f;
+
+    return Dot / Denom;
+}
+
+bool AProjectPlayerController::RunONNX(const FString& ImagePath, TArray<float>& OutFeature)
+{
+    TArray<float> InputData;
+    int32 W, H;
+
+    if (!LoadPNG(ImagePath, InputData, W, H))
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to load image: %s"), *ImagePath);
+        return false;
+    }
+
+    TArray<UE::NNE::FTensorBindingCPU> InputBindings;
+    InputBindings.SetNum(1);
+
+    InputBindings[0].Data = InputData.GetData();
+    InputBindings[0].SizeInBytes = InputData.Num() * sizeof(float);
+
+    // MobileNetV2 feature output = 1280
+    OutFeature.SetNum(1280);
+
+    TArray<UE::NNE::FTensorBindingCPU> OutputBindings;
+    OutputBindings.SetNum(1);
+
+    OutputBindings[0].Data = OutFeature.GetData();
+    OutputBindings[0].SizeInBytes = OutFeature.Num() * sizeof(float);
+
+    ModelInstance->RunSync(InputBindings, OutputBindings);
+
+    return true;
+}
+
+bool AProjectPlayerController::LoadPNG(const FString& FilePath, TArray<float>& OutFloatData, int32& OutWidth, int32& OutHeight)
+{
+    TArray<uint8> RawFileData;
+    if (!FFileHelper::LoadFileToArray(RawFileData, *FilePath))
+        return false;
+
+    IImageWrapperModule& ImageWrapperModule =
+        FModuleManager::LoadModuleChecked<IImageWrapperModule>("ImageWrapper");
+
+    TSharedPtr<IImageWrapper> ImageWrapper =
+        ImageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
+
+    if (!ImageWrapper.IsValid() ||
+        !ImageWrapper->SetCompressed(RawFileData.GetData(), RawFileData.Num()))
+        return false;
+
+    OutWidth = ImageWrapper->GetWidth();
+    OutHeight = ImageWrapper->GetHeight();
+
+    TArray<uint8> UncompressedRGBA;
+    ImageWrapper->GetRaw(ERGBFormat::RGBA, 8, UncompressedRGBA);
+
+    OutFloatData.SetNum(OutWidth * OutHeight * 3);
+
+    for (int32 i = 0; i < OutWidth * OutHeight; ++i)
+    {
+        OutFloatData[i * 3 + 0] = UncompressedRGBA[i * 4 + 0] / 255.f;
+        OutFloatData[i * 3 + 1] = UncompressedRGBA[i * 4 + 1] / 255.f;
+        OutFloatData[i * 3 + 2] = UncompressedRGBA[i * 4 + 2] / 255.f;
+    }
+
+    return true;
 }

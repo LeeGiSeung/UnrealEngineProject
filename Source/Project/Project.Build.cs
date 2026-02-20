@@ -10,6 +10,11 @@ public class Project : ModuleRules
 
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "Water", "Niagara", "GameplayTags", "CableComponent",    "Slate",
     "SlateCore",    "LevelSequence",
-    "MovieScene" });
+    "MovieScene",    "NNE",
+    "NNERuntimeORT",
+        "NNERuntimeORTCpu",
+            "ImageWrapper",
+    "RenderCore",
+        "ImageCore"});
 	}
 }
