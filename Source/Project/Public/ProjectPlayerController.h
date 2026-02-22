@@ -12,6 +12,7 @@
 //ONNX Model
 #include "NNE.h"
 #include "NNERuntimeCPU.h"
+#include  "NNEModelData.h"
 #include "NNERuntime.h"
 
 #include "ProjectPlayerController.generated.h"
@@ -297,8 +298,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NNE Model")
 	UNNEModelData* ModelData;
 
-	TSharedPtr<UE::NNE::IModelCPU> Model;
-	TSharedPtr<UE::NNE::IModelInstanceCPU> ModelInstance;
+	TUniquePtr<UE::NNE::IModelCPU> Model;
+	TUniquePtr<UE::NNE::IModelInstanceCPU> ModelInstance;
 
 	TArray<float> FireFeature;      // Fire 기준 벡터
 	TArray<float> TreeFeature;      // 필요하면 추가
@@ -310,7 +311,11 @@ public:
 	UTexture2D* CaptureTexture;
 
 	bool LoadPNG(const FString& FilePath,
-		TArray<float>& OutFloatData,
-		int32& OutWidth,
-		int32& OutHeight);
+		TArray<float>& OutFloatData);
+
+	bool IsSameShape(
+		const FString& PlayerImagePath,
+		float Threshold);
+
+	TArray<float> CorrectFeature;
 };

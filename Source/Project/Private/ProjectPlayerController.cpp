@@ -46,12 +46,16 @@
 //Model
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
+#include "NNERuntimeGPU.h"
 
+//PNG
 #include "IImageWrapper.h"
 #include "IImageWrapperModule.h"
 #include "Modules/ModuleManager.h"
 #include "ImageUtils.h"
 #include "ImageCore.h"
+
+using namespace UE::NNE;
 
 AProjectPlayerController::AProjectPlayerController()
 {
@@ -188,33 +192,26 @@ void AProjectPlayerController::DrawingEnd()
 void AProjectPlayerController::SpawnDecalActor(TArray<FVector2D> _DrawPosition, EColor CurChoiceColor)
 {
 
-    FString ImagePath =
-        FPaths::ProjectContentDir() +
-        TEXT("DrawingImage/CaptureImg.png");
-
+    FString ImagePath = TEXT("C:/Users/82103/Documents/Unreal Projects/ProjectV/UnrealEngineProject/Content/DrawingImage/Capture.png");
+        
     TArray<float> InputFeature;
+    
+    float Threshold = 0.85f;
+    //코사인 검사
+    bool bIsCorrect = IsSameShape(
+        ImagePath,
+        Threshold);
 
-    if (!RunONNX(ImagePath, InputFeature))
+    if (bIsCorrect)
     {
-        UE_LOG(LogTemp, Error, TEXT("ONNX Run Failed"));
+        UE_LOG(LogTemp, Warning, TEXT("yes!"));
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("no!"));
         return;
     }
 
-    if (CurChoiceColor == EColor::RED)
-    {
-        float Similarity =
-            CosineSimilarity(InputFeature, FireFeature);
-
-        UE_LOG(LogTemp, Warning,
-            TEXT("Fire Similarity: %f"), Similarity);
-
-        if (Similarity < 0.75f)
-        {
-            UE_LOG(LogTemp, Warning,
-                TEXT("Not Fire! Cancel."));
-            return;
-        }
-    }
 
     //제대로 그렸는지 OXNN 검사
 
@@ -757,39 +754,77 @@ void AProjectPlayerController::BeginPlay() {
         break;
     }
 
+    if (!ModelData)
+    {
+        UE_LOG(LogTemp, Error, TEXT("ModelData is null"));
+        return;
+    }
+
     auto Runtime = UE::NNE::GetRuntime<INNERuntimeCPU>(TEXT("NNERuntimeORTCpu"));
     if (!Runtime.IsValid())
     {
-        UE_LOG(LogTemp, Error, TEXT("Failed to get ORT Runtime"));
+        UE_LOG(LogTemp, Error, TEXT("Failed to get Runtime"));
         return;
     }
 
-    // 1. 모델 생성 및 할당
-    TUniquePtr<UE::NNE::IModelCPU> TempModel = Runtime->CreateModel(ModelData);
-    if (TempModel.IsValid())
-    {
-        // Release()로 소유권을 추출하여 SharedPtr에 수동으로 전달
-        this->Model = TSharedPtr<UE::NNE::IModelCPU>(TempModel.Release());
-    }
+    Model = Runtime->CreateModel(ModelData);
 
-    if (!this->Model.IsValid())
-    {
-        UE_LOG(LogTemp, Error, TEXT("Failed to create model"));
+    if (!Model) {
+        UE_LOG(LogTemp, Error, TEXT("Model"));
         return;
     }
 
-    // 2. 모델 인스턴스 생성 및 할당
-    TUniquePtr<UE::NNE::IModelInstanceCPU> TempInstance = Model->CreateModelInstance();
-    if (TempInstance.IsValid())
+    ModelInstance = Model->CreateModelInstance();
+    if (!ModelInstance.IsValid())
     {
-        // 마찬가지로 Release()를 사용해 SharedPtr로 변환
-        this->ModelInstance = TSharedPtr<UE::NNE::IModelInstanceCPU>(TempInstance.Release());
+        UE_LOG(LogTemp, Error, TEXT("Failed to create Model Instance"));
+        return;
     }
 
-    if (!this->ModelInstance.IsValid())
+    // 1. 입력 텐서 디스크립터 가져오기
+    TConstArrayView<UE::NNE::FTensorDesc> InputTensorDescs = ModelInstance->GetInputTensorDescs();
+    if (InputTensorDescs.Num() != 1)
     {
-        UE_LOG(LogTemp, Error, TEXT("Failed to create model instance"));
+        UE_LOG(LogTemp, Error, TEXT("Unexpected number of inputs: %d"), InputTensorDescs.Num());
         return;
+    }
+
+    // 2. 심볼릭 입력 shape 가져오기
+    UE::NNE::FSymbolicTensorShape SymbolicShape = InputTensorDescs[0].GetShape();
+
+    // 3. 심볼릭 차원에서 -1 부분을 실제 크기로 치환 (예: 224,224)
+    TConstArrayView<int32> SymbolicDims = SymbolicShape.GetData();
+
+    TArray<uint32> ConcreteDims;
+    ConcreteDims.Reserve(SymbolicDims.Num());
+
+    for (int32 Dim : SymbolicDims)
+    {
+        int32 ActualDim = Dim;
+        if (ActualDim == -1)
+        {
+            // 동적 차원 실제 크기 할당 예시
+            ActualDim = 224;
+        }
+        check(ActualDim >= 0);
+        ConcreteDims.Add(static_cast<uint32>(ActualDim));
+    }
+
+    // 4. Concrete tensor shape 생성
+    TArray<UE::NNE::FTensorShape> InputShapes = { UE::NNE::FTensorShape::MakeFromSymbolic(SymbolicShape) };
+
+    // 5. SetInputTensorShapes 호출 및 상태 점검
+    ModelInstance->SetInputTensorShapes(InputShapes);
+
+    if (!RunONNX(
+        TEXT("C:/Users/82103/Documents/Unreal Projects/ProjectV/UnrealEngineProject/Content/DrawingImage/CaptureImg6.png"),
+        CorrectFeature))
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to generate CorrectFeature")); //여기 오류
+        return;
+    }
+    else {
+        UE_LOG(LogTemp, Warning, TEXT("Success Onnx"));
     }
 
 }
@@ -1009,67 +1044,178 @@ float AProjectPlayerController::CosineSimilarity(const TArray<float>& A, const T
     return Dot / Denom;
 }
 
+bool AProjectPlayerController::IsSameShape( const FString& PlayerImagePath, float Threshold)
+{
+    TArray<float> PlayerFeature;
+
+    if (!RunONNX(PlayerImagePath, PlayerFeature))
+        return false;
+
+    UE_LOG(LogTemp, Warning, TEXT("PlayerFeature Num: %d"), PlayerFeature.Num());
+
+    float Similarity = CosineSimilarity(PlayerFeature, CorrectFeature);
+
+    UE_LOG(LogTemp, Warning, TEXT("Similarity: %f"), Similarity);
+
+    return Similarity > Threshold;
+}
+
 bool AProjectPlayerController::RunONNX(const FString& ImagePath, TArray<float>& OutFeature)
 {
-    TArray<float> InputData;
-    int32 W, H;
+    TArray<float> InputTensor;
+    if (!LoadPNG(ImagePath, InputTensor))
+        return false;
 
-    if (!LoadPNG(ImagePath, InputData, W, H))
+    // 입력 바인딩
+    TArray<FTensorBindingCPU> InputBindings;
+    InputBindings.SetNum(1);
+
+    InputBindings[0].Data = InputTensor.GetData();
+    InputBindings[0].SizeInBytes = InputTensor.Num() * sizeof(float);
+
+    // -------------------------
+    // 출력 텐서 정보 가져오기
+    // -------------------------
+  
+    TConstArrayView<UE::NNE::FTensorShape> OutputShapes = ModelInstance->GetOutputTensorShapes();
+    if (OutputShapes.Num() == 0)
     {
-        UE_LOG(LogTemp, Error, TEXT("Failed to load image: %s"), *ImagePath);
+        UE_LOG(LogTemp, Error, TEXT("No output tensor shapes available"));
         return false;
     }
 
-    TArray<UE::NNE::FTensorBindingCPU> InputBindings;
-    InputBindings.SetNum(1);
+    const UE::NNE::FTensorShape& OutputShape = OutputShapes[0];
 
-    InputBindings[0].Data = InputData.GetData();
-    InputBindings[0].SizeInBytes = InputData.Num() * sizeof(float);
+    // 2. 차원 값 유효성 검사 및 요소 수 계산
+    int64 NumElements = 1;
+    for (int32 Dim : OutputShape.GetData())
+    {
+        if (Dim <= 0)
+        {
+            UE_LOG(LogTemp, Error, TEXT("Invalid output dimension size: %d"), Dim);
+            return false;
+        }
+        NumElements *= Dim;
+    }
 
-    // MobileNetV2 feature output = 1280
-    OutFeature.SetNum(1280);
+    // 3. 할당 크기 제한 (예: 최대 100 million)
+    const int64 MaxElements = 100000000;
+    if (NumElements > MaxElements)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Output tensor size too large: %lld"), NumElements);
+        return false;
+    }
 
-    TArray<UE::NNE::FTensorBindingCPU> OutputBindings;
+    // 4. 안전한 TArray 할당
+    OutFeature.SetNumZeroed(static_cast<int32>(NumElements));
+
+    UE_LOG(LogTemp, Warning, TEXT("Allocated OutFeature with %lld elements"), NumElements);
+
+    TArray<FTensorBindingCPU> OutputBindings;
     OutputBindings.SetNum(1);
 
     OutputBindings[0].Data = OutFeature.GetData();
-    OutputBindings[0].SizeInBytes = OutFeature.Num() * sizeof(float);
+    OutputBindings[0].SizeInBytes = NumElements * sizeof(float);
 
-    ModelInstance->RunSync(InputBindings, OutputBindings);
+    int32 RunStatus = ModelInstance->RunSync(InputBindings, OutputBindings);
+    if (RunStatus != 0)
+    {
+        UE_LOG(LogTemp, Error, TEXT("RunSync failed with status: %d"), RunStatus);
+        return false;
+    }
 
     return true;
 }
 
-bool AProjectPlayerController::LoadPNG(const FString& FilePath, TArray<float>& OutFloatData, int32& OutWidth, int32& OutHeight)
+bool AProjectPlayerController::LoadPNG(
+    const FString& ImagePath,
+    TArray<float>& OutTensor)
 {
-    TArray<uint8> RawFileData;
-    if (!FFileHelper::LoadFileToArray(RawFileData, *FilePath))
-        return false;
+    OutTensor.Empty();
 
+    // 파일 로드
+    TArray<uint8> FileData;
+    if (!FFileHelper::LoadFileToArray(FileData, *ImagePath))
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to load file: %s"), *ImagePath);
+        return false;
+    }
+
+    // PNG 디코딩
     IImageWrapperModule& ImageWrapperModule =
-        FModuleManager::LoadModuleChecked<IImageWrapperModule>("ImageWrapper");
+        FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
 
     TSharedPtr<IImageWrapper> ImageWrapper =
         ImageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
 
-    if (!ImageWrapper.IsValid() ||
-        !ImageWrapper->SetCompressed(RawFileData.GetData(), RawFileData.Num()))
-        return false;
-
-    OutWidth = ImageWrapper->GetWidth();
-    OutHeight = ImageWrapper->GetHeight();
-
-    TArray<uint8> UncompressedRGBA;
-    ImageWrapper->GetRaw(ERGBFormat::RGBA, 8, UncompressedRGBA);
-
-    OutFloatData.SetNum(OutWidth * OutHeight * 3);
-
-    for (int32 i = 0; i < OutWidth * OutHeight; ++i)
+    if (!ImageWrapper.IsValid() || !ImageWrapper->SetCompressed(FileData.GetData(), FileData.Num()))
     {
-        OutFloatData[i * 3 + 0] = UncompressedRGBA[i * 4 + 0] / 255.f;
-        OutFloatData[i * 3 + 1] = UncompressedRGBA[i * 4 + 1] / 255.f;
-        OutFloatData[i * 3 + 2] = UncompressedRGBA[i * 4 + 2] / 255.f;
+        UE_LOG(LogTemp, Error, TEXT("Failed to decode PNG"));
+        return false;
     }
 
+    TArray<uint8> RawData;
+
+    if (!ImageWrapper->GetRaw(ERGBFormat::RGBA, 8, RawData))
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to get raw image data"));
+        return false;
+    }
+
+    int32 SrcWidth = ImageWrapper->GetWidth();
+    int32 SrcHeight = ImageWrapper->GetHeight();
+
+    UE_LOG(LogTemp, Warning, TEXT("Loaded Image: %dx%d"), SrcWidth, SrcHeight);
+
+    // RGBA → FColor 배열
+    TArray<FColor> SrcPixels;
+    SrcPixels.SetNumUninitialized(SrcWidth * SrcHeight);
+    FMemory::Memcpy(SrcPixels.GetData(), RawData.GetData(), RawData.Num());
+
+    // 224x224로 리사이즈
+    TArray<FColor> ResizedPixels;
+    ResizedPixels.SetNumUninitialized(224 * 224);
+
+    FImageUtils::ImageResize(
+        SrcWidth,
+        SrcHeight,
+        SrcPixels,
+        224,
+        224,
+        ResizedPixels,
+        true
+    );
+
+    // Tensor 준비 (NCHW)
+    OutTensor.SetNumZeroed(1 * 3 * 224 * 224);
+
+    // MobileNet 정규화 (ImageNet 기준)
+    const float Mean[3] = { 0.485f, 0.456f, 0.406f };
+    const float Std[3] = { 0.229f, 0.224f, 0.225f };
+
+    for (int32 y = 0; y < 224; ++y)
+    {
+        for (int32 x = 0; x < 224; ++x)
+        {
+            int32 PixelIndex = y * 224 + x;
+            FColor Pixel = ResizedPixels[PixelIndex];
+
+            float R = Pixel.R / 255.f;
+            float G = Pixel.G / 255.f;
+            float B = Pixel.B / 255.f;
+
+            // 정규화
+            R = (R - Mean[0]) / Std[0];
+            G = (G - Mean[1]) / Std[1];
+            B = (B - Mean[2]) / Std[2];
+
+            // NCHW 배치 1
+            OutTensor[0 * 224 * 224 + y * 224 + x] = R; // Channel 0
+            OutTensor[1 * 224 * 224 + y * 224 + x] = G; // Channel 1
+            OutTensor[2 * 224 * 224 + y * 224 + x] = B; // Channel 2
+        }
+    }
+
+    UE_LOG(LogTemp, Warning, TEXT("Tensor Ready. Num: %d"), OutTensor.Num());
     return true;
 }
