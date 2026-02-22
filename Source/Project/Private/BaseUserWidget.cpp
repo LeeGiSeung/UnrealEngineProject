@@ -79,9 +79,9 @@ void UBaseUserWidget::SaveCanvasRenderTargetToPNG(UTextureRenderTarget2D* Canvas
 
     const TArray64<uint8>& PNGData = ImageWrapper->GetCompressed(100);
 
-    //FString NewFileName = FString::Printf(TEXT("CaptureImg%d.png"), number);
-    //FString FullFilePath = FPaths::Combine(FilePath, NewFileName);
-    FString FullFilePath = FPaths::Combine(FilePath, FileName);
+    FString NewFileName = FString::Printf(TEXT("CaptureImg%d.png"), number);
+    FString FullFilePath = FPaths::Combine(FilePath, NewFileName); //번호 붙음
+    //FString FullFilePath = FPaths::Combine(FilePath, FileName); //번호 안붙음
     if (!FFileHelper::SaveArrayToFile(PNGData, *FullFilePath))
     {
         UE_LOG(LogTemp, Warning, TEXT("Failed to save PNG to file %s"), *FullFilePath);
@@ -92,7 +92,7 @@ void UBaseUserWidget::SaveCanvasRenderTargetToPNG(UTextureRenderTarget2D* Canvas
         UE_LOG(LogTemp, Warning, TEXT("Success Png %s"), *FullFilePath);
     }
     
-    //number++;
+    number++;
 
 }
 
