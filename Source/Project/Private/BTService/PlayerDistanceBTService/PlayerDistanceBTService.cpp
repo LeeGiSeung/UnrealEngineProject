@@ -5,7 +5,9 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "BehaviorTree/BTService.h"
+#include "GameFramework/Character.h"
 #include "AIController.h"
+#include "Enemy/BaseEnemy/BossAnimInstance.h"
 #include "Kismet/GameplayStatics.h"
 
 UPlayerDistanceBTService::UPlayerDistanceBTService()
@@ -24,6 +26,11 @@ void UPlayerDistanceBTService::OnBecomeRelevant(UBehaviorTreeComponent& OwnerCom
     AIController = OwnerComp.GetAIOwner();
 
     if (AIController) Boss = AIController->GetPawn();
+
+    if (ACharacter* BossCharacter = Cast<ACharacter>(Boss)) {
+        USkeletalMeshComponent* Mesh = BossCharacter->GetMesh();
+        AnimInst = Cast<UBossAnimInstance>(Mesh->GetAnimInstance());
+    }
 
 }
 
@@ -72,10 +79,20 @@ void UPlayerDistanceBTService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
     // 거리 조건 (600 이하)
     bool bInAttackRange = (Distance <= 650.0f);
 
-    //UE_LOG(LogTemp, Error, TEXT("Look at : %f"), Distance);
+    BBoard->SetValueAsFloat(TEXT("Distance"), Distance);
 
     FString BoolString = bInAttackRange ? TEXT("true") : TEXT("false");
 
-    BBoard->SetValueAsBool(TEXT("CanAttack"), bInAttackRange);
+    //UE_LOG(LogTemp, Error, TEXT("Distance : %f"), Distance);
+
+    if (Distance <= 2000.f && !bInAttackRange && !AnimInst->GetbFindPlayer()) { //2000이하, 공격 거리에 없고, 아직 Player를 찾지 못했을때
+        AnimInst->SetbFindPlayer(true);
+    }
+    else if (bInAttackRange) {
+        BBoard->SetValueAsBool(TEXT("CanAttack"), bInAttackRange);    
+    }
+    else if(Distance > 2000.f){
+        AnimInst->SetbFindPlayer(false);
+    }
 
 }

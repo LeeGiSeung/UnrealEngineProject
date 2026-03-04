@@ -1,5 +1,6 @@
 #include "AI/Enemy/Boss/Task/DanceWalkingTaskNode.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Enemy/BaseEnemy/BossAnimInstance.h"
 #include "AIController.h"
 
 EBTNodeResult::Type UDanceWalkingTaskNode::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -7,19 +8,15 @@ EBTNodeResult::Type UDanceWalkingTaskNode::ExecuteTask(UBehaviorTreeComponent& O
 
     APawn* ControllingPawn = OwnerComp.GetAIOwner()->GetPawn();
 
-    if (!ControllingPawn || !MontageToPlay) return EBTNodeResult::Failed;
-
-    
+    if (!ControllingPawn) return EBTNodeResult::Failed;
 
     UBlackboardComponent* BBComp = OwnerComp.GetBlackboardComponent();
 
-    UAnimInstance* AnimInst = ControllingPawn->FindComponentByClass<USkeletalMeshComponent>()->GetAnimInstance();
-
-    if (AnimInst->Montage_IsPlaying(MontageToPlay)) return EBTNodeResult::Succeeded;
+    UBossAnimInstance* AnimInst = Cast<UBossAnimInstance>(ControllingPawn->FindComponentByClass<USkeletalMeshComponent>()->GetAnimInstance());
 
     if (AnimInst)
     {
-        AnimInst->Montage_Play(MontageToPlay);
+        AnimInst->SetbBossDanceAttack(true);
         return EBTNodeResult::Succeeded;
     }
 

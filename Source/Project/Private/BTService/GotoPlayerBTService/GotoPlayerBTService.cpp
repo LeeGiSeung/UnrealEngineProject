@@ -31,8 +31,6 @@ void UGotoPlayerBTService::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, u
 	if (BBoard) {
 		TargetActor = Cast<AActor>(BBoard->GetValueAsObject(TargetActorKey.SelectedKeyName));
         BossActor = OwnerComp.GetOwner();
-        //UE_LOG(LogTemp, Error, TEXT("Boss First Location : %s"), *BossActor->GetActorLocation().ToString());
-        //UE_LOG(LogTemp, Error, TEXT("Player First Location : %s"), *TargetActor->GetActorLocation().ToString());
 	}
 }
 

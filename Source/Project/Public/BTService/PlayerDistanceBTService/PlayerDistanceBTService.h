@@ -6,6 +6,8 @@
 #include "BTService/BaseBTService.h"
 #include "PlayerDistanceBTService.generated.h"
 
+class UBossAnimInstance;
+
 /**
  * 
  */
@@ -33,4 +35,5 @@ private:
 	AActor* TargetActor;
 	AActor* Boss;
 	AAIController* AIController;
+	UBossAnimInstance* AnimInst;
 };

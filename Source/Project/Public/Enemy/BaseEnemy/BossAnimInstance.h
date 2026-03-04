@@ -18,11 +18,21 @@ public:
 	
 	void SetbFindPlayer(bool value) { bFindPlayer = value; }
 	void SetbChargeMana(bool value) { bChargeMana = value; }
+	void SetbBossDanceAttack(bool value) { bBossDanceAttack = value; }
+
+	bool GetbBossDanceAttack() { return bBossDanceAttack; }
+	bool GetbFindPlayer() { return bFindPlayer; }
+
+	UFUNCTION(BlueprintCallable, Category = "Animation")
+	void EndBossCloud();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bFindPlayer;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bChargeMana;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bBossDanceAttack;
 
 };
