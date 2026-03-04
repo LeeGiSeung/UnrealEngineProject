@@ -4,6 +4,10 @@ DerivedDataCache/
 Intermediate/
 Saved/
 .vs/
+<<<<<<< HEAD
+=======
+UnrealEngineProject/
+>>>>>>> e810d85 (New Dir)
 
 # Build files
 *.sln
