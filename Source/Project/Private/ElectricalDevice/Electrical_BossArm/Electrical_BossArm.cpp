@@ -17,6 +17,7 @@ void AElectrical_BossArm::Use_Function() {
 		return;
 	}
 	BossActor->DecreaseHP(1);
+	BossActor->OffSpawnBossArm();
 
 }
 

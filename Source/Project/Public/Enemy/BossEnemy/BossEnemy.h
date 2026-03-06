@@ -39,6 +39,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	UAnimMontage* MagicCloudMontage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite ,Category = "BossArm")
+	float BaseSpawnSocketTime = 0.f;
+
+	void OnSpawnBossArm();
+	void OffSpawnBossArm();
+	int CheckSpawnBossArm();
+
 private:
 	FName RightArmSocket = FName("RightArmSocket");
 	FName LeftArmSocket = FName("LeftArmSocket");
@@ -56,6 +63,11 @@ private:
 
 	UBossAnimInstance* AnimInst;
 
-	float t = 0.f;
+	
+	float CurSpawnSocketTime = 0.f;
+
+	void SpawnBossArm(FName _SocketName);
+
+	int bSpawnBossArm = 0;
 
 };
