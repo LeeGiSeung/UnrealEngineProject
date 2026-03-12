@@ -76,7 +76,7 @@ void UPlayerDistanceBTService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 
     Boss->SetActorRotation(SmoothedRotation);
     
-    UE_LOG(LogTemp, Error, TEXT("Distance : %s"), *SmoothedRotation.ToString());
+    //UE_LOG(LogTemp, Error, TEXT("Distance : %s"), *SmoothedRotation.ToString());
 
     // 거리 조건 (600 이하)
     bool bInAttackRange = (Distance <= 650.0f);

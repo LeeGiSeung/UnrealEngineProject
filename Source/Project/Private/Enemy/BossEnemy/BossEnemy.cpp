@@ -55,7 +55,24 @@ void ABossEnemy::Tick(float DeltaTime)
 
         CurSpawnSocketTime = 0.f;
     }
-    
+
+    // 1. 방향 벡터를 구하고 Z축(높낮이) 차이 무시 (보스가 하늘이나 땅을 보며 기울어지는 것 방지)
+    FVector Direction = PlayerPawn->GetActorLocation() - GetActorLocation();
+    Direction.Z = 0.0f;
+
+    // 2. 플레이어를 바라보기 위한 목표 회전값 계산
+    FRotator TargetRotation = Direction.Rotation();
+
+    // 3. 보스의 현재 회전값
+    FRotator CurrentRotation = GetActorRotation();
+
+    // 4. RInterpTo를 사용한 부드러운 보간 (InterpSpeed 값이 클수록 빨리 돕니다)
+    float InterpSpeed = 500.0f;
+    FRotator SmoothRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, InterpSpeed);
+
+    // 5. 보스 액터에 부드러워진 회전값 적용
+    SetActorRotation(SmoothRotation);
+
 }
 
 void ABossEnemy::OnSpawnBossArm()
