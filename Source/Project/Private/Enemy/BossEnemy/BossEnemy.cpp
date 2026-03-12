@@ -11,7 +11,7 @@
 
 ABossEnemy::ABossEnemy()
 {
-    EnemyHP = 2;
+    EnemyHP = 1;
 }
 
 void ABossEnemy::BeginPlay()
@@ -21,6 +21,10 @@ void ABossEnemy::BeginPlay()
     
     AnimInst = Cast<UBossAnimInstance>(GetMesh()->GetAnimInstance());
 
+    AICon = Cast<AAIController>(GetController());
+
+    BBComp = AICon->GetBlackboardComponent();
+
 }
 
 void ABossEnemy::Tick(float DeltaTime)
@@ -29,7 +33,13 @@ void ABossEnemy::Tick(float DeltaTime)
 
     CurSpawnSocketTime += DeltaTime;
 
-    if (CurSpawnSocketTime > BaseSpawnSocketTime && CheckSpawnBossArm() == 0) {
+    TurnToPlayer(DeltaTime);
+
+    if (CurSpawnSocketTime > 10.f) {
+        DecreaseHP(1);
+    }
+
+    if (CurSpawnSocketTime > BaseSpawnSocketTime && CheckSpawnBossArm() == 0 && BBComp->GetValueAsBool(TEXT("bIsDead")) == false) {
 
         if (!ActorBPToSpawn) return;
 
@@ -56,6 +66,10 @@ void ABossEnemy::Tick(float DeltaTime)
         CurSpawnSocketTime = 0.f;
     }
 
+}
+
+void ABossEnemy::TurnToPlayer(float DeltaTime)
+{
     // 1. 방향 벡터를 구하고 Z축(높낮이) 차이 무시 (보스가 하늘이나 땅을 보며 기울어지는 것 방지)
     FVector Direction = PlayerPawn->GetActorLocation() - GetActorLocation();
     Direction.Z = 0.0f;
@@ -72,7 +86,36 @@ void ABossEnemy::Tick(float DeltaTime)
 
     // 5. 보스 액터에 부드러워진 회전값 적용
     SetActorRotation(SmoothRotation);
+}
 
+void ABossEnemy::EnemyDie()
+{
+    Super::EnemyDie();
+
+    // 1. 배열을 순회하며 모든 팔 액터를 제거
+    for (AActor* Arm : SpawnedBossArms)
+    {
+        if (IsValid(Arm)) // 아직 유효한(삭제되지 않은) 상태인지 확인
+        {
+            Arm->Destroy();
+        }
+    }
+
+    // 2. 배열 비우기 (메모리 정리)
+    SpawnedBossArms.Empty();
+
+    if (AICon)
+    {
+
+        if (BBComp)
+        {
+            UE_LOG(LogTemp, Error, TEXT("Boss Actor Die"));
+            // 3. 값 변경 (예: IsDead 변수를 true로)
+            BBComp->SetValueAsBool(TEXT("bIsDead"), true);
+        }
+    }
+
+    //Destroy();
 }
 
 void ABossEnemy::OnSpawnBossArm()
@@ -115,6 +158,7 @@ void ABossEnemy::SpawnBossArm(FName _SocketName)
         SpawnedSocketActor->AttachToComponent(GetMesh(), AttachRules, SocketName);
         AElectrical_BossArm* BossArm = Cast<AElectrical_BossArm>(SpawnedSocketActor);
         BossArm->SetBossPointer(this);
+        SpawnedBossArms.Add(BossArm);
         OnSpawnBossArm();
     }
 }

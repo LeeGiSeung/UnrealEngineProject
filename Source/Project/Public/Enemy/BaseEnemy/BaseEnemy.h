@@ -37,6 +37,8 @@ public:
 	virtual void IncreaseHP(int value);
 	virtual void DecreaseHP(int value);
 
+	virtual void EnemyDie();
+
 protected:
 	uint32 EnemyHP;
 

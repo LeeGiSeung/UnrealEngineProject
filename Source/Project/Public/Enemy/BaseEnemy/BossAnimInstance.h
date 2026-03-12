@@ -6,6 +6,9 @@
 #include "BaseAnimInstance.h"
 #include "BossAnimInstance.generated.h"
 
+class AAIController;
+class UBlackboardComponent;
+
 /**
  * 
  */
@@ -19,12 +22,17 @@ public:
 	void SetbFindPlayer(bool value) { bFindPlayer = value; }
 	void SetbChargeMana(bool value) { bChargeMana = value; }
 	void SetbBossDanceAttack(bool value) { bBossDanceAttack = value; }
+	void SetbBossDie(bool value) { bBossDie = value; }
 
 	bool GetbBossDanceAttack() { return bBossDanceAttack; }
 	bool GetbFindPlayer() { return bFindPlayer; }
+	bool GetbBossDie() { return bBossDie; }
 
 	UFUNCTION(BlueprintCallable, Category = "Animation")
 	void EndBossCloud();
+
+	UFUNCTION(BlueprintCallable, Category = "Animation")
+	void EndBossDie();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bFindPlayer;
@@ -34,5 +42,13 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bBossDanceAttack;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bBossDie;
+
+private:
+	APawn* OwningPawn;
+	AAIController* AICon;
+	UBlackboardComponent* BB;
 
 };

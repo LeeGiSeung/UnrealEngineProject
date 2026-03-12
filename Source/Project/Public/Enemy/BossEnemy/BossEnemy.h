@@ -7,7 +7,8 @@
 #include "BossEnemy.generated.h"
 
 class UBossAnimInstance;
-
+class UBlackboardComponent;
+class AAIController;
 /**
  * 
  */
@@ -27,6 +28,10 @@ public:
 	ABossEnemy();
 	virtual void Tick(float DeltaTime) override;
 
+	void TurnToPlayer(float DeltaTime);
+
+	virtual void EnemyDie() override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 	TSubclassOf<AActor> ActorBPToSpawn;
 
@@ -42,11 +47,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite ,Category = "BossArm")
 	float BaseSpawnSocketTime = 0.f;
 
+	TArray<AActor*> SpawnedBossArms;
+
 	void OnSpawnBossArm();
 	void OffSpawnBossArm();
 	int CheckSpawnBossArm();
 
 private:
+
+	AAIController* AICon;
+	UBlackboardComponent* BBComp;
+
 	FName RightArmSocket = FName("RightArmSocket");
 	FName LeftArmSocket = FName("LeftArmSocket");
 	FName RightCalfSocket = FName("RightCalfSocket");

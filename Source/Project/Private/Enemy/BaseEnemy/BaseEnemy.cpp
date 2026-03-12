@@ -5,6 +5,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"
+#include "Components/CapsuleComponent.h"
+#include "BrainComponent.h"
+
 // Sets default values
 ABaseEnemy::ABaseEnemy()
 {
@@ -63,6 +66,27 @@ void ABaseEnemy::DecreaseHP(int value)
     if (EnemyHP <= 0) return;
     EnemyHP -= value;
 
-    UE_LOG(LogTemp, Error, TEXT("DECREASEHP"));
+    if (EnemyHP <= 0) {
+        EnemyDie();
+        return;
+    }
+    
+}
+
+void ABaseEnemy::EnemyDie()
+{
+    //// 1. 비헤이비어 트리 중지 (AI가 더 이상 동작하지 않도록)
+    //if (AAIController* AICon = Cast<AAIController>(GetController()))
+    //{
+    //    AICon->BrainComponent->StopLogic("Boss is Dead");
+    //}
+
+    // 2. 콜리전 끄기 (시체가 바닥을 뚫거나 플레이어를 막지 않도록)
+    GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    
+    //#######################################
+    //자식 객체에서 항상 Destory() 꼭 해줘야함
+    //#######################################
+
 }
 

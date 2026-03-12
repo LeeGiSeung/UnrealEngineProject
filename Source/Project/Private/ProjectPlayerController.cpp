@@ -268,11 +268,7 @@ void AProjectPlayerController::SpawnDecalActor(TArray<FVector2D> _DrawPosition, 
 
     TArray<float> InputFeature;
 
-    float Threshold = 0.99f;
-
-    if (DrawingColor == EColor::BLUE) {
-        Threshold = 0.98f;
-    }
+    float Threshold = 0.97f;
 
     //코사인 검사
     bool bIsCorrect = IsSameShape(

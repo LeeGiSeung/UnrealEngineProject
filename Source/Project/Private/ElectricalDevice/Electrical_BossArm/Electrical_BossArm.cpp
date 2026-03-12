@@ -16,6 +16,7 @@ void AElectrical_BossArm::Use_Function() {
 		UE_LOG(LogTemp, Error, TEXT("NO BOSS ACTOR POINTER"));
 		return;
 	}
+
 	BossActor->DecreaseHP(1);
 	BossActor->OffSpawnBossArm();
 

@@ -39,21 +39,21 @@ void ADrawing_Lightning_Actor::UseAbility()
     TArray<FOverlapResult> Overlaps;
     TArray<AActor*> ElectricalActors;
 
-    FCollisionShape Sphere = FCollisionShape::MakeSphere(100.f); // 범위 조절 가능
+    FCollisionShape Sphere = FCollisionShape::MakeSphere(300.f); // 범위 조절 가능
     FCollisionQueryParams Params;
     Params.AddIgnoredActor(this); // 자기 자신 무시
 
-    DrawDebugSphere(
-        GetWorld(),
-        GetActorLocation(),
-        Sphere.GetSphereRadius(),
-        32,               // 세그먼트 수
-        FColor::Green,    // 색상
-        false,            // 지속 시간 무한 아님
-        2.f,              // 지속 시간
-        0,                // 깊이 우선 표시
-        2.f               // 선 두께
-    );
+    //DrawDebugSphere(
+    //    GetWorld(),
+    //    GetActorLocation(),
+    //    Sphere.GetSphereRadius(),
+    //    32,               // 세그먼트 수
+    //    FColor::Green,    // 색상
+    //    false,            // 지속 시간 무한 아님
+    //    2.f,              // 지속 시간
+    //    0,                // 깊이 우선 표시
+    //    2.f               // 선 두께
+    //);
 
     bool bHit = GetWorld()->OverlapMultiByChannel(
         Overlaps,
@@ -75,13 +75,12 @@ void ADrawing_Lightning_Actor::UseAbility()
             // 3-1. Actor Tags 기반 태그 체크
             if (HitActor->Tags.Contains(FName("Electrical")))
             {
-                UE_LOG(LogTemp, Warning, TEXT("afafafafaf"));
                 ElectricalActors.AddUnique(HitActor);
             }
         }
     }
     else {
-        UE_LOG(LogTemp, Warning, TEXT("no dict"));
+        UE_LOG(LogTemp, Warning, TEXT("No Dict"));
     }
 
 
@@ -89,7 +88,7 @@ void ADrawing_Lightning_Actor::UseAbility()
     {
         if (AElectricalDevice* Device = Cast<AElectricalDevice>(EleActor))
         {
-            UE_LOG(LogTemp, Warning, TEXT("%s Use ElectricalDevice!"), *EleActor->GetName());
+            //UE_LOG(LogTemp, Warning, TEXT("%s Use ElectricalDevice!"), *EleActor->GetName());
             Device->Use_Function();
         }
         else
