@@ -25,46 +25,16 @@ void ABossEnemy::BeginPlay()
 
     BBComp = AICon->GetBlackboardComponent();
 
+    GetWorld()->GetTimerManager().SetTimer(MeteorSkillTimerHandle, this, &ABossEnemy::SpawnMeteor, 1.0f, true);
+    //GetWorld()->GetTimerManager().SetTimer(SpawnBossArmTimerHandle, this, &ABossEnemy::SpawnBossArm, BaseSpawnSocketTime, true);
+
 }
 
 void ABossEnemy::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    CurSpawnSocketTime += DeltaTime;
-
     TurnToPlayer(DeltaTime);
-
-    if (CurSpawnSocketTime > 10.f) {
-        DecreaseHP(1);
-    }
-
-    if (CurSpawnSocketTime > BaseSpawnSocketTime && CheckSpawnBossArm() == 0 && BBComp->GetValueAsBool(TEXT("bIsDead")) == false) {
-
-        if (!ActorBPToSpawn) return;
-
-        int BossArmNumber = FMath::RandRange(0, 4);
-
-        switch (BossArmNumber)
-        {
-        case 0:
-            SpawnBossArm(RightArmSocket);
-            break;
-        case 1:
-            SpawnBossArm(LeftArmSocket);
-            break;
-        case 2:
-            SpawnBossArm(RightCalfSocket);
-            break;
-        case 3:
-            SpawnBossArm(LeftCalfSocket);
-            break;
-        default:
-            break;
-        }
-
-        CurSpawnSocketTime = 0.f;
-    }
 
 }
 
@@ -136,9 +106,29 @@ int ABossEnemy::CheckSpawnBossArm()
     return bSpawnBossArm;
 }
 
-void ABossEnemy::SpawnBossArm(FName _SocketName)
+void ABossEnemy::SpawnBossArm()
 {
-    SocketName = _SocketName;
+    if (!ActorBPToSpawn || SpawnedBossArms.Num() != 0 || BBComp->GetValueAsBool(TEXT("bIsDead")) != false) return;
+
+    int BossArmNumber = FMath::RandRange(0, 4);
+
+    switch (BossArmNumber)
+    {
+    case 0:
+        SocketName = RightArmSocket;
+        break;
+    case 1:
+        SocketName = LeftArmSocket;
+        break;
+    case 2:
+        SocketName = RightCalfSocket;
+        break;
+    case 3:
+        SocketName = LeftCalfSocket;
+        break;
+    default:
+        break;
+    }
 
     SocketLocation = GetMesh()->GetSocketLocation(SocketName);
     SocketRotation = GetMesh()->GetSocketRotation(SocketName);
@@ -160,5 +150,34 @@ void ABossEnemy::SpawnBossArm(FName _SocketName)
         BossArm->SetBossPointer(this);
         SpawnedBossArms.Add(BossArm);
         OnSpawnBossArm();
+    }
+}
+
+void ABossEnemy::SpawnMeteor()
+{
+    if (!MeteorBPToSpawn) return;
+    if (SpawnedMeteor.Num() != 0) return;
+
+    SpawnEachMeteor(MeteorSocket_0);
+    SpawnEachMeteor(MeteorSocket_1);
+    SpawnEachMeteor(MeteorSocket_2);
+
+}
+
+void ABossEnemy::SpawnEachMeteor(FName _SocketName)
+{
+
+    FVector LocalSocketLocation = GetMesh()->GetSocketLocation(_SocketName);
+    FRotator LocalSocketRotation = GetMesh()->GetSocketRotation(_SocketName);
+
+    FActorSpawnParameters LocalSpawnPar;
+    LocalSpawnPar.Owner = this;
+
+    // 지역 변수로 스폰된 액터 받기
+    AActor* LocalSpawnedActor = GetWorld()->SpawnActor<AActor>(MeteorBPToSpawn, LocalSocketLocation, LocalSocketRotation, LocalSpawnPar);
+
+    if (LocalSpawnedActor)
+    {
+        SpawnedMeteor.Add(LocalSpawnedActor);
     }
 }

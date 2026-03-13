@@ -35,6 +35,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 	TSubclassOf<AActor> ActorBPToSpawn;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+	TSubclassOf<AActor> MeteorBPToSpawn;
+
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	UAnimMontage* DancingWalkMontage;
 
@@ -48,6 +51,7 @@ public:
 	float BaseSpawnSocketTime = 0.f;
 
 	TArray<AActor*> SpawnedBossArms;
+	TArray<AActor*> SpawnedMeteor;
 
 	void OnSpawnBossArm();
 	void OffSpawnBossArm();
@@ -63,6 +67,12 @@ private:
 	FName RightCalfSocket = FName("RightCalfSocket");
 	FName LeftCalfSocket = FName("LeftCalfSocket");
 
+	//SpawnMeteor_0 ~ 2
+
+	FName MeteorSocket_0 = FName("SpawnMeteor_0");
+	FName MeteorSocket_1 = FName("SpawnMeteor_1");
+	FName MeteorSocket_2 = FName("SpawnMeteor_2");
+
 	FName SocketName;
 
 	AActor* SpawnedSocketActor;
@@ -77,7 +87,16 @@ private:
 	
 	float CurSpawnSocketTime = 0.f;
 
-	void SpawnBossArm(FName _SocketName);
+	
+
+	// 스킬을 실행할 함수
+	void SpawnMeteor();
+	void SpawnEachMeteor(FName value);
+	void SpawnBossArm();
+
+	// 타이머를 관리할 핸들
+	FTimerHandle MeteorSkillTimerHandle;
+	FTimerHandle SpawnBossArmTimerHandle;
 
 	int bSpawnBossArm = 0;
 
