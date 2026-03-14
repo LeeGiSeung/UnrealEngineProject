@@ -83,9 +83,27 @@ void ABurnActor_Meteor::LaunchTowards()
 }
 
 void ABurnActor_Meteor::BeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
-    if (OtherActor == PlayerPawn) {
-        //UE_LOG(LogTemp, Error, TEXT("HIT PLAYER"));
-        Cast<AProjectCharacter>(PlayerPawn)->DecreasePlayerHP(MeteorDamage);
-        Destroy();
+
+    if (Cast<ABurnActor_Meteor>(OtherActor)) return;
+
+    if (OtherActor == GetOwner()) return;
+
+    if (OtherActor == PlayerPawn)
+    {
+        AProjectCharacter* PlayerCharacter = Cast<AProjectCharacter>(PlayerPawn);
+        if (PlayerCharacter)
+        {
+            PlayerCharacter->DecreasePlayerHP(MeteorDamage);
+        }
     }
+
+    //UE_LOG(LogTemp, Error, TEXT("HIT: %s"), *OtherActor->GetName());
+
+    if (ExplosionEffect)
+    {
+        UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation(), GetActorRotation(), GetActorScale3D());
+    }
+
+    Destroy();
+
 }

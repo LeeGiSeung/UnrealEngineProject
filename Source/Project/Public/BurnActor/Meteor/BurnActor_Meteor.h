@@ -10,6 +10,7 @@ class UProjectileMovementComponent;
 class USphereComponent;
 class USceneComponent;
 class APawn;
+class UParticleSystem;
 
 /**
  * 
@@ -37,6 +38,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Meteor")
 	int32 MeteorDamage;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Effects")
+	UParticleSystem* ExplosionEffect;
 
 	FTimerHandle LaunchTimerHandle;
 	FTimerHandle LocationLogTimerHandle;
