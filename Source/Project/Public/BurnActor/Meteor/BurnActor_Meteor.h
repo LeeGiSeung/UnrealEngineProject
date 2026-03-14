@@ -28,19 +28,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	UProjectileMovementComponent* ProjectileMovement;
 
-	//UPROPERTY(VisibleAnywhere)
-	//USphereComponent* Collision;
-
-	UFUNCTION()
-	void OnOverlap(
-		UPrimitiveComponent* OverlappedComp,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex,
-		bool bFromSweep,
-		const FHitResult& SweepResult
-	);
-
+	// 자식에서 추가할 콜리전
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	USphereComponent* MeteorCollision;
 
 	FTimerHandle LaunchTimerHandle;
 	FTimerHandle LocationLogTimerHandle;
