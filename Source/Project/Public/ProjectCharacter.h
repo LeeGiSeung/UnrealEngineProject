@@ -119,5 +119,20 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+public:
+	void DecreasePlayerHP(int32 value);
+	void IncreasePlayerHP(int32 value);
+
+	void PlayerDie();
+
+	UPROPERTY(BlueprintReadWrite, Category = "PlayerHP")
+	int32 iPlayerMaxHP;
+
+	UPROPERTY(BlueprintReadWrite, Category = "PlayerHP")
+	int32 iPlayerHP;
+
+private:
+
+
 };
 

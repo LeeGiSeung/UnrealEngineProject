@@ -24,6 +24,7 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 AProjectCharacter::AProjectCharacter()
 {
+
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 		
@@ -93,6 +94,25 @@ void AProjectCharacter::BeginPlay()
 
 	DirectingManager->RegisterSequenceActor(FName("Player"), this);
 
+}
+
+void AProjectCharacter::DecreasePlayerHP(int32 value)
+{
+	iPlayerHP -= value;
+
+	if (iPlayerHP <= 0) {
+		PlayerDie();
+	}
+}
+
+void AProjectCharacter::IncreasePlayerHP(int32 value)
+{
+	iPlayerHP += value;
+}
+
+void AProjectCharacter::PlayerDie()
+{
+	UE_LOG(LogTemp, Error, TEXT("PLAYER DIE"));
 }
 
 //////////////////////////////////////////////////////////////////////////

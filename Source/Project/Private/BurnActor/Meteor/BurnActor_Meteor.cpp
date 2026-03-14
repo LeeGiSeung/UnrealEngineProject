@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Pawn.h"
 #include "Components/SphereComponent.h"
+#include "ProjectCharacter.h"
 
 ABurnActor_Meteor::ABurnActor_Meteor()
 {
@@ -27,11 +28,10 @@ ABurnActor_Meteor::ABurnActor_Meteor()
 
     // 발사체 설정
     ProjectileMovement->InitialSpeed = 0.f;
-    ProjectileMovement->MaxSpeed = 3000.0f;
+    ProjectileMovement->MaxSpeed = MeteorSpeed;
     ProjectileMovement->bRotationFollowsVelocity = true;
     ProjectileMovement->ProjectileGravityScale = 0.0f;
-    ProjectileMovement->bIsHomingProjectile = true;
-    ProjectileMovement->HomingAccelerationMagnitude = 10000.f;
+    ProjectileMovement->bIsHomingProjectile = false; //유도탄 끔
 
     ProjectileMovement->bAutoActivate = false;
 }
@@ -51,6 +51,8 @@ void ABurnActor_Meteor::BeginPlay()
             Root = PlayerPawn->GetRootComponent();
 
             ProjectileMovement->HomingTargetComponent = Root;
+
+            MeteorCollision->OnComponentBeginOverlap.AddDynamic(this, &ABurnActor_Meteor::BeginOverlap);
         }
     }
 
@@ -67,10 +69,23 @@ void ABurnActor_Meteor::LaunchTowards()
 
     ProjectileMovement->Activate(false);
 
+    FVector LocalPlayerLocation = PlayerPawn->GetActorLocation();
+    FVector LocalMeteorLocation = GetActorLocation();
+
+    FVector DirectionVector = (LocalPlayerLocation - LocalMeteorLocation).GetSafeNormal();
+
     // 속도 설정 및 발사
-    float LaunchSpeed = 2000.0f;
-    ProjectileMovement->Velocity = GetActorForwardVector() * LaunchSpeed;
+    float LaunchSpeed = MeteorSpeed;
+    ProjectileMovement->Velocity = DirectionVector * LaunchSpeed;
 
     // 멈춰있던 상태 업데이트 활성화
     ProjectileMovement->UpdateComponentVelocity();
+}
+
+void ABurnActor_Meteor::BeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
+    if (OtherActor == PlayerPawn) {
+        //UE_LOG(LogTemp, Error, TEXT("HIT PLAYER"));
+        Cast<AProjectCharacter>(PlayerPawn)->DecreasePlayerHP(MeteorDamage);
+        Destroy();
+    }
 }
