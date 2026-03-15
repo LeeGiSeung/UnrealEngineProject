@@ -12,6 +12,7 @@
 #include "ProjectPlayerController.h"
 #include "BurnActor/BurnActor.h"
 #include "Manager/DrawingActorManager.h"
+#include "BurnActor/Meteor/BurnActor_Meteor.h"
 #include "EngineUtils.h"
 
 ADrawing_Fire_Actor::ADrawing_Fire_Actor()
@@ -33,9 +34,9 @@ void ADrawing_Fire_Actor::Tick(float DeltaTime)
         if (CurTime > BurnLimitTime) {
             
             DrawingManager->DeleteDrawingActor(this);
-            Destroy();
             
             FireComp->Deactivate();
+            Destroy();
         }
     }
 
@@ -76,15 +77,33 @@ void ADrawing_Fire_Actor::UseAbility()
         //CurLocation.Z += 100; //이것도 나중에 유동적 사이즈 되면 수정할거
         FVector Forward = GetActorForwardVector();
 
-        FireComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-            GetWorld(),
-            FireNiagaraEffect,
-            hit.ImpactPoint,
-            SelectedSpawnRotation,
-            FVector(f),
-            true,
-            true
-        );
+
+
+        if (ABurnActor_Meteor* actor = Cast<ABurnActor_Meteor>(hit.GetActor())) {
+            FireComp = UNiagaraFunctionLibrary::SpawnSystemAttached(
+                FireNiagaraEffect,
+                hit.GetComponent(),
+                NAME_None,
+                FVector::ZeroVector,
+                SelectedSpawnRotation,
+                EAttachLocation::KeepRelativeOffset,
+                true
+            );
+
+            FireComp->SetWorldScale3D(FVector(f));
+            
+        }
+        else {
+            FireComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+                GetWorld(),
+                FireNiagaraEffect,
+                hit.ImpactPoint,
+                SelectedSpawnRotation,
+                FVector(f),
+                true,
+                true
+            );
+        }
 
         bUseAbility = true;
     }
@@ -100,23 +119,11 @@ void ADrawing_Fire_Actor::UseAbility()
     FCollisionQueryParams Params;
     Params.AddIgnoredActor(this); // 자기 자신 무시
 
-    DrawDebugSphere(
-        GetWorld(),
-        GetActorLocation(),
-        Sphere.GetSphereRadius(),
-        32,               // 세그먼트 수
-        FColor::Green,    // 색상
-        false,            // 지속 시간 무한 아님
-        2.f,              // 지속 시간
-        0,                // 깊이 우선 표시
-        2.f               // 선 두께
-    );
-
     bool bHit = GetWorld()->OverlapMultiByChannel(
         Overlaps,
         GetActorLocation(),
         FQuat::Identity,
-        ECC_Pawn, // 필요 시 ObjectType 조정 가능
+        ECC_Visibility, // 필요 시 ObjectType 조정 가능
         Sphere,
         Params
     );
@@ -142,13 +149,14 @@ void ADrawing_Fire_Actor::UseAbility()
     {
         if (ABurnActor* burnActor = Cast<ABurnActor>(b))
         {
-            //UE_LOG(LogTemp, Warning, TEXT("BURN"));
+            UE_LOG(LogTemp, Warning, TEXT("BURN"));
             burnActor->SetIsBurn();
+
         }
         else
         {
             // Actor Tags는 Electrical인데 C++ 클래스가 아닐 수 있음
-            //UE_LOG(LogTemp, Warning, TEXT("%s has 'Electrical' tag but is not an ElectricalDevice!"), *EleActor->GetName());
+            //UE_LOG(LogTemp, Warning, TEXT("%s has 'Electrical' tag but is not an BurnActor!"), *burnActor->GetName());
         }
     }
 

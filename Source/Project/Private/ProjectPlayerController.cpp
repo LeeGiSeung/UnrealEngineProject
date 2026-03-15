@@ -252,7 +252,7 @@ void AProjectPlayerController::SpawnDecalActor(TArray<FVector2D> _DrawPosition, 
     }
 
     FVector Start = WorldLocation;
-    FVector End = Start + WorldDirection * 10000.f;
+    FVector End = Start + WorldDirection * 50000.f;
 
     FCollisionQueryParams Params;
     Params.AddIgnoredActor(GetPawn()); //나 자신은 무시
@@ -295,6 +295,10 @@ void AProjectPlayerController::SpawnDecalActor(TArray<FVector2D> _DrawPosition, 
     }
     else
     {
+        if (!bHit) UE_LOG(LogTemp, Warning, TEXT("NO !bHit"));
+        if (!Hit.GetActor()) UE_LOG(LogTemp, Warning, TEXT("NO !Hit.GetActor()"));
+        if (!Hit.GetActor()->ActorHasTag(TEXT("DrawAble"))) UE_LOG(LogTemp, Warning, TEXT("NO DrawAble"));
+
         UE_LOG(LogTemp, Warning, TEXT("No valid hit on Drawable actor"));
     }
 }
@@ -449,13 +453,16 @@ void AProjectPlayerController::SpawnDecalAtHit()
 
     Decal->AddActorWorldRotation(RandomQuat);
 
+    Decal->AttachToActor(
+        Hit.GetActor(),
+        FAttachmentTransformRules::KeepWorldTransform
+    );
+
     SpawnCubeAtHit();
 }
 
 void AProjectPlayerController::SpawnCubeAtHit()
 {
-
-    
 
     FVector Normal = Hit.ImpactNormal;
 
@@ -481,6 +488,12 @@ void AProjectPlayerController::SpawnCubeAtHit()
         SelectedClass,
         SelectedSpawnLocation,
         SelectedSpawnRotation);
+
+    //붙이기
+    SpawnActor->AttachToActor(
+        Hit.GetActor(),
+        FAttachmentTransformRules::KeepWorldTransform
+    );
 
     //유동적 사이즈로 변경
     if (SpawnActor) {

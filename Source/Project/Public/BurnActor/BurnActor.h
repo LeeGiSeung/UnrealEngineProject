@@ -20,7 +20,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-	void SetIsBurn();
+	virtual void SetIsBurn();
 
 	bool GetIsBurn();
 

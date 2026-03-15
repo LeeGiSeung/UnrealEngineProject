@@ -6,6 +6,8 @@
 #include "GameFramework/Pawn.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
+#include "Enemy/BossEnemy/BossEnemy.h"
+
 void UBossAnimInstance::EndBossCloud()
 {
     // 1. 이 애니메이션을 실행 중인 Pawn(보스)을 가져옵니다.
@@ -46,4 +48,17 @@ void UBossAnimInstance::EndBossDie()
             }
         }
     }
+}
+
+void UBossAnimInstance::StartBossCloud()
+{
+    OwningPawn = TryGetPawnOwner();
+    if (OwningPawn)
+    {
+        if (ABossEnemy* Boss = Cast<ABossEnemy>(OwningPawn))
+        {
+            Boss->SpawnMeteor();
+        }
+    }
+    
 }

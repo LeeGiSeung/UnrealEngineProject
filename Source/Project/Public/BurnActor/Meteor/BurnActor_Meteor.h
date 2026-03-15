@@ -11,7 +11,7 @@ class USphereComponent;
 class USceneComponent;
 class APawn;
 class UParticleSystem;
-
+class ABossEnemy;
 /**
  * 
  */
@@ -24,6 +24,9 @@ public:
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+
+	void SetIsBurn() override;
+	void SetBossActor(ABossEnemy* value);
 
 	// 프로젝트일 무브먼트 컴포넌트 선언
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
@@ -55,4 +58,5 @@ public:
 	USceneComponent* Root;
 	APawn* PlayerPawn;
 	FVector PlayerLocation;
+	ABossEnemy* BossActor;
 };

@@ -8,6 +8,7 @@
 #include "AIController.h"
 #include "Math/UnrealMathUtility.h"
 #include "ElectricalDevice/Electrical_BossArm/Electrical_BossArm.h"
+#include "BurnActor/Meteor/BurnActor_Meteor.h"
 
 ABossEnemy::ABossEnemy()
 {
@@ -25,7 +26,7 @@ void ABossEnemy::BeginPlay()
 
     BBComp = AICon->GetBlackboardComponent();
 
-    GetWorld()->GetTimerManager().SetTimer(MeteorSkillTimerHandle, this, &ABossEnemy::SpawnMeteor, 1.0f, true);
+    //GetWorld()->GetTimerManager().SetTimer(MeteorSkillTimerHandle, this, &ABossEnemy::SpawnMeteor, 1.0f, true);
     //GetWorld()->GetTimerManager().SetTimer(SpawnBossArmTimerHandle, this, &ABossEnemy::SpawnBossArm, BaseSpawnSocketTime, true);
 
 }
@@ -87,6 +88,8 @@ void ABossEnemy::EnemyDie()
 
     //Destroy();
 }
+
+
 
 void ABossEnemy::OnSpawnBossArm()
 {
@@ -175,9 +178,15 @@ void ABossEnemy::SpawnEachMeteor(FName _SocketName)
 
     // 지역 변수로 스폰된 액터 받기
     AActor* LocalSpawnedActor = GetWorld()->SpawnActor<AActor>(MeteorBPToSpawn, LocalSocketLocation, LocalSocketRotation, LocalSpawnPar);
+    Cast<ABurnActor_Meteor>(LocalSpawnedActor)->SetBossActor(this);
 
     if (LocalSpawnedActor)
     {
         SpawnedMeteor.Add(LocalSpawnedActor);
     }
+}
+
+void ABossEnemy::DestoryMeteor(AActor* Meteor)
+{
+    SpawnedMeteor.Remove(Meteor);
 }

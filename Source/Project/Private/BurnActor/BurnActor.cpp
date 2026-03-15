@@ -30,7 +30,7 @@ void ABurnActor::Tick(float DeltaTime)
 	if (bIsBurn) {
 		CurTime += DeltaTime;
 
-		//UE_LOG(LogTemp, Warning, TEXT("%f"), CurTime);
+		UE_LOG(LogTemp, Error, TEXT("CurBurnTime : %f"), CurTime);
 
 		if (CurTime >= BurnTime) {
 			if (DissolveMID)
@@ -41,8 +41,10 @@ void ABurnActor::Tick(float DeltaTime)
 					CurBurn
 				);
 
-				if (CurBurn >= 1) Destroy();
-
+				if (CurBurn >= 1) {
+					UE_LOG(LogTemp, Error, TEXT("Destory BurnActor!"));
+					Destroy();
+				}
 				DissolveMID->SetScalarParameterValue("DissolveAmount", CurBurn + t * DeltaTime);
 			}
 		}
@@ -51,6 +53,7 @@ void ABurnActor::Tick(float DeltaTime)
 
 void ABurnActor::SetIsBurn()
 {
+	UE_LOG(LogTemp, Error, TEXT("SetIsBurn"));
 	bIsBurn = true;
 }
 

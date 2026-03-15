@@ -53,9 +53,13 @@ public:
 	TArray<AActor*> SpawnedBossArms;
 	TArray<AActor*> SpawnedMeteor;
 
+	void DestoryMeteor(AActor* Meteor);
+
 	void OnSpawnBossArm();
 	void OffSpawnBossArm();
 	int CheckSpawnBossArm();
+
+	void SpawnMeteor();
 
 private:
 
@@ -90,7 +94,7 @@ private:
 	
 
 	// 스킬을 실행할 함수
-	void SpawnMeteor();
+	
 	void SpawnEachMeteor(FName value);
 	void SpawnBossArm();
 

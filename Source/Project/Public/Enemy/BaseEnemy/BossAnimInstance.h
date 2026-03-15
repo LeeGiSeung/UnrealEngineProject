@@ -34,6 +34,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Animation")
 	void EndBossDie();
 
+	UFUNCTION(BlueprintCallable, Category = "Animation")
+	void StartBossCloud();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bFindPlayer;
 

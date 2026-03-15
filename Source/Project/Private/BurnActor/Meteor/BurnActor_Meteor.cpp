@@ -7,6 +7,8 @@
 #include "GameFramework/Pawn.h"
 #include "Components/SphereComponent.h"
 #include "ProjectCharacter.h"
+#include "Enemy/BossEnemy/BossEnemy.h"
+#include "Drawing_Fire_Actor.h"
 
 ABurnActor_Meteor::ABurnActor_Meteor()
 {
@@ -56,7 +58,7 @@ void ABurnActor_Meteor::BeginPlay()
         }
     }
 
-    GetWorld()->GetTimerManager().SetTimer(LaunchTimerHandle, this, &ABurnActor_Meteor::LaunchTowards, 3.0f, false);
+    GetWorld()->GetTimerManager().SetTimer(LaunchTimerHandle, this, &ABurnActor_Meteor::LaunchTowards, 5.0f, false);
 }
 
 void ABurnActor_Meteor::Tick(float DeltaTime)
@@ -64,8 +66,22 @@ void ABurnActor_Meteor::Tick(float DeltaTime)
     Super::Tick(DeltaTime);
 }
 
+void ABurnActor_Meteor::SetIsBurn()
+{
+    Super::SetIsBurn();
+    
+    BossActor->DestoryMeteor(this);
+
+}
+
+void ABurnActor_Meteor::SetBossActor(ABossEnemy* value)
+{
+    BossActor = value;
+}
+
 void ABurnActor_Meteor::LaunchTowards()
 {
+    //UE_LOG(LogTemp, Error, TEXT("LaunchTowards"));
 
     ProjectileMovement->Activate(false);
 
@@ -87,6 +103,7 @@ void ABurnActor_Meteor::BeginOverlap(UPrimitiveComponent* OverlappedComp, AActor
     if (Cast<ABurnActor_Meteor>(OtherActor)) return;
 
     if (OtherActor == GetOwner()) return;
+    if (ADrawing_Fire_Actor* FireDrawing = Cast<ADrawing_Fire_Actor>(OtherActor)) return; 
 
     if (OtherActor == PlayerPawn)
     {
@@ -97,12 +114,14 @@ void ABurnActor_Meteor::BeginOverlap(UPrimitiveComponent* OverlappedComp, AActor
         }
     }
 
-    //UE_LOG(LogTemp, Error, TEXT("HIT: %s"), *OtherActor->GetName());
+    UE_LOG(LogTemp, Error, TEXT("HIT: %s"), *OtherActor->GetName());
 
     if (ExplosionEffect)
     {
         UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation(), GetActorRotation(), GetActorScale3D());
     }
+
+    BossActor->DestoryMeteor(this);
 
     Destroy();
 
