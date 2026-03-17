@@ -23,10 +23,12 @@ public:
 	void SetbChargeMana(bool value) { bChargeMana = value; }
 	void SetbBossDanceAttack(bool value) { bBossDanceAttack = value; }
 	void SetbBossDie(bool value) { bBossDie = value; }
+	void SetbBossNearingAttack(bool value) { bBossNearingAttack = value; }
 
 	bool GetbBossDanceAttack() { return bBossDanceAttack; }
 	bool GetbFindPlayer() { return bFindPlayer; }
 	bool GetbBossDie() { return bBossDie; }
+	bool GetbBossNearingAttack() { return bBossNearingAttack; }
 
 	UFUNCTION(BlueprintCallable, Category = "Animation")
 	void EndBossCloud();
@@ -36,6 +38,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Animation")
 	void StartBossCloud();
+
+	UFUNCTION(BlueprintCallable, Category = "Animation")
+	void StartNearingAttack();
+
+	UFUNCTION(BlueprintCallable, Category = "Animation")
+	void EndNearingAttack();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bFindPlayer;
@@ -48,6 +56,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bBossDie;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bBossNearingAttack;
 
 private:
 	APawn* OwningPawn;

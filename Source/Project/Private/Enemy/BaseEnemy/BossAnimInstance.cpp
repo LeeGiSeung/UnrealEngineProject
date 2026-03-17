@@ -62,3 +62,34 @@ void UBossAnimInstance::StartBossCloud()
     }
     
 }
+
+void UBossAnimInstance::StartNearingAttack()
+{
+    OwningPawn = TryGetPawnOwner();
+    if (OwningPawn)
+    {
+        if (ABossEnemy* Boss = Cast<ABossEnemy>(OwningPawn))
+        {
+            Boss->NearingAttack();
+        }
+    }
+}
+
+void UBossAnimInstance::EndNearingAttack()
+{
+    OwningPawn = TryGetPawnOwner();
+    if (OwningPawn)
+    {
+        AICon = Cast<AAIController>(OwningPawn->GetController());
+        if (AICon)
+        {
+            BB = AICon->GetBlackboardComponent();
+            if (BB)
+            {
+                // 블랙보드 키 값을 수정합니다.
+                BB->SetValueAsBool(TEXT("bNearingAttack"), false);
+                SetbBossNearingAttack(false);
+            }
+        }
+    }
+}

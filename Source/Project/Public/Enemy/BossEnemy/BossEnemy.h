@@ -38,6 +38,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 	TSubclassOf<AActor> MeteorBPToSpawn;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+	TSubclassOf<AActor> EarthquakeBPToSpawn;
+
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	UAnimMontage* DancingWalkMontage;
 
@@ -60,6 +63,8 @@ public:
 	int CheckSpawnBossArm();
 
 	void SpawnMeteor();
+	void NearingAttack();
+	void SpawnEarthquake(int32 BlockCount, float Radius);
 
 private:
 
@@ -101,6 +106,13 @@ private:
 	// 타이머를 관리할 핸들
 	FTimerHandle MeteorSkillTimerHandle;
 	FTimerHandle SpawnBossArmTimerHandle;
+	FTimerHandle SpawnFirstEarthquake;
+	FTimerHandle SpawnSecondEarthquake;
+	FTimerHandle SpawnThrityEarthquake;
+
+	void SpawnFirst();
+	void SpawnSecond();
+	void SpawnThrity();
 
 	int bSpawnBossArm = 0;
 

@@ -5,7 +5,7 @@
 
 EBTNodeResult::Type UDanceWalkingTaskNode::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-    UE_LOG(LogTemp, Error, TEXT("DanceWalk"));
+    //UE_LOG(LogTemp, Error, TEXT("DanceWalk"));
 
     APawn* ControllingPawn = OwnerComp.GetAIOwner()->GetPawn();
 
