@@ -54,6 +54,11 @@ public:
 	bool GetRandom() { return bIsRandom; }
 	bool bIsRandom = false;
 
+	
+	void SetDrawingEnergy(float value);
+
+	float Energy;
+
 	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	//UMeshComponent* RenderMesh;
 

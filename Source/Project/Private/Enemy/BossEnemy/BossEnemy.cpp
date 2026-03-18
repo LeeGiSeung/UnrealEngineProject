@@ -173,25 +173,25 @@ void ABossEnemy::NearingAttack()
 {
     if (!EarthquakeBPToSpawn) return;
 
-    GetWorldTimerManager().SetTimer(SpawnFirstEarthquake, this, &ABossEnemy::SpawnFirst, 0.5f, false);
-    GetWorldTimerManager().SetTimer(SpawnSecondEarthquake, this, &ABossEnemy::SpawnSecond, 1.5f, false);
-    GetWorldTimerManager().SetTimer(SpawnThrityEarthquake, this, &ABossEnemy::SpawnThrity, 2.5f, false);
+    GetWorldTimerManager().SetTimer(SpawnFirstEarthquake, this, &ABossEnemy::SpawnFirst, 1.5f, false);
+    GetWorldTimerManager().SetTimer(SpawnSecondEarthquake, this, &ABossEnemy::SpawnSecond, 2.5f, false);
+    GetWorldTimerManager().SetTimer(SpawnThrityEarthquake, this, &ABossEnemy::SpawnThrity, 3.5f, false);
 
 }
 
 void ABossEnemy::SpawnFirst()
 {
-    SpawnEarthquake(15, 800);
+    SpawnEarthquake(25, 800);
 }
 
 void ABossEnemy::SpawnSecond()
 {
-    SpawnEarthquake(25, 1500);
+    SpawnEarthquake(40, 1500);
 }
 
 void ABossEnemy::SpawnThrity()
 {
-    SpawnEarthquake(35, 2100);
+    SpawnEarthquake(60, 2100);
 }
 
 void ABossEnemy::SpawnEarthquake(int32 BlockCount, float _Radius) {
@@ -226,10 +226,18 @@ void ABossEnemy::SpawnEarthquake(int32 BlockCount, float _Radius) {
         // 2. 이미지처럼 블럭의 특정 면이 보스 쪽을 향하게 하려면 추가 회전(Offset) 적용
         FRotator SpawnRotation = Direction.Rotation();
 
+        float x = FMath::RandRange(1, 180);
+        float y = FMath::RandRange(1, 180);
+        float z = FMath::RandRange(1, 180);
+
+        SpawnRotation.Yaw = x;
+        SpawnRotation.Roll = y;
+        SpawnRotation.Pitch = z;
+
         // 기존의 Z값을 바닥 높이로 덮어씌웁니다.
         float FloorZ = GetActorLocation().Z - GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 
-        FloorZ -= 150.f;
+        FloorZ -= 50.f;
 
         // XY는 앞서 계산한 위치를 쓰고, Z만 FloorZ로 설정
         FVector FinalSpawnLocation = FVector(SpawnLocation.X, SpawnLocation.Y, FloorZ);

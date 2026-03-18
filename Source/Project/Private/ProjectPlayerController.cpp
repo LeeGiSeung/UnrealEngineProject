@@ -211,7 +211,7 @@ void AProjectPlayerController::SpawnDecalActor(TArray<FVector2D> _DrawPosition, 
     float ScaleX = Size.X / BaseWidth;
     float ScaleY = Size.Y / BaseHeight;
 
-    float UseEnergy = ScaleY + ScaleY;
+    UseEnergy = ScaleY + ScaleY;
 
     
     if (CheckDrawingEnergyIsEnough(UseEnergy)) {
@@ -524,7 +524,7 @@ void AProjectPlayerController::SpawnCubeAtHit()
         ADrawingBaseActor* DrawingSpawnActor = Cast<ADrawingBaseActor>(SpawnActor);
 
         DrawingSpawnActor->SetDecalActor(Decal);
-
+        DrawingSpawnActor->SetDrawingEnergy(UseEnergy);
 
 
         TArray<UActorComponent*> Components;

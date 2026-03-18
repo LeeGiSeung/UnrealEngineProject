@@ -123,7 +123,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Dialogue")
 	void StartDialogue();
 	//~BluePrint Function
-	
+	float UseEnergy;
 
 	//BluePrint Uproperty
 

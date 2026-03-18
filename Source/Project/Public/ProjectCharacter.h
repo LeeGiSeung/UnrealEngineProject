@@ -123,6 +123,18 @@ public:
 	void DecreasePlayerHP(int32 value);
 	void IncreasePlayerHP(int32 value);
 
+	bool bEnableDecreasePlayerHP = true;
+	bool bEnableIncreasePlayerHP = true;
+
+	void EnableDecreasePlayerHP();
+	void EnableIncreasePlayerHP();
+
+	UPROPERTY()
+	FTimerHandle bEnableDecreasePlayerHPHandle;
+
+	UPROPERTY()
+	FTimerHandle bEnableIncreasePlayerHPHandle;
+
 	void PlayerDie();
 
 	UPROPERTY(BlueprintReadWrite, Category = "PlayerHP")

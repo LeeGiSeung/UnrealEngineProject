@@ -98,7 +98,16 @@ void AProjectCharacter::BeginPlay()
 
 void AProjectCharacter::DecreasePlayerHP(int32 value)
 {
+	
+	if (!bEnableDecreasePlayerHP) return;
+
 	iPlayerHP -= value;
+
+	UE_LOG(LogTemp, Error, TEXT("DecraseHp"));
+
+	GetWorldTimerManager().SetTimer(bEnableDecreasePlayerHPHandle, this, &AProjectCharacter::EnableDecreasePlayerHP, 0.5f, false);
+
+	bEnableDecreasePlayerHP = false;
 
 	if (iPlayerHP <= 0) {
 		PlayerDie();
@@ -107,7 +116,21 @@ void AProjectCharacter::DecreasePlayerHP(int32 value)
 
 void AProjectCharacter::IncreasePlayerHP(int32 value)
 {
+	if (!bEnableIncreasePlayerHP) return;
+
+	GetWorldTimerManager().SetTimer(bEnableIncreasePlayerHPHandle, this, &AProjectCharacter::EnableIncreasePlayerHP, 0.5f, false);
+
 	iPlayerHP += value;
+}
+
+void AProjectCharacter::EnableDecreasePlayerHP()
+{
+	bEnableDecreasePlayerHP = true;
+}
+
+void AProjectCharacter::EnableIncreasePlayerHP()
+{
+	bEnableIncreasePlayerHP = true;
 }
 
 void AProjectCharacter::PlayerDie()

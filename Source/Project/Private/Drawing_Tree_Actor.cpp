@@ -9,15 +9,6 @@ ADrawing_Tree_Actor::ADrawing_Tree_Actor()
 	PrimaryActorTick.bCanEverTick = true;
 	RenderMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 
-	//RenderMesh->SetHiddenInGame(true);          // 안 보이게
-	//RenderMesh->SetVisibility(false);           // 안전빵
-	//RenderMesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-
-	//RenderMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
-	//RenderMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
-
-	//RenderMesh->SetCollisionObjectType(ECC_WorldDynamic);
-
 }
 
 void ADrawing_Tree_Actor::Tick(float DeltaTime)
@@ -38,7 +29,9 @@ void ADrawing_Tree_Actor::Tick(float DeltaTime)
 
 void ADrawing_Tree_Actor::GrowTree()
 {
-	if (CurTime > GrowTime) return; //성장 시간 넘기면 return
+	//if (CurTime > GrowTime) return; //성장 시간 넘기면 return
+	if (CurTime > Energy / 2) return; //성장 시간 넘기면 return
+	
 	FVector NewScale = GetActorScale3D();
 	NewScale.Z = NewScale.Z + GrowSpeed * GetWorld()->GetDeltaSeconds();
 	SetActorScale3D(NewScale);

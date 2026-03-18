@@ -73,3 +73,9 @@ void ADrawingBaseActor::SetInUse()
 {
     bInUse = true;
 }
+
+void ADrawingBaseActor::SetDrawingEnergy(float value)
+{
+    Energy = value;
+    UE_LOG(LogTemp, Error, TEXT("Energy : %f"), value);
+}

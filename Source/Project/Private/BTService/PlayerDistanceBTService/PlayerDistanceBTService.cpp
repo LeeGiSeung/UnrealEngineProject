@@ -85,7 +85,7 @@ void UPlayerDistanceBTService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 
     FString BoolString = bInAttackRange ? TEXT("true") : TEXT("false");
 
-    //UE_LOG(LogTemp, Error, TEXT("Distance : %f"), Distance);
+    UE_LOG(LogTemp, Error, TEXT("Distance : %f"), Distance);
 
     //if (Distance < 2500 && !bInAttackRange && !AnimInst->GetbFindPlayer()) { //2000이하, 공격 거리에 없고, 아직 Player를 찾지 못했을때
     //    AnimInst->SetbFindPlayer(true);
