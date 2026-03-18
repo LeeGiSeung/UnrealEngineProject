@@ -48,4 +48,20 @@ public:
 	UFUNCTION(Category = "CrouchBack")
 	void AnimNotify_EndCrouchBack(UAnimNotify* Notify);
 
+	void SetbIsClimb(bool value);
+	void SetClimbInputXY(FVector2D value);
+
+	bool GetIsClimb();
+
+	UPROPERTY(VisibleAnywhere ,BlueprintReadWrite, Category = "Climb")
+	bool bIsClimb;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Climb")
+	float ClimbInputX;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Climb")
+	float ClimbInputY;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Climb")
+	bool bIsClimbStand;
 };

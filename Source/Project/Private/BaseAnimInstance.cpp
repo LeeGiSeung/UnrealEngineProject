@@ -63,3 +63,19 @@ void UBaseAnimInstance::AnimNotify_EndCrouchBack(UAnimNotify* Notify)
 	IsCrouchBack = false;
 	OnCrouchBackFinished.Broadcast();
 }
+
+void UBaseAnimInstance::SetbIsClimb(bool value)
+{
+	bIsClimb = value;
+}
+
+void UBaseAnimInstance::SetClimbInputXY(FVector2D value)
+{
+	ClimbInputX = value.X;
+	ClimbInputY = value.Y;
+}
+
+bool UBaseAnimInstance::GetIsClimb()
+{
+	return bIsClimb;
+}

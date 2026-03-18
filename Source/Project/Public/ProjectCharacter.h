@@ -13,6 +13,8 @@ class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
 class AProjectPlayerController;
+class UBaseAnimInstance;
+
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -113,6 +115,8 @@ protected:
 	// To add mapping context
 	virtual void BeginPlay();
 
+	virtual void Tick(float DeltaTime) override;
+
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -144,7 +148,8 @@ public:
 	int32 iPlayerHP;
 
 private:
-
+	UPROPERTY()
+	UBaseAnimInstance* PlayerAnimInstance;
 
 };
 

@@ -14,6 +14,7 @@
 #include "Cable/BP_CablePouch.h"
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
+#include "BaseAnimInstance.h"
 
 #include "GameFramework/Controller.h"
 
@@ -93,6 +94,41 @@ void AProjectCharacter::BeginPlay()
 		);
 
 	DirectingManager->RegisterSequenceActor(FName("Player"), this);
+
+	PlayerAnimInstance = Cast<UBaseAnimInstance>(GetMesh()->GetAnimInstance());
+
+}
+
+void AProjectCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	FHitResult HitResult;
+	FVector Start = GetActorLocation();
+	FVector End = Start + (GetActorForwardVector() * 70.0f);
+
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params))
+	{
+		//UE_LOG(LogTemp, Error, TEXT("CLIMB"));
+		// 벽면의 각도가 수직에 가까운지 체크 (Normal.Z가 0 근처)
+		if (FMath::Abs(HitResult.Normal.Z) < 0.1f)
+		{
+			PlayerAnimInstance->SetbIsClimb(true);
+			// 이동 모드를 Flying으로 바꾸면 중력 영향을 안 받고 벽에 붙어있을 수 있습니다.
+			GetCharacterMovement()->SetMovementMode(MOVE_Flying);
+
+			PlayerAnimInstance->SetClimbInputXY(FVector2D(0.5,0.5));
+
+			GetCharacterMovement()->bOrientRotationToMovement = false;
+		}
+	}
+	else {
+		//UE_LOG(LogTemp, Error, TEXT("NO CLIMB"));
+		//PlayerAnimInstance->SetbIsClimb(false);
+	}
 
 }
 
@@ -194,19 +230,50 @@ void AProjectCharacter::Move(const FInputActionValue& Value)
 	
 	if (Controller != nullptr)
 	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-		// get forward vector
-		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	
-		// get right vector 
-		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		if (PlayerAnimInstance->GetIsClimb()) {
 
-		// add movement 
-		AddMovementInput(ForwardDirection, MovementVector.Y);
-		AddMovementInput(RightDirection, MovementVector.X);
+			float TargetX = (MovementVector.X * 0.5f) + 0.5;
+			float TargetY = (MovementVector.Y * 0.5f) + 0.5;
+
+			UE_LOG(LogTemp, Error, TEXT("TargetX : %f, TargetY : %f"), TargetX, TargetY);
+
+			PlayerAnimInstance->SetClimbInputXY(FVector2D(TargetX, TargetY));
+
+			//if (TargetY == 0.5f) TargetY = 1.f;
+			//if (TargetX == 0.5f) TargetX = 1.f;
+
+			// 2. 실제 캐릭터 이동 처리
+			// 클라이밍 상태에서는 캐릭터의 Up 벡터가 '위', Right 벡터가 '오른쪽'이 됩니다.
+			const FVector UpDirection = GetActorUpVector();
+			const FVector RightDirection = GetActorRightVector();
+
+			MovementVector = MovementVector / 5;
+
+			// 입력값에 따라 이동 명령 전달
+			
+			// MovementVector.Y (W/S) -> 위/아래 이동
+			AddMovementInput(UpDirection, MovementVector.Y);
+			// MovementVector.X (A/D) -> 왼쪽/오른쪽 이동
+			AddMovementInput(RightDirection, MovementVector.X);
+
+		}
+		else {
+			//UE_LOG(LogTemp, Error, TEXT("Normal Move"));
+			// find out which way is forward
+			const FRotator Rotation = Controller->GetControlRotation();
+			const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+			// get forward vector
+			const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+
+			// get right vector 
+			const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+			// add movement 
+			AddMovementInput(ForwardDirection, MovementVector.Y);
+			AddMovementInput(RightDirection, MovementVector.X);
+		}
 	}
 }
 
@@ -215,7 +282,7 @@ void AProjectCharacter::Look(const FInputActionValue& Value)
 	// input is a Vector2D
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
-	if (Controller != nullptr && !bIsDrawing)
+	if (Controller != nullptr && !bIsDrawing && !PlayerAnimInstance->GetIsClimb())
 	{
 		AddControllerPitchInput(LookAxisVector.Y);
 		// add yaw and pitch input to controller
