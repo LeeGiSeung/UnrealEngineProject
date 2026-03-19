@@ -108,6 +108,9 @@ public: //내가 추가한거
 
 	void OnSpacePressed();
 
+	UFUNCTION(BlueprintCallable)
+	void TestSetStand();
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -124,6 +127,7 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 public:
+
 	void DecreasePlayerHP(int32 value);
 	void IncreasePlayerHP(int32 value);
 
@@ -141,6 +145,15 @@ public:
 
 	void PlayerDie();
 
+	void SetbUseFTimerHandle();
+	
+	void SetbUseClimbTrue();
+
+	void SetCanClimb(bool value);
+	bool GetCanClimb();
+
+	bool bCanClimb = true;
+
 	UPROPERTY(BlueprintReadWrite, Category = "PlayerHP")
 	int32 iPlayerMaxHP;
 
@@ -150,6 +163,8 @@ public:
 private:
 	UPROPERTY()
 	UBaseAnimInstance* PlayerAnimInstance;
+
+	FTimerHandle FClimbStandHandle;
 
 };
 

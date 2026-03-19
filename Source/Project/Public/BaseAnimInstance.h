@@ -6,6 +6,8 @@
 #include "Animation/AnimInstance.h"
 #include "BaseAnimInstance.generated.h"
 class UAnimMontage;
+class AProjectCharacter;
+class UCharacterMovementComponent;
 /**
  * 
  */
@@ -17,11 +19,16 @@ class PROJECT_API UBaseAnimInstance : public UAnimInstance
 	
 public:
 
+	virtual void NativeBeginPlay() override;
+
 	DECLARE_MULTICAST_DELEGATE(FOnSpecialAttackFinished);
 	FOnSpecialAttackFinished OnSpecialAttackFinished;
 
 	DECLARE_MULTICAST_DELEGATE(FOnCrouchBackFinished);
 	FOnCrouchBackFinished OnCrouchBackFinished;
+
+	AProjectCharacter* OwningCharacter;
+	UCharacterMovementComponent* MovementComponent;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpecialAttack")
@@ -48,10 +55,15 @@ public:
 	UFUNCTION(Category = "CrouchBack")
 	void AnimNotify_EndCrouchBack(UAnimNotify* Notify);
 
+	UFUNCTION(BlueprintCallable ,Category = "ClimbStand")
+	void EndClimbStand();
+
 	void SetbIsClimb(bool value);
+	void SetbIsClimbStand(bool value);
 	void SetClimbInputXY(FVector2D value);
 
 	bool GetIsClimb();
+	bool GetIsClimbStand();
 
 	UPROPERTY(VisibleAnywhere ,BlueprintReadWrite, Category = "Climb")
 	bool bIsClimb;

@@ -104,32 +104,45 @@ void AProjectCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	FHitResult HitResult;
+	// 캐릭터 중심에서 약간 앞쪽으로 트레이스 (CapsuleRadius 등을 고려하는 것이 좋습니다)
 	FVector Start = GetActorLocation();
-	FVector End = Start + (GetActorForwardVector() * 70.0f);
+	FVector End = Start + (GetActorForwardVector() * 120.0f); // 트레이스 거리는 여유 있게
 
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
 
+	bool bHitWall = false;
+
+	// ECC_Visibility 대신 커스텀 채널 사용 권장 (여기서는 예시로 그대로 둠)
 	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params))
 	{
-		//UE_LOG(LogTemp, Error, TEXT("CLIMB"));
-		// 벽면의 각도가 수직에 가까운지 체크 (Normal.Z가 0 근처)
-		if (FMath::Abs(HitResult.Normal.Z) < 0.1f)
+		// Z축 노멀 값이 0.2 미만이면 가파른 벽으로 판정
+		if (FMath::Abs(HitResult.Normal.Z) < 0.2f)
 		{
-			PlayerAnimInstance->SetbIsClimb(true);
-			// 이동 모드를 Flying으로 바꾸면 중력 영향을 안 받고 벽에 붙어있을 수 있습니다.
-			GetCharacterMovement()->SetMovementMode(MOVE_Flying);
-
-			PlayerAnimInstance->SetClimbInputXY(FVector2D(0.5,0.5));
-
-			GetCharacterMovement()->bOrientRotationToMovement = false;
+			bHitWall = true;
 		}
 	}
-	else {
-		//UE_LOG(LogTemp, Error, TEXT("NO CLIMB"));
-		//PlayerAnimInstance->SetbIsClimb(false);
-	}
 
+	// 상태 전환 로직
+	if (bHitWall)
+	{
+		if (!PlayerAnimInstance->GetIsClimb() && GetCanClimb()) //벽타기 쿨이 돌았는지
+		{
+			UE_LOG(LogTemp, Warning, TEXT("START CLIMB"));
+			
+			PlayerAnimInstance->SetbIsClimb(true); //현재 벽타기 중
+			
+			// 진입 시 애니메이션 튀는 것을 막기 위해 일단 0으로 초기화 추천
+			PlayerAnimInstance->SetClimbInputXY(FVector2D(0.5,0.5));
+
+			GetCharacterMovement()->SetMovementMode(MOVE_Flying);
+			GetCharacterMovement()->bOrientRotationToMovement = false;
+
+			// [추가해야 할 로직] 벽의 Normal을 이용해 캐릭터 회전시키기
+			FRotator TargetRotation = (HitResult.Normal * -1.f).Rotation();
+			SetActorRotation(TargetRotation);
+		}
+	}
 }
 
 void AProjectCharacter::DecreasePlayerHP(int32 value)
@@ -174,6 +187,27 @@ void AProjectCharacter::PlayerDie()
 	UE_LOG(LogTemp, Error, TEXT("PLAYER DIE"));
 }
 
+void AProjectCharacter::SetbUseFTimerHandle()
+{
+	GetWorldTimerManager().SetTimer(FClimbStandHandle, this, &AProjectCharacter::SetbUseClimbTrue, 2.f, false);
+}
+
+void AProjectCharacter::SetCanClimb(bool value)
+{
+	bCanClimb = value;
+}
+
+void AProjectCharacter::SetbUseClimbTrue()
+{
+	SetCanClimb(true);
+	PlayerAnimInstance->SetbIsClimb(false);
+}
+
+bool AProjectCharacter::GetCanClimb()
+{
+	return bCanClimb;
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -183,6 +217,20 @@ void AProjectCharacter::OnSpacePressed()
 
 	Jump();
 }
+
+void AProjectCharacter::TestSetStand()
+{
+	if (PlayerAnimInstance->GetIsClimb()) {
+
+		UE_LOG(LogTemp, Warning, TEXT("END CLIMB"));
+
+		PlayerAnimInstance->SetbIsClimbStand(true);
+	}
+
+}
+
+
+
 
 void AProjectCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -236,7 +284,7 @@ void AProjectCharacter::Move(const FInputActionValue& Value)
 			float TargetX = (MovementVector.X * 0.5f) + 0.5;
 			float TargetY = (MovementVector.Y * 0.5f) + 0.5;
 
-			UE_LOG(LogTemp, Error, TEXT("TargetX : %f, TargetY : %f"), TargetX, TargetY);
+			//UE_LOG(LogTemp, Error, TEXT("TargetX : %f, TargetY : %f"), TargetX, TargetY);
 
 			PlayerAnimInstance->SetClimbInputXY(FVector2D(TargetX, TargetY));
 
@@ -248,7 +296,7 @@ void AProjectCharacter::Move(const FInputActionValue& Value)
 			const FVector UpDirection = GetActorUpVector();
 			const FVector RightDirection = GetActorRightVector();
 
-			MovementVector = MovementVector / 5;
+			//MovementVector = MovementVector / 5;
 
 			// 입력값에 따라 이동 명령 전달
 			
@@ -281,8 +329,8 @@ void AProjectCharacter::Look(const FInputActionValue& Value)
 {
 	// input is a Vector2D
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
-
-	if (Controller != nullptr && !bIsDrawing && !PlayerAnimInstance->GetIsClimb())
+	// && !PlayerAnimInstance->GetIsClimb()
+	if (Controller != nullptr && !bIsDrawing)
 	{
 		AddControllerPitchInput(LookAxisVector.Y);
 		// add yaw and pitch input to controller
