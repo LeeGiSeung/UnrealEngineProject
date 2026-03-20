@@ -97,52 +97,102 @@ void AProjectCharacter::BeginPlay()
 
 	PlayerAnimInstance = Cast<UBaseAnimInstance>(GetMesh()->GetAnimInstance());
 
+	if (GetCharacterMovement())
+	{
+		DefaultBrakingDecelerationFlying = GetCharacterMovement()->BrakingDecelerationFlying;
+	}
+
 }
 
 void AProjectCharacter::Tick(float DeltaTime)
 {
+
 	Super::Tick(DeltaTime);
 
 	FHitResult HitResult;
-	// 캐릭터 중심에서 약간 앞쪽으로 트레이스 (CapsuleRadius 등을 고려하는 것이 좋습니다)
 	FVector Start = GetActorLocation();
-	FVector End = Start + (GetActorForwardVector() * 120.0f); // 트레이스 거리는 여유 있게
-
+	FVector End = Start + (GetActorForwardVector() * 120.0f);
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
 
 	bool bHitWall = false;
 
-	// ECC_Visibility 대신 커스텀 채널 사용 권장 (여기서는 예시로 그대로 둠)
 	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params))
 	{
-		// Z축 노멀 값이 0.2 미만이면 가파른 벽으로 판정
 		if (FMath::Abs(HitResult.Normal.Z) < 0.2f)
 		{
 			bHitWall = true;
 		}
 	}
 
-	// 상태 전환 로직
-	if (bHitWall)
+	// 1. 벽에 닿았고, 아직 등반 상태가 아니며, 쿨타임(GetCanClimb)이 돌았을 때 진입
+	if (bHitWall && !PlayerAnimInstance->GetIsClimb() && GetCanClimb())
 	{
-		if (!PlayerAnimInstance->GetIsClimb() && GetCanClimb()) //벽타기 쿨이 돌았는지
+		UE_LOG(LogTemp, Warning, TEXT("START CLIMB"));
+
+		PlayerAnimInstance->SetbIsClimb(true);
+		PlayerAnimInstance->SetClimbInputXY(FVector2D(0.5, 0.5));
+
+		GetCharacterMovement()->SetMovementMode(MOVE_Flying);
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+
+		FRotator TargetRotation = (HitResult.Normal * -1.f).Rotation();
+		SetActorRotation(TargetRotation);
+	}
+
+	// 2. 이미 벽을 타고 있는 중일 때의 로직 (자동 올라가기 체크)
+	if (PlayerAnimInstance->GetIsClimb())
+	{
+		//UE_LOG(LogTemp, Error, TEXT("%s"), *GetLastMovementInputVector().ToString());
+
+		if (GetLastMovementInputVector().Y == 0.f && GetLastMovementInputVector().Z == 0)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("START CLIMB"));
-			
-			PlayerAnimInstance->SetbIsClimb(true); //현재 벽타기 중
-			
-			// 진입 시 애니메이션 튀는 것을 막기 위해 일단 0으로 초기화 추천
-			PlayerAnimInstance->SetClimbInputXY(FVector2D(0.5,0.5));
+			// 애니메이션 파라미터도 중립으로 서서히 돌려보내고 싶다면 여기서 처리
+			PlayerAnimInstance->SetClimbInputXY(FVector2D(0.5f, 0.5f));
+		}
 
-			GetCharacterMovement()->SetMovementMode(MOVE_Flying);
-			GetCharacterMovement()->bOrientRotationToMovement = false;
+		// 캡슐 중심에서 위로 올린 후 앞(벽 쪽)으로 조금 이동한 곳에서 아래로 트레이스
+		FVector LedgeTraceStart = GetActorLocation() + FVector(0.f, 0.f, 150.f) + (GetActorForwardVector() * 50.f);
+		FVector LedgeTraceEnd = LedgeTraceStart - FVector(0.f, 0.f, 200.f);
+		FHitResult LedgeHit;
 
-			// [추가해야 할 로직] 벽의 Normal을 이용해 캐릭터 회전시키기
-			FRotator TargetRotation = (HitResult.Normal * -1.f).Rotation();
-			SetActorRotation(TargetRotation);
+		bool bHitLedge = GetWorld()->LineTraceSingleByChannel(LedgeHit, LedgeTraceStart, LedgeTraceEnd, ECC_Visibility, Params);
+
+		// 1. 애니메이션이 실제로 올라가는 높이 (에디터에서 확인 후 입력)
+		const float AnimationClimbHeight = 210.0f;
+
+		if (bHitLedge && !PlayerAnimInstance->GetIsClimbStand())
+		{
+			
+			float LedgeZ = LedgeHit.ImpactPoint.Z;
+			float CharacterFootZ = GetActorLocation().Z - GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+
+			// 캐릭터의 '발' 위치에서 벽 꼭대기까지의 실제 거리
+			float VerticalDistanceToLedge = LedgeZ - CharacterFootZ;
+
+			// 2. 오차 범위 설정 (약 5~10 unit 정도의 여유)
+			float ErrorMargin = 10.0f;
+
+			//UE_LOG(LogTemp, Error, TEXT("LedgeZ : %f ChatercterFootZ : %f VertiicalDeistanceToLEDGE : %f"), LedgeZ, CharacterFootZ, VerticalDistanceToLedge);
+
+			// 현재 남은 거리가 애니메이션이 올라갈 높이와 거의 일치할 때 실행
+			if (FMath::IsWithin(VerticalDistanceToLedge, AnimationClimbHeight - 5.f, AnimationClimbHeight + 5.f))
+			{
+				GetCharacterMovement()->StopMovementImmediately();
+				// 상태 전환 및 타이머 실행
+				TestSetStand();
+				SetbUseFTimerHandle();
+			}
+		}
+		// 3. 만약 벽 꼭대기도 없고 앞쪽 벽도 없다면 (벽의 옆으로 벗어났을 때 등)
+		else if (!bHitWall && !PlayerAnimInstance->GetIsClimbStand())
+		{
+			PlayerAnimInstance->SetbIsClimb(false);
+			GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+			GetCharacterMovement()->bOrientRotationToMovement = true;
 		}
 	}
+
 }
 
 void AProjectCharacter::DecreasePlayerHP(int32 value)
@@ -296,7 +346,7 @@ void AProjectCharacter::Move(const FInputActionValue& Value)
 			const FVector UpDirection = GetActorUpVector();
 			const FVector RightDirection = GetActorRightVector();
 
-			//MovementVector = MovementVector / 5;
+			MovementVector = MovementVector / 5;
 
 			// 입력값에 따라 이동 명령 전달
 			

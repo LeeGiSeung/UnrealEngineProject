@@ -166,5 +166,7 @@ private:
 
 	FTimerHandle FClimbStandHandle;
 
+	float DefaultBrakingDecelerationFlying;
+
 };
 

@@ -77,15 +77,6 @@ void UBaseAnimInstance::AnimNotify_EndCrouchBack(UAnimNotify* Notify)
 
 void UBaseAnimInstance::EndClimbStand()
 {
-	//UE_LOG(LogTemp, Error, TEXT("SetClimbStand"));
-
-	//MovementComponent->SetMovementMode(MOVE_Falling); // 보통 벽에서 떨어지면 낙하 상태로 둡니다.
-	//MovementComponent->bOrientRotationToMovement = true;
-
-	//OwningCharacter->SetCanClimb(false);
-	//SetbIsClimbStand(false);
-
-	//OwningCharacter->SetbUseFTimerHandle();
 
 	if (!OwningCharacter || !MovementComponent) return;
 
