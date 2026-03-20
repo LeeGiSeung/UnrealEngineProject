@@ -193,17 +193,44 @@ void AProjectCharacter::Tick(float DeltaTime)
 		}
 	}
 
-	if (PlayerAnimInstance->GetIsFalling()) {
+	if (PlayerAnimInstance->GetIsCppFalling()) {
 		FallingTime += DeltaTime;
 	}
 
-	if (FallingTime > 1.f) {
-		if (PlayerAnimInstance->GetIsFalling()) {
-			PlayerAnimInstance->SetIsFullFalling(true);
-			FallingTime = 0.f;
+	FHitResult RollingHit;
+	FVector RollingStart = GetActorLocation();
+	FVector RollingEnd = RollingStart - FVector(0.f, 0.f, 1000.f); // ¾Æ·¡·Î ½ô
+
+	FCollisionQueryParams RollingParams;
+	Params.AddIgnoredActor(this);
+
+	bool RollingbHit = GetWorld()->LineTraceSingleByChannel(
+		RollingHit,
+		RollingStart,
+		RollingEnd,
+		ECC_Visibility,
+		RollingParams
+	);
+
+	if (RollingbHit)
+	{
+		float DistanceToGround = (RollingStart - RollingHit.Location).Size();
+
+		if (DistanceToGround <= 100.f)
+		{
+			if (FallingTime > 1.f)
+			{
+				UE_LOG(LogTemp, Error, TEXT("Falling"));
+				PlayerAnimInstance->SetIsFullFalling(true);
+				FallingTime = 0.f;
+			}
+			
 		}
 	}
 	
+	if (!PlayerAnimInstance->GetIsCppFalling()) {
+		FallingTime = 0.f;
+	}
 
 }
 

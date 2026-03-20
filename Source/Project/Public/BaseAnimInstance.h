@@ -78,16 +78,18 @@ public:
 	bool bIsClimbStand;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Falling")
-	bool bIsFalling;
+	bool bIsCppFalling;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Falling")
 	bool bIsFullFalling;
 
-	bool GetIsFalling() {
-		return bIsFalling;
+	bool GetIsCppFalling() {
+		return bIsCppFalling;
 	}
 
 	void SetIsFullFalling(bool value);
+
+	bool GetIsFullFalling();
 
 	UFUNCTION(BlueprintCallable, Category = "Falling")
 	void EndRolling();

@@ -137,6 +137,11 @@ void UBaseAnimInstance::SetIsFullFalling(bool value)
 	bIsFullFalling = value;
 }
 
+bool UBaseAnimInstance::GetIsFullFalling()
+{
+	return bIsFullFalling;
+}
+
 void UBaseAnimInstance::EndRolling()
 {
 	SetIsFullFalling(false);
