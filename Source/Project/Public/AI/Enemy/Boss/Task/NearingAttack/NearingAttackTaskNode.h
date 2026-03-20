@@ -16,4 +16,10 @@ class PROJECT_API UNearingAttackTaskNode : public UBTTaskNode
 	
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
+	FTimerHandle NearingAttackCoolTime;
+
+	void ResetNearingAttackCoolTime();
+
+	UBehaviorTreeComponent* CachedOwnerComp;
+
 };

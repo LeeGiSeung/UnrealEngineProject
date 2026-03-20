@@ -6,6 +6,8 @@
 #include "BehaviorTree/BTTaskNode.h"
 #include "DanceWalkingTaskNode.generated.h"
 
+class UBehaviorTreeComponent;
+
 /**
  * 
  */
@@ -17,5 +19,11 @@ class PROJECT_API UDanceWalkingTaskNode : public UBTTaskNode
 public:
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
+	FTimerHandle MeteorCoolTime;
+
+	void ResetMetorCoolTime();
+
+	UBehaviorTreeComponent* CachedOwnerComp;
 
 };

@@ -193,6 +193,18 @@ void AProjectCharacter::Tick(float DeltaTime)
 		}
 	}
 
+	if (PlayerAnimInstance->GetIsFalling()) {
+		FallingTime += DeltaTime;
+	}
+
+	if (FallingTime > 1.f) {
+		if (PlayerAnimInstance->GetIsFalling()) {
+			PlayerAnimInstance->SetIsFullFalling(true);
+			FallingTime = 0.f;
+		}
+	}
+	
+
 }
 
 void AProjectCharacter::DecreasePlayerHP(int32 value)

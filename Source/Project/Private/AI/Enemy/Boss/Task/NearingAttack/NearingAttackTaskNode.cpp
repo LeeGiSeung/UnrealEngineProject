@@ -10,6 +10,7 @@ EBTNodeResult::Type UNearingAttackTaskNode::ExecuteTask(UBehaviorTreeComponent& 
 {
 
     APawn* ControllingPawn = OwnerComp.GetAIOwner()->GetPawn();
+    CachedOwnerComp = &OwnerComp;
 
     if (!ControllingPawn) return EBTNodeResult::Failed;
 
@@ -19,9 +20,17 @@ EBTNodeResult::Type UNearingAttackTaskNode::ExecuteTask(UBehaviorTreeComponent& 
 
     if (AnimInst)
     {
+        GetWorld()->GetTimerManager().SetTimer(NearingAttackCoolTime, this, &UNearingAttackTaskNode::ResetNearingAttackCoolTime, 1.f, false);
         AnimInst->SetbBossNearingAttack(true);
         return EBTNodeResult::Succeeded;
     }
 
 	return EBTNodeResult::Type();
+}
+
+void UNearingAttackTaskNode::ResetNearingAttackCoolTime()
+{
+    UBlackboardComponent* BBComp = CachedOwnerComp->GetBlackboardComponent();
+
+    BBComp->SetValueAsBool(TEXT("bNearingAttackCoolTime"), false);
 }

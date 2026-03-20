@@ -76,4 +76,20 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Climb")
 	bool bIsClimbStand;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Falling")
+	bool bIsFalling;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Falling")
+	bool bIsFullFalling;
+
+	bool GetIsFalling() {
+		return bIsFalling;
+	}
+
+	void SetIsFullFalling(bool value);
+
+	UFUNCTION(BlueprintCallable, Category = "Falling")
+	void EndRolling();
+
 };

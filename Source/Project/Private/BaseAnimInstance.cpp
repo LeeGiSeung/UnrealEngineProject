@@ -131,3 +131,13 @@ bool UBaseAnimInstance::GetIsClimbStand()
 {
 	return bIsClimbStand;
 }
+
+void UBaseAnimInstance::SetIsFullFalling(bool value)
+{
+	bIsFullFalling = value;
+}
+
+void UBaseAnimInstance::EndRolling()
+{
+	SetIsFullFalling(false);
+}

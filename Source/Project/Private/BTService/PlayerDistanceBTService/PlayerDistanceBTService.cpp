@@ -85,7 +85,7 @@ void UPlayerDistanceBTService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 
     FString BoolString = bInAttackRange ? TEXT("true") : TEXT("false");
 
-    UE_LOG(LogTemp, Error, TEXT("Distance : %f"), Distance);
+    //UE_LOG(LogTemp, Error, TEXT("Distance : %f"), Distance);
 
     //if (Distance < 2500 && !bInAttackRange && !AnimInst->GetbFindPlayer()) { //2000이하, 공격 거리에 없고, 아직 Player를 찾지 못했을때
     //    AnimInst->SetbFindPlayer(true);
@@ -105,16 +105,18 @@ void UPlayerDistanceBTService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
     //    AnimInst->SetbFindPlayer(false);
     //}
 
-    if (Distance <= 1000.f) // 근접 공격
+    if (Distance <= 1000.f && !BBoard->GetValueAsBool(TEXT("bNearingAttackCoolTime"))) // 근접 공격
     {
         AnimInst->SetbFindPlayer(false);
         BBoard->SetValueAsBool(TEXT("bNearingAttack"), true);
+        BBoard->SetValueAsBool(TEXT("bNearingAttackCoolTime"), true);
         //UE_LOG(LogTemp, Warning, TEXT("Close Attack"));
     }
-    else if (Distance >= 2500.f) // 메테오 공격
+    else if (Distance >= 3000.f && !BBoard->GetValueAsBool(TEXT("bMeteorCoolTime"))) // 메테오 공격
     {
         AnimInst->SetbFindPlayer(false);
         BBoard->SetValueAsBool(TEXT("CanAttack"), true);
+        BBoard->SetValueAsBool(TEXT("bMeteorCoolTime"), true);
         //UE_LOG(LogTemp, Warning, TEXT("Meteor Attack"));
     }
     else // 700 ~ 2500 → 추적

@@ -168,5 +168,7 @@ private:
 
 	float DefaultBrakingDecelerationFlying;
 
+	float FallingTime = 0.f;
+	float RollingTime = 0.f;
 };
 
