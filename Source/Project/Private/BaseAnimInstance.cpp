@@ -86,8 +86,8 @@ void UBaseAnimInstance::EndClimbStand()
 
 	// 2. 캐릭터를 약간 앞(벽 안쪽)과 위로 이동시켜서 확실히 안착시키기
 	// 이동 거리(PushDistance)는 캐릭터 캡슐 반지름(약 42)보다 조금 더 큰 값이 안전합니다.
-	float PushDistance = 100.f;
-	float UpOffset = 10.f; // 바닥에 발이 살짝 묻히지 않게 위로도 살짝 올림
+	float PushDistance = 0.f;
+	float UpOffset = 0.f; // 바닥에 발이 살짝 묻히지 않게 위로도 살짝 올림
 
 	FVector Forward = OwningCharacter->GetActorForwardVector();
 	FVector NewLocation = OwningCharacter->GetActorLocation() + (Forward * PushDistance) + (FVector::UpVector * UpOffset);

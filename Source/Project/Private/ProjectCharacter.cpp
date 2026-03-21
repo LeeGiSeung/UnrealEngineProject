@@ -130,11 +130,11 @@ void AProjectCharacter::Tick(float DeltaTime)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("START CLIMB"));
 
-		PlayerAnimInstance->SetbIsClimb(true);
-		PlayerAnimInstance->SetClimbInputXY(FVector2D(0.5, 0.5));
-
 		GetCharacterMovement()->SetMovementMode(MOVE_Flying);
 		GetCharacterMovement()->bOrientRotationToMovement = false;
+
+		PlayerAnimInstance->SetbIsClimb(true);
+		PlayerAnimInstance->SetClimbInputXY(FVector2D(0.5, 0.5));
 
 		FRotator TargetRotation = (HitResult.Normal * -1.f).Rotation();
 		SetActorRotation(TargetRotation);
@@ -199,7 +199,7 @@ void AProjectCharacter::Tick(float DeltaTime)
 
 	FHitResult RollingHit;
 	FVector RollingStart = GetActorLocation();
-	FVector RollingEnd = RollingStart - FVector(0.f, 0.f, 1000.f); // ¾Æ·¡·Î ½ô
+	FVector RollingEnd = RollingStart - FVector(0.f, 0.f, 300.f); // ¾Æ·¡·Î ½ô
 
 	FCollisionQueryParams RollingParams;
 	Params.AddIgnoredActor(this);
@@ -216,7 +216,7 @@ void AProjectCharacter::Tick(float DeltaTime)
 	{
 		float DistanceToGround = (RollingStart - RollingHit.Location).Size();
 
-		if (DistanceToGround <= 100.f)
+		if (DistanceToGround <= 300.f)
 		{
 			if (FallingTime > 1.f)
 			{
@@ -430,5 +430,5 @@ void AProjectCharacter::Look(const FInputActionValue& Value)
 
 void AProjectCharacter::Sit(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("DASF"));
+	//UE_LOG(LogTemp, Warning, TEXT("DASF"));
 }
