@@ -16,8 +16,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "BaseAnimInstance.h"
 
-#include "GameFramework/Controller.h"
-
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 //////////////////////////////////////////////////////////////////////////
@@ -111,13 +109,14 @@ void AProjectCharacter::Tick(float DeltaTime)
 
 	FHitResult HitResult;
 	FVector Start = GetActorLocation();
-	FVector End = Start + (GetActorForwardVector() * 120.0f);
+	FVector End = Start + (GetActorForwardVector() * 120.0f); // 그냥 항상 앞으로만 쏘면 됩니다.
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
 
 	bool bHitWall = false;
 
-	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params))
+	// WallChange 중일 때는 굳이 전방 트레이스 연산을 할 필요도 없습니다. 성능 절약!
+	if (!PlayerAnimInstance->GetWallChange() && GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params))
 	{
 		if (FMath::Abs(HitResult.Normal.Z) < 0.2f)
 		{
@@ -125,20 +124,11 @@ void AProjectCharacter::Tick(float DeltaTime)
 		}
 	}
 
-	// 1. 벽에 닿았고, 아직 등반 상태가 아니며, 쿨타임(GetCanClimb)이 돌았을 때 진입
-	if (bHitWall && !PlayerAnimInstance->GetIsClimb() && GetCanClimb())
+	if (bHitWall && !PlayerAnimInstance->GetIsClimb() && GetCanClimb() && !PlayerAnimInstance->GetWallChange())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("START CLIMB"));
-
-		GetCharacterMovement()->SetMovementMode(MOVE_Flying);
-		GetCharacterMovement()->bOrientRotationToMovement = false;
-
-		PlayerAnimInstance->SetbIsClimb(true);
-		PlayerAnimInstance->SetClimbInputXY(FVector2D(0.5, 0.5));
-
-		FRotator TargetRotation = (HitResult.Normal * -1.f).Rotation();
-		SetActorRotation(TargetRotation);
+		StartClimb(HitResult);
 	}
+	
 
 	// 2. 이미 벽을 타고 있는 중일 때의 로직 (자동 올라가기 체크)
 	if (PlayerAnimInstance->GetIsClimb())
@@ -180,16 +170,14 @@ void AProjectCharacter::Tick(float DeltaTime)
 			{
 				GetCharacterMovement()->StopMovementImmediately();
 				// 상태 전환 및 타이머 실행
-				TestSetStand();
+				StandUpTo();
 				SetbUseFTimerHandle();
 			}
 		}
 		// 3. 만약 벽 꼭대기도 없고 앞쪽 벽도 없다면 (벽의 옆으로 벗어났을 때 등)
 		else if (!bHitWall && !PlayerAnimInstance->GetIsClimbStand())
 		{
-			PlayerAnimInstance->SetbIsClimb(false);
-			GetCharacterMovement()->SetMovementMode(MOVE_Walking);
-			GetCharacterMovement()->bOrientRotationToMovement = true;
+			OffClimb();
 		}
 	}
 
@@ -232,6 +220,44 @@ void AProjectCharacter::Tick(float DeltaTime)
 		FallingTime = 0.f;
 	}
 
+}
+
+void AProjectCharacter::StartClimb(FHitResult& HitResult)
+{
+	
+	GetCharacterMovement()->SetMovementMode(MOVE_Flying);
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+
+	PlayerAnimInstance->SetbIsClimb(true);
+	PlayerAnimInstance->SetClimbInputXY(FVector2D(0.5, 0.5));
+
+	FVector WallNormal = HitResult.Normal;
+
+	// 기울어짐 방지 (Z축 수평 맞추기)
+	WallNormal.Z = 0.0f;
+	WallNormal.Normalize();
+
+	// WallChange든 일반 등반이든 벽을 마주보도록 회전해야 함
+	FRotator TargetRotation = (-WallNormal).Rotation();
+	SetActorRotation(TargetRotation);
+
+	// 위치 보정
+	float Distance = GetCapsuleComponent()->GetScaledCapsuleRadius();
+	FVector NewLocation = HitResult.ImpactPoint + (WallNormal * Distance);
+
+	// 일반 등반일 때만 SetActorLocation으로 벽에 즉시 붙여줌
+	// (WallChange 애니메이션 도중에는 강제 이동시키면 애니메이션이 튈 수 있으므로 제외)
+	if (!PlayerAnimInstance->GetWallChange()) {
+		SetActorLocation(NewLocation);
+	}
+
+	PlayerAnimInstance->SetWallChangeLocation(NewLocation, TargetRotation);
+
+}
+
+void AProjectCharacter::OffClimb()
+{
+	SetCanClimb(true);
 }
 
 void AProjectCharacter::DecreasePlayerHP(int32 value)
@@ -289,7 +315,6 @@ void AProjectCharacter::SetCanClimb(bool value)
 void AProjectCharacter::SetbUseClimbTrue()
 {
 	SetCanClimb(true);
-	PlayerAnimInstance->SetbIsClimb(false);
 }
 
 bool AProjectCharacter::GetCanClimb()
@@ -307,7 +332,7 @@ void AProjectCharacter::OnSpacePressed()
 	Jump();
 }
 
-void AProjectCharacter::TestSetStand()
+void AProjectCharacter::StandUpTo()
 {
 	if (PlayerAnimInstance->GetIsClimb()) {
 
@@ -315,7 +340,6 @@ void AProjectCharacter::TestSetStand()
 
 		PlayerAnimInstance->SetbIsClimbStand(true);
 	}
-
 }
 
 
@@ -431,4 +455,10 @@ void AProjectCharacter::Look(const FInputActionValue& Value)
 void AProjectCharacter::Sit(const FInputActionValue& Value)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("DASF"));
+}
+
+void AProjectCharacter::ClimbWallChange() {
+	if (!PlayerAnimInstance->GetIsClimb() || PlayerAnimInstance->GetWallChange()) return;
+
+	PlayerAnimInstance->SetWallChange(true);
 }

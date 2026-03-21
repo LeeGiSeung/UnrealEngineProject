@@ -103,7 +103,7 @@ void UBaseAnimInstance::EndClimbStand()
 	
 	OwningCharacter->SetbUseFTimerHandle();
 
-	UE_LOG(LogTemp, Log, TEXT("EndClimb: Teleported character inward to prevent falling."));
+	//UE_LOG(LogTemp, Log, TEXT("EndClimb: Teleported character inward to prevent falling."));
 }
 
 void UBaseAnimInstance::SetbIsClimb(bool value)
@@ -145,4 +145,42 @@ bool UBaseAnimInstance::GetIsFullFalling()
 void UBaseAnimInstance::EndRolling()
 {
 	SetIsFullFalling(false);
+}
+
+void UBaseAnimInstance::EndClimbWallChange() {
+
+	
+	//SetWallChange(false);
+	//
+	//OwningCharacter->OffClimb();
+
+	FHitResult NewHit;
+
+	FVector Start = OwningCharacter->GetActorLocation();
+	FVector End = Start + (OwningCharacter->GetActorForwardVector() * 150.f);
+
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(OwningCharacter);
+
+	if (GetWorld()->LineTraceSingleByChannel(NewHit, Start, End, ECC_Visibility, Params))
+	{
+		//OwningCharacter->SetActorLocation(WallChangeLocation);
+		OwningCharacter->StartClimb(NewHit);
+	}
+	
+	SetWallChange(false);
+
+	
+}
+
+void UBaseAnimInstance::StartClimbWallChange()
+{
+	SetbIsClimb(false);
+	SetWallChange(true);
+}
+
+void UBaseAnimInstance::SetWallChangeLocation(FVector value, FRotator _value)
+{
+	WallChangeLocation = value;
+	WallChangeRotation = _value;
 }

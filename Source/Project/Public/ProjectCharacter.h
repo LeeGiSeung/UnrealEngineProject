@@ -109,7 +109,7 @@ public: //내가 추가한거
 	void OnSpacePressed();
 
 	UFUNCTION(BlueprintCallable)
-	void TestSetStand();
+	void StandUpTo();
 
 protected:
 	// APawn interface
@@ -119,6 +119,10 @@ protected:
 	virtual void BeginPlay();
 
 	virtual void Tick(float DeltaTime) override;
+
+	
+
+	
 
 public:
 	/** Returns CameraBoom subobject **/
@@ -170,5 +174,14 @@ private:
 
 	float FallingTime = 0.f;
 	float RollingTime = 0.f;
+
+//#Wall Change
+public:
+	UFUNCTION(BlueprintCallable, Category = "ClimbWallChange")
+	void ClimbWallChange();
+
+	void OffClimb();
+
+	void StartClimb(FHitResult& HitResult);
 };
 

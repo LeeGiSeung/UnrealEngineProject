@@ -83,6 +83,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Falling")
 	bool bIsFullFalling;
 
+
 	bool GetIsCppFalling() {
 		return bIsCppFalling;
 	}
@@ -94,4 +95,23 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Falling")
 	void EndRolling();
 
+
+//#WallChange
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Falling")
+	bool bIsWallChange;
+
+	void SetWallChange(bool value) { bIsWallChange = value; };
+	bool GetWallChange() { return bIsWallChange; }
+
+	UFUNCTION(BlueprintCallable, Category = "ClimbWallChange")
+	void EndClimbWallChange();
+
+	UFUNCTION(BlueprintCallable, Category = "ClimbWallChange")
+	void StartClimbWallChange();
+
+	void SetWallChangeLocation(FVector value, FRotator _value);
+
+	FVector WallChangeLocation;
+	FRotator WallChangeRotation;
 };
