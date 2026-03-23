@@ -114,4 +114,14 @@ public:
 
 	FVector WallChangeLocation;
 	FRotator WallChangeRotation;
+
+//#WallStandToUp
+public:
+	bool bWallUpStandTo;
+
+	void SetbWallUpStandTo(bool value) { bWallUpStandTo = value; }
+	bool GetbWallUpStandTo() { return bWallUpStandTo; }
+
+	UFUNCTION(BlueprintCallable, Category = "WallUpStandTo")
+	void StartWallUpStandTo();
 };

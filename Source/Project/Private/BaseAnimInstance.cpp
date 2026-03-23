@@ -81,6 +81,7 @@ void UBaseAnimInstance::EndClimbStand()
 	if (!OwningCharacter || !MovementComponent) return;
 
 	// 1. 상태 변수 즉시 해제 (재실행 방지)
+	
 	SetbIsClimbStand(false);
 	SetbIsClimb(false);
 
@@ -102,6 +103,8 @@ void UBaseAnimInstance::EndClimbStand()
 	// 4. 쿨타임 및 타이머
 	
 	OwningCharacter->SetbUseFTimerHandle();
+
+	SetbWallUpStandTo(false);
 
 	//UE_LOG(LogTemp, Log, TEXT("EndClimb: Teleported character inward to prevent falling."));
 }
@@ -149,10 +152,6 @@ void UBaseAnimInstance::EndRolling()
 
 void UBaseAnimInstance::EndClimbWallChange() {
 
-	
-	//SetWallChange(false);
-	//
-	//OwningCharacter->OffClimb();
 
 	FHitResult NewHit;
 
@@ -183,4 +182,9 @@ void UBaseAnimInstance::SetWallChangeLocation(FVector value, FRotator _value)
 {
 	WallChangeLocation = value;
 	WallChangeRotation = _value;
+}
+
+void UBaseAnimInstance::StartWallUpStandTo()
+{
+	SetbWallUpStandTo(true);
 }

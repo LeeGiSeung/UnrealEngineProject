@@ -120,6 +120,10 @@ protected:
 
 	virtual void Tick(float DeltaTime) override;
 
+	void FallingRolling(FCollisionQueryParams& Params);
+
+	void ClimbAndStand(FCollisionQueryParams& Params, bool bHitWall);
+
 	
 
 	
@@ -183,5 +187,16 @@ public:
 	void OffClimb();
 
 	void StartClimb(FHitResult& HitResult);
+
+	bool CheckWallBehind(float Distance);
+
+//#Climb End Check
+public:
+	void CheckGroundWhileClimbing();
+
+	FTimerHandle OffClimbTimerHandle;
+
+	void SetOffClimbTrue();
+	bool bOffClimb = true;
 };
 
