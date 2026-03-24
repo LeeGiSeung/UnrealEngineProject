@@ -12,6 +12,10 @@
 #include "Skill/Earthquake/Earthquake.h"
 #include "Components/CapsuleComponent.h"
 
+//#MinimapSystem
+#include "Minimap/MinimapWorldSystem.h"
+#include "MinimapType/MinimapType.h"
+
 ABossEnemy::ABossEnemy()
 {
     EnemyHP = 3;
@@ -30,6 +34,13 @@ void ABossEnemy::BeginPlay()
 
     //GetWorld()->GetTimerManager().SetTimer(MeteorSkillTimerHandle, this, &ABossEnemy::SpawnMeteor, 1.0f, true);
     //GetWorld()->GetTimerManager().SetTimer(SpawnBossArmTimerHandle, this, &ABossEnemy::SpawnBossArm, BaseSpawnSocketTime, true);
+
+    if (UWorld* World = GetWorld())
+    {
+        MinimapWorld->RegisterMakerData(this, EnumMinimapType::Boss);
+    }
+    
+
 
 }
 
@@ -87,6 +98,8 @@ void ABossEnemy::EnemyDie()
             BBComp->SetValueAsBool(TEXT("bIsDead"), true);
         }
     }
+
+    MinimapWorld->UnRegisterMakerData(this, EnumMinimapType::Boss);
 
     //Destroy();
 }

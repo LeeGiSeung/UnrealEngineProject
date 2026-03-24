@@ -9,6 +9,7 @@
 #include "DialogueBaseActor.generated.h"
 
 class ADialogueManager;
+class UMinimapWorldSystem;
 
 UCLASS()
 class PROJECT_API ADialogueBaseActor : public AActor
@@ -37,4 +38,7 @@ public:
 
 	UPROPERTY()
 	EDialogueUIType StartUIType;
+
+	UPROPERTY()
+	UMinimapWorldSystem* MinimapWorld;
 };

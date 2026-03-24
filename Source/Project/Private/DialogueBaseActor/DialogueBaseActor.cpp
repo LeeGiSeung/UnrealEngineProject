@@ -5,6 +5,10 @@
 #include "DialogueManager/DialogueManager.h"
 #include "EngineUtils.h"
 
+//#MinimapSystem
+#include "Minimap/MinimapWorldSystem.h"
+#include "MinimapType/MinimapType.h"
+
 // Sets default values
 ADialogueBaseActor::ADialogueBaseActor()
 {
@@ -26,6 +30,9 @@ void ADialogueBaseActor::BeginPlay()
 
     check(DialogueManager); // 없으면 바로 알 수 있게
 
+    MinimapWorld = GetWorld()->GetSubsystem<UMinimapWorldSystem>();
+
+    MinimapWorld->RegisterMakerData(this, EnumMinimapType::NPC);
 }
 
 // Called every frame

@@ -4,19 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
+#include "MinimapType/MinimapType.h"
 #include "MinimapWorldSystem.generated.h"
-
-class UTickableWorldSubsystem;
-
-UENUM(Blueprinttype)
-enum class EnumMinimapType : uint8 
-{
-	Road, //길
-	Shop, //상점
-	Boss, //보스
-	Mineral, //광물
-	End
-};
 
 USTRUCT(BlueprintType)
 struct FMinimapMakerData
@@ -44,14 +33,14 @@ public:
  * 
  */
 UCLASS()
-class PROJECT_API UMinimapWorldSystem : public UTickableWorldSubsystem
+class PROJECT_API UMinimapWorldSystem : public UWorldSubsystem
 {
 	GENERATED_BODY()
 
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-	virtual void Tick(float DeltaTime) override;
-	virtual TStatId GetStatId() const override;
+	//virtual void Tick(float DeltaTime) override;
+	//virtual TStatId GetStatId() const override;
 
 	UFUNCTION(BlueprintCallable)
 	void RegisterMakerData(AActor* actor, EnumMinimapType MarkerType);

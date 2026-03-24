@@ -7,6 +7,7 @@
 #include "AIController.h"
 #include "Components/CapsuleComponent.h"
 #include "BrainComponent.h"
+#include "Minimap/MinimapWorldSystem.h"
 
 // Sets default values
 ABaseEnemy::ABaseEnemy()
@@ -40,6 +41,11 @@ void ABaseEnemy::BeginPlay()
         }
     }
 	
+    if (UWorld* World = GetWorld())
+    {
+        MinimapWorld = World->GetSubsystem<UMinimapWorldSystem>();
+    }
+
 }
 
 // Called every frame

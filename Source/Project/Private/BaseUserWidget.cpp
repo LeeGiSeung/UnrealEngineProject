@@ -14,9 +14,21 @@
 #include "Misc/Paths.h"
 #include "Colorenum/Colorenum.h"
 
+//Minimap
+#include "Components/CanvasPanel.h"
+#include "Minimap/MinimapWorldSystem.h"
+#include "Components/CanvasPanelSlot.h"
+#include "DialogueWidget/MinimapWidget/MinimapMarker.h"
+
 void UBaseUserWidget::RecordPosition(FVector2D Pos)
 {
     DrawPositions.Add(Pos);
+}
+
+void UBaseUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+    Super::NativeTick(MyGeometry, InDeltaTime);
+
 }
 
 void UBaseUserWidget::SaveCanvasRenderTargetToPNG(UTextureRenderTarget2D* Canvas, const FString& FilePath, const FString& FileName)
@@ -170,4 +182,6 @@ void UBaseUserWidget::ChangeBrushStartColor(EColor _color, UMaterialInstanceDyna
         );
     }
 }
+
+
 

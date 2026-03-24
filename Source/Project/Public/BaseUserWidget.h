@@ -5,11 +5,15 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Colorenum/Colorenum.h"
+#include "MinimapType/MinimapType.h"
 
 #include "BaseUserWidget.generated.h"
 
 class UTextureRenderTarget2D;
 class UMaterialInstanceDynamic;
+class UMinimapMarker;
+class UCanvasPanel;
+class UUserWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDrawFinished);
 
@@ -20,6 +24,9 @@ UCLASS()
 class PROJECT_API UBaseUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
+
+public:
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 public:
 
@@ -55,6 +62,8 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Canvas")
 	UTextureRenderTarget2D* RenderCanvas;
+
+
 
 private:
 	int number = 0;

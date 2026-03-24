@@ -9,6 +9,7 @@
 
 class AAIController;
 class UBlackboardComponent;
+class UMinimapWorldSystem;
 
 UCLASS()
 class PROJECT_API ABaseEnemy : public ACharacter
@@ -38,6 +39,9 @@ public:
 	virtual void DecreaseHP(int value);
 
 	virtual void EnemyDie();
+
+	UPROPERTY()
+	UMinimapWorldSystem* MinimapWorld;
 
 protected:
 	uint32 EnemyHP;
