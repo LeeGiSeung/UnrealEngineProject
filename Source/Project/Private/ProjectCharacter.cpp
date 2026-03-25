@@ -115,6 +115,8 @@ void AProjectCharacter::Tick(float DeltaTime)
 
 	bool bHitWall = false;
 
+	if (!PlayerAnimInstance) return;
+
 	// WallChange 중일 때는 굳이 전방 트레이스 연산을 할 필요도 없습니다.
 	if (!PlayerAnimInstance->GetWallChange() && GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params))
 	{

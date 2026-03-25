@@ -1,0 +1,71 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/Character.h"
+#include "ECharacterMenuState/ECharacterMenuState.h"
+#include "CharacterStat.generated.h"
+
+class UCameraComponent;
+class USpringArmComponent;
+
+UCLASS()
+class PROJECT_API ACharacterStat : public ACharacter
+{
+	GENERATED_BODY()
+
+public:
+	// Sets default values for this character's properties
+	ACharacterStat();
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+public:	
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UFUNCTION(BlueprintCallable, Category = "SwitchCamera")
+	void SwitchCameraComponent(ECharacterMenuState MenuState);
+
+	// 카메라를 지탱해줄 팔 (길이, 회전 제어용)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
+	class USpringArmComponent* CameraBoom;
+
+	// 실제 화면을 보여줄 카메라
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
+	UCameraComponent* ViewCamera;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
+	UCameraComponent* RelicCamera;  
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
+	UCameraComponent* SkillCamera;  
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
+	UCameraComponent* StarCamera;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
+	UCameraComponent* MainCamera;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
+	ECharacterMenuState TestState;
+
+	FVector TargetLocation;
+	FRotator TargetRotation;
+
+	// 보간 속도 (숫자가 높을수록 빠릅니다. 스타레일 느낌은 5.0 ~ 8.0 추천)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	float CameraInterpSpeed = 5.0f;
+
+	UCameraComponent* TargetCam = nullptr;
+
+	UFUNCTION(BlueprintCallable, Category = "Camera")
+	void ChangeCamera();
+
+};

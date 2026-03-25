@@ -35,6 +35,7 @@ class ADialogueManager;
 class UBaseUserWidget;
 class UNNEModelData;
 class NNE;
+class ACharacterStat;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActionTriggered);
 
@@ -54,6 +55,7 @@ public:
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void BeginPlay() override;
+	void FindCharacterStat();
 	//~Base
 
 	void SpecialCameraUse();
@@ -327,4 +329,15 @@ public:
 	TArray<float> TreeFeature;
 	TArray<float> WaterFeature;
 	TArray<float> ElectricFeature;
+
+//#CharacterStat
+public:
+	UFUNCTION(BlueprintCallable, Category = "CharacterStatus")
+	void CharacterStatusWindow();
+
+	UFUNCTION(BlueprintCallable, Category = "CharacterStatus")
+	void TestStatusWindow(ECharacterMenuState value);
+
+	UPROPERTY(BlueprintReadWrite, Category = "CharacterStatus")
+	ACharacterStat* CharacterStat;
 };

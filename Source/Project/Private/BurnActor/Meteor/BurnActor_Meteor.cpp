@@ -36,6 +36,8 @@ ABurnActor_Meteor::ABurnActor_Meteor()
     ProjectileMovement->bIsHomingProjectile = false; //À¯µµÅº ²û
 
     ProjectileMovement->bAutoActivate = false;
+
+
 }
 
 void ABurnActor_Meteor::BeginPlay()

@@ -16,7 +16,7 @@ void UMinimapWorldSystem::RegisterMakerData(AActor* actor, EnumMinimapType Marke
 	
 	ActiveMarkers.Add(FMinimapMakerData(actor, MarkerType));
 
-	UE_LOG(LogTemp, Error, TEXT("%s"), *actor->GetName());
+	//UE_LOG(LogTemp, Error, TEXT("%s"), *actor->GetName());
 }
 
 void UMinimapWorldSystem::UnRegisterMakerData(AActor* actor, EnumMinimapType MarkerType)

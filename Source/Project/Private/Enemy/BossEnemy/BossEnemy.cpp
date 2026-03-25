@@ -33,7 +33,7 @@ void ABossEnemy::BeginPlay()
     BBComp = AICon->GetBlackboardComponent();
 
     //GetWorld()->GetTimerManager().SetTimer(MeteorSkillTimerHandle, this, &ABossEnemy::SpawnMeteor, 1.0f, true);
-    //GetWorld()->GetTimerManager().SetTimer(SpawnBossArmTimerHandle, this, &ABossEnemy::SpawnBossArm, BaseSpawnSocketTime, true);
+    GetWorld()->GetTimerManager().SetTimer(SpawnBossArmTimerHandle, this, &ABossEnemy::SpawnBossArm, BaseSpawnSocketTime, true);
 
     if (UWorld* World = GetWorld())
     {
@@ -262,6 +262,7 @@ void ABossEnemy::SpawnEarthquake(int32 BlockCount, float _Radius) {
         LocaSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
         GetWorld()->SpawnActor<AActor>(EarthquakeBPToSpawn, FinalSpawnLocation, SpawnRotation, LocaSpawnParams);
+
     }
 }
 
@@ -281,10 +282,15 @@ void ABossEnemy::SpawnEachMeteor(FName _SocketName)
     if (LocalSpawnedActor)
     {
         SpawnedMeteor.Add(LocalSpawnedActor);
+
+        MinimapWorld->RegisterMakerData(LocalSpawnedActor, EnumMinimapType::Boss);
     }
+
 }
 
 void ABossEnemy::DestoryMeteor(AActor* Meteor)
 {
+    MinimapWorld->UnRegisterMakerData(Meteor, EnumMinimapType::Boss);
+
     SpawnedMeteor.Remove(Meteor);
 }

@@ -45,6 +45,6 @@ public:
 	void UpdateMinimapMarkers();
 
 	UPROPERTY(BlueprintReadWrite)
-	float MinimapDistance = 2000.f;
+	float MinimapDistance = 6000.f;
 
 };

@@ -34,6 +34,11 @@ void UMinimapWidget::NativeConstruct()
     PlayerSlot->SetAlignment(FVector2D(0.5F, 0.5F));
     PlayerSlot->SetPosition(FVector2D(0.f, 0.f));
 
+    float BaseSize = 32.f;
+    // 1920 / 1080 = 1.777... 이 비율만큼 가로를 줄이거나 세로를 늘립니다.
+    // 하지만 이 방법보다는 위젯 부모의 앵커를 '점'으로 바꾸는 게 정석입니다.
+    PlayerSlot->SetSize(FVector2D(BaseSize, BaseSize));
+
 }
 
 void UMinimapWidget::UpdateMinimapMarkers()
@@ -64,7 +69,7 @@ void UMinimapWidget::UpdateMinimapMarkers()
         else {
             // 2. 없다면 새로 생성
             TSubclassOf<UMinimapMarker>* SelectMarker = MarkerConfig.Find(Data.MarkerType);
-            if (SelectMarker && *SelectMarker) {
+            if (SelectMarker) {
                 CurrentMarker = CreateWidget<UMinimapMarker>(this, *SelectMarker);
                 if (CurrentMarker) {
                     Marker_Layer->AddChildToCanvas(CurrentMarker);
@@ -75,21 +80,18 @@ void UMinimapWidget::UpdateMinimapMarkers()
 
         if (CurrentMarker) {
             // 위치 계산 로직 (수학 보정)
-            FVector2D RelativePos = FVector2D(MarkerActorLocation.X - PlayerLocation.X, MarkerActorLocation.Y - PlayerLocation.Y);
-
-            // 회전 적용: 위쪽을 정면으로 만들기 위해 -90도 보정 추가
-            
+            FVector2D RelativePos = FVector2D(MarkerActorLocation.X - PlayerLocation.X, MarkerActorLocation.Y - PlayerLocation.Y);   
 
             float CameraYaw = 0.f;
-            if (APlayerController* PC = GetOwningPlayer()) {
+            if (APlayerController* PC = GetOwningPlayer()) 
                 CameraYaw = PC->GetControlRotation().Yaw;
-            }
+            
 
             //FVector2D RotatedPos = RelativePos.GetRotated(-PlayerYaw - 90.f); ////PlayerActorRotation 기준
             FVector2D RotatedPos = RelativePos.GetRotated(-CameraYaw - 90.f);
 
             // 스케일링 (MinimapDistance 내의 거리를 MinimapRadius 픽셀 안으로 압축)
-            float MinimapRadius = 130.f;
+            float MinimapRadius = 150.f;
             float DistanceAlpha = LocalDistance / MinimapDistance; // 전체 거리 대비 비율
             FVector2D UIOffset = RotatedPos.GetSafeNormal() * (DistanceAlpha * MinimapRadius);
 
@@ -100,6 +102,11 @@ void UMinimapWidget::UpdateMinimapMarkers()
                 MarkerSlot->SetAlignment(FVector2D(0.5f, 0.5f));
                 // 얼라이먼트도 중앙으로 설정 (마커 아이콘 자체가 안 밀리게)
                 MarkerSlot->SetAlignment(FVector2D(0.5f, 0.5f));
+
+                float BaseSize = 32.f;
+                // 1920 / 1080 = 1.777... 이 비율만큼 가로를 줄이거나 세로를 늘립니다.
+                // 하지만 이 방법보다는 위젯 부모의 앵커를 '점'으로 바꾸는 게 정석입니다.
+                MarkerSlot->SetSize(FVector2D(BaseSize, BaseSize));
             }
 
             CurrentMarker->SetVisibility(ESlateVisibility::SelfHitTestInvisible);

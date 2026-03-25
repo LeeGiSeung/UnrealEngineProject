@@ -55,6 +55,9 @@
 #include "ImageUtils.h"
 #include "ImageCore.h"
 
+//PlayerStat
+#include "CharacterStat/CharacterStat.h"
+#include "ECharacterMenuState/ECharacterMenuState.h"
 using namespace UE::NNE;
 
 AProjectPlayerController::AProjectPlayerController()
@@ -114,7 +117,7 @@ void AProjectPlayerController::StartSpecialAttack()
     MyABP->PlaySpecialAttackMontage(PCharacter);
 
     SpecialCameraUse();
-
+    
 }
 
 void AProjectPlayerController::ScrollZomm_Down(float ActionValue)
@@ -295,9 +298,16 @@ void AProjectPlayerController::SpawnDecalActor(TArray<FVector2D> _DrawPosition, 
     }
     else
     {
-        if (!bHit) UE_LOG(LogTemp, Warning, TEXT("NO !bHit"));
-        if (!Hit.GetActor()) UE_LOG(LogTemp, Warning, TEXT("NO !Hit.GetActor()"));
-        if (!Hit.GetActor()->ActorHasTag(TEXT("DrawAble"))) UE_LOG(LogTemp, Warning, TEXT("NO DrawAble"));
+        if (!bHit) {
+            UE_LOG(LogTemp, Warning, TEXT("NO !bHit"));
+            return;
+        }
+            if (!Hit.GetActor()){ UE_LOG(LogTemp, Warning, TEXT("NO !Hit.GetActor()"));
+            return;
+            }
+        if (!Hit.GetActor()->ActorHasTag(TEXT("DrawAble"))){ UE_LOG(LogTemp, Warning, TEXT("NO DrawAble"));
+        return;
+        }
 
         UE_LOG(LogTemp, Warning, TEXT("No valid hit on Drawable actor"));
     }
@@ -759,6 +769,8 @@ void AProjectPlayerController::BeginPlay() {
 
     Super::BeginPlay();
 
+    FindCharacterStat();
+
     DrawingManager = nullptr;
 
     for (TActorIterator<ADrawingActorManager> It(GetWorld()); It; ++It)
@@ -873,8 +885,15 @@ void AProjectPlayerController::BeginPlay() {
         UE_LOG(LogTemp, Error, TEXT("Failed to generate ElectricFeature")); //여기 오류
         return;
     }
+}
 
+void AProjectPlayerController::FindCharacterStat()
+{
+    CharacterStat = Cast<ACharacterStat>(UGameplayStatics::GetActorOfClass(GetWorld(), ACharacterStat::StaticClass()));
 
+    if (!CharacterStat) 
+        UE_LOG(LogTemp, Error, TEXT("NO STAT"));
+    
 }
 
 void AProjectPlayerController::SpecialCameraSetting()
@@ -1131,6 +1150,15 @@ bool AProjectPlayerController::IsSameShape( const FString& PlayerImagePath, floa
     UE_LOG(LogTemp, Warning, TEXT("Similarity: %f"), Similarity);
 
     return Similarity > Threshold;
+}
+
+void AProjectPlayerController::CharacterStatusWindow()
+{
+    CharacterStat->ChangeCamera();
+}
+
+void AProjectPlayerController::TestStatusWindow(ECharacterMenuState value) {
+    CharacterStat->SwitchCameraComponent(value);
 }
 
 bool AProjectPlayerController::RunONNX(const FString& ImagePath, TArray<float>& OutFeature)
