@@ -5,10 +5,12 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "ECharacterMenuState/ECharacterMenuState.h"
+#include "FCharacterStatAnimaionDataTable/FCharacterStatAnimaionDataTable.h"
 #include "CharacterStat.generated.h"
 
 class UCameraComponent;
 class USpringArmComponent;
+class UStatAnimInstance;
 
 UCLASS()
 class PROJECT_API ACharacterStat : public ACharacter
@@ -67,5 +69,27 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Camera")
 	void ChangeCamera();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	TMap<FName, FCharacterStatAnimaionDataTable> CharacterAnimMap;
+
+	// 현재 어떤 캐릭터인지 구분할 변수
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	FName CurrentCharacterKey = TEXT("BASE");
+
+	UFUNCTION()
+	void SetCurrentCharacterKey(FName value);
+
+	UFUNCTION()
+	FName GetCurrentCharacterKey();
+
+public:
+	UFUNCTION()
+	void PlayAnimation(ECharacterMenuState value);
+
+	UPROPERTY()
+	UStatAnimInstance* StatAnimInstance;
+
+	ECharacterMenuState CurMenuState;
 
 };

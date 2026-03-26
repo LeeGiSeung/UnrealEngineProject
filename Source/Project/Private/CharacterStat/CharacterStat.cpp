@@ -5,7 +5,7 @@
 #include "ProjectPlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
-
+#include "CharacterStat/StatAnimInstance/StatAnimInstance.h"
 
 // Sets default values
 ACharacterStat::ACharacterStat()
@@ -49,6 +49,8 @@ void ACharacterStat::BeginPlay()
     SkillCamera->SetActive(false);
     StarCamera->SetActive(false);
     ViewCamera->SetActive(true);
+
+    StatAnimInstance = Cast<UStatAnimInstance>(GetMesh()->GetAnimInstance());
 }
 
 // Called every frame
@@ -74,6 +76,8 @@ void ACharacterStat::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 void ACharacterStat::SwitchCameraComponent(ECharacterMenuState MenuState)
 {
 
+    if (CurMenuState == MenuState) return;
+
     switch (MenuState)
     {
     case ECharacterMenuState::Relic:
@@ -90,14 +94,16 @@ void ACharacterStat::SwitchCameraComponent(ECharacterMenuState MenuState)
         break;
     }
 
+    CurMenuState = MenuState;
+
+    PlayAnimation(MenuState);
+
     if (TargetCam)
     {
         // 목표 지점을 해당 카메라의 '상대 좌표'로 설정합니다.
         TargetLocation = TargetCam->GetRelativeLocation();
         TargetRotation = TargetCam->GetRelativeRotation();
     }
-
-
 }
 
 void ACharacterStat::ChangeCamera()
@@ -113,5 +119,47 @@ void ACharacterStat::ChangeCamera()
 
     ViewCamera->SetRelativeLocation(TargetLocation);
     ViewCamera->SetRelativeRotation(TargetRotation);
+}
+
+void ACharacterStat::SetCurrentCharacterKey(FName value)
+{
+    CurrentCharacterKey = value;
+}
+
+FName ACharacterStat::GetCurrentCharacterKey()
+{
+    return CurrentCharacterKey;
+}
+
+void ACharacterStat::PlayAnimation(ECharacterMenuState value)
+{
+    //Y 수직 X 수평
+    //1 main 정면
+    //2 relic 오른쪽 위
+    //3 skill 왼쪽 아래
+    //4 star 왼쪽 위
+
+    //Relic	Skill
+
+    //Main	Star
+
+    switch (value)
+    {
+    case ECharacterMenuState::Main:
+        StatAnimInstance->SetBlendSpace(0, 0);
+        break;
+    case ECharacterMenuState::Relic:
+        StatAnimInstance->SetBlendSpace(1, 0);
+        break;
+    case ECharacterMenuState::Skill:
+        StatAnimInstance->SetBlendSpace(0, 1);
+        break;
+    case ECharacterMenuState::Star:
+        StatAnimInstance->SetBlendSpace(1, 1);
+        break;
+    default:
+        break;
+    }
+
 }
 
