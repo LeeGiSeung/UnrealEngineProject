@@ -16,6 +16,7 @@ class UNormalDialogueWidget;
 class UChoiceDialogueWidget;
 class UAutoDialogueWidget;
 class UEnergyWidget;
+class UMinimapWidget;
 class UBaseUserWidget;
 class USoundManager;
 
@@ -67,6 +68,7 @@ public:
 
 	void SetCursorWidget(UBaseUserWidget* widget);
 	void SetEnergyWidget(UEnergyWidget* widget);
+	void SetMinimapWidget(UMinimapWidget* widget);
 
 protected:
 	UPROPERTY()
@@ -104,6 +106,9 @@ private: //DialogueWidgetList
 
 	UPROPERTY()
 	UEnergyWidget* EnergyWidget;
+
+	UPROPERTY()
+	UMinimapWidget* MinimapWidget;
 
 	UPROPERTY(EditAnywhere, Category = "DialogueWidget")
 	TMap< EDialogueUIType, TSubclassOf<UBaseDialogueWidget>> DialogueWidgetMap;

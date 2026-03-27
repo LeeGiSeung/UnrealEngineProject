@@ -43,6 +43,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
 	UCameraComponent* ViewCamera;
 
+	UFUNCTION(BlueprintCallable, Category = "Camera")
+	void SetStatFollowCamera(UCameraComponent* value);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
+	UCameraComponent* FollowCamera;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
 	UCameraComponent* RelicCamera;  
 
@@ -69,6 +75,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Camera")
 	void ChangeCamera();
+
+	void RestoreCamera();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	TMap<FName, FCharacterStatAnimaionDataTable> CharacterAnimMap;

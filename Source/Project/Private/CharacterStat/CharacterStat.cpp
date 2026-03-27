@@ -6,6 +6,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "CharacterStat/StatAnimInstance/StatAnimInstance.h"
+#include "ProjectCharacter.h"
 
 // Sets default values
 ACharacterStat::ACharacterStat()
@@ -66,7 +67,6 @@ void ACharacterStat::Tick(float DeltaTime)
 
 }
 
-// Called to bind functionality to input
 void ACharacterStat::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -106,6 +106,11 @@ void ACharacterStat::SwitchCameraComponent(ECharacterMenuState MenuState)
     }
 }
 
+void ACharacterStat::SetStatFollowCamera(UCameraComponent* value)
+{
+    FollowCamera = value;
+}
+
 void ACharacterStat::ChangeCamera()
 {
     AProjectPlayerController* PC = Cast<AProjectPlayerController>(GetWorld()->GetFirstPlayerController());
@@ -119,6 +124,48 @@ void ACharacterStat::ChangeCamera()
 
     ViewCamera->SetRelativeLocation(TargetLocation);
     ViewCamera->SetRelativeRotation(TargetRotation);
+
+    // 1. 카메라 전환 로직 (기존 코드)
+    PC->SetViewTargetWithBlend(this, 0.f, VTBlend_Cubic);
+
+    // 2. 마우스 커서 활성화
+    PC->bShowMouseCursor = true;
+
+    // 3. 입력 모드 설정 (UI와 게임 모두 상호작용 가능하게 설정)
+    // 게임 조작을 완전히 막으려면 FInputModeUIOnly를 사용하세요.
+    FInputModeGameAndUI InputMode;
+    InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+    PC->SetInputMode(InputMode);
+
+    ViewCamera->SetActive(true);
+
+    SwitchCameraComponent(ECharacterMenuState::Main); //Main으로 초기화
+
+}
+
+void ACharacterStat::RestoreCamera()
+{
+    AProjectPlayerController* PC = Cast<AProjectPlayerController>(GetWorld()->GetFirstPlayerController());
+
+    if (PC)
+    {
+        
+        ViewCamera->SetActive(false);
+        // 1. 다시 플레이어 캐릭터(this)를 바라보게 설정 (0.5초 동안 부드럽게 복귀)
+        // 즉시 돌아가고 싶다면 0.f를 사용하세요.
+        PC->SetViewTargetWithBlend(Cast<AProjectCharacter>(PC->GetPawn()), 0.0f, VTBlend_Cubic);
+
+        // 2. 마우스 커서 숨기기
+        PC->bShowMouseCursor = false;
+
+        // 3. 입력 모드를 다시 게임 전용으로 변경
+        FInputModeGameOnly InputMode;
+        PC->SetInputMode(InputMode);
+    }
+
+    if (FollowCamera) {
+        FollowCamera->SetActive(true);
+    }
 }
 
 void ACharacterStat::SetCurrentCharacterKey(FName value)
@@ -162,4 +209,3 @@ void ACharacterStat::PlayAnimation(ECharacterMenuState value)
     }
 
 }
-

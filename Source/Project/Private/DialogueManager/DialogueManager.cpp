@@ -14,6 +14,7 @@
 #include "DialogueWidget/AutoDialogueWidget/AutoDialogueWidget.h"
 #include "BaseUserWidget.h"
 #include "Energy/EnergyWidget.h"
+#include "DialogueWidget/MinimapWidget/MinimapWidget.h"
 #include "DialogueWidget/BaseDialogueWidget.h"
 
 //#SoundManager
@@ -403,9 +404,10 @@ void ADialogueManager::EndDialogue()
 
 void ADialogueManager::SaveAndRemoveAllWidgets()
 {
-	if (CursorWidget && EnergyWidget) {
+	if (CursorWidget && EnergyWidget && MinimapWidget) {
 		CursorWidget->SetVisibility(ESlateVisibility::Collapsed);
 		EnergyWidget->SetVisibility(ESlateVisibility::Collapsed);
+		MinimapWidget->SetVisibility(ESlateVisibility::Collapsed);
 		return;
 	}
 	else {
@@ -417,9 +419,10 @@ void ADialogueManager::SaveAndRemoveAllWidgets()
 
 void ADialogueManager::ShowAllWidget()
 {
-	if (CursorWidget && EnergyWidget) {
+	if (CursorWidget && EnergyWidget && MinimapWidget) {
 		CursorWidget->SetVisibility(ESlateVisibility::Visible);
 		EnergyWidget->SetVisibility(ESlateVisibility::Visible);
+		MinimapWidget->SetVisibility(ESlateVisibility::Visible);
 		return;
 	}
 	else {
@@ -462,4 +465,10 @@ void ADialogueManager::SetCursorWidget(UBaseUserWidget* widget) {
 void ADialogueManager::SetEnergyWidget(UEnergyWidget* widget) {
 	if (EnergyWidget) return;
 	EnergyWidget = widget;
+}
+
+void ADialogueManager::SetMinimapWidget(UMinimapWidget* widget)
+{
+	if (MinimapWidget) return;
+	MinimapWidget = widget;
 }

@@ -14,6 +14,7 @@ class UInputMappingContext;
 class UInputAction;
 class AProjectPlayerController;
 class UBaseAnimInstance;
+class UMinimapWidget;
 
 struct FInputActionValue;
 
@@ -198,5 +199,9 @@ public:
 
 	void SetOffClimbTrue();
 	bool bOffClimb = true;
+
+//#MinimapWidget
+	UPROPERTY(EditAnywhere, BlueprintReadWrite ,Category = "MinimapWidget")
+	UMinimapWidget* MinimapWidget;
 };
 

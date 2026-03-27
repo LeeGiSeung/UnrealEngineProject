@@ -42,6 +42,7 @@
 //DialogueManager
 #include "DialogueManager/DialogueManager.h"
 #include "BaseUserWidget.h"
+#include "DialogueWidget/MinimapWidget/MinimapWidget.h"
 
 //Model
 #include "Misc/FileHelper.h"
@@ -58,6 +59,8 @@
 //PlayerStat
 #include "CharacterStat/CharacterStat.h"
 #include "ECharacterMenuState/ECharacterMenuState.h"
+#include "CharacterStat/CharacterStatWidget/WindowWidget/WindowWidget.h"
+
 using namespace UE::NNE;
 
 AProjectPlayerController::AProjectPlayerController()
@@ -1033,6 +1036,20 @@ void AProjectPlayerController::SetEnergyWidget(UEnergyWidget* widget)
     DialogueManager->SetEnergyWidget(EnergyWidget);
 }
 
+void AProjectPlayerController::SetMinimapWidget(UMinimapWidget* widget)
+{
+    if (!DialogueManager) {
+        for (TActorIterator<ADialogueManager> It(GetWorld()); It; ++It)
+        {
+            DialogueManager = *It;
+            break;
+        }
+    }
+
+    MinimapWidget = widget;
+    DialogueManager->SetMinimapWidget(MinimapWidget);
+}
+
 
 void AProjectPlayerController::StartCrouchBack()
 {
@@ -1154,11 +1171,28 @@ bool AProjectPlayerController::IsSameShape( const FString& PlayerImagePath, floa
 
 void AProjectPlayerController::CharacterStatusWindow()
 {
-    CharacterStat->ChangeCamera();
+    bCharacterStat = !bCharacterStat;
+
+    if (bCharacterStat) {
+        WindowWidget->SetVisibility(ESlateVisibility::Visible);
+        CharacterStat->SetStatFollowCamera(FollowCamera);
+        CharacterStat->ChangeCamera();
+        DialogueManager->SaveAndRemoveAllWidgets();
+    }
+    else {
+        CharacterStat->RestoreCamera();
+        DialogueManager->ShowAllWidget();
+        WindowWidget->SetVisibility(ESlateVisibility::Collapsed);
+    }
 }
 
 void AProjectPlayerController::TestStatusWindow(ECharacterMenuState value) {
     CharacterStat->SwitchCameraComponent(value);
+}
+
+void AProjectPlayerController::SetFollowCamera(UCameraComponent* value)
+{
+    FollowCamera = value;
 }
 
 bool AProjectPlayerController::RunONNX(const FString& ImagePath, TArray<float>& OutFeature)

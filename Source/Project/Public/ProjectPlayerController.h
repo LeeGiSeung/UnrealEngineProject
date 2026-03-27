@@ -36,6 +36,8 @@ class UBaseUserWidget;
 class UNNEModelData;
 class NNE;
 class ACharacterStat;
+class UMinimapWidget;
+class UWindowWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActionTriggered);
 
@@ -110,6 +112,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void SetEnergyWidget(UEnergyWidget* widget);
 
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void SetMinimapWidget(UMinimapWidget* widget);
 
 	void RegisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor);
 	void UnregisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor);
@@ -134,6 +138,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TObjectPtr<UEnergyWidget> EnergyWidget;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TObjectPtr<UMinimapWidget> MinimapWidget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DrawingObject")
 	TSubclassOf<UFWidget> InteractWidgetClass;
@@ -340,4 +347,13 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "CharacterStatus")
 	ACharacterStat* CharacterStat;
+
+	bool bCharacterStat = false;
+
+	void SetFollowCamera(UCameraComponent* value);
+
+	UCameraComponent* FollowCamera;
+
+	UPROPERTY(BlueprintReadWrite, Category = "CharacterStatus")
+	UWindowWidget* WindowWidget;
 };

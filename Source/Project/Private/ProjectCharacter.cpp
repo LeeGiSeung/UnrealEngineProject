@@ -15,6 +15,7 @@
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 #include "BaseAnimInstance.h"
+#include "DialogueWidget/MinimapWidget/MinimapWidget.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -98,6 +99,14 @@ void AProjectCharacter::BeginPlay()
 	if (GetCharacterMovement())
 	{
 		DefaultBrakingDecelerationFlying = GetCharacterMovement()->BrakingDecelerationFlying;
+	}
+
+	if (MinimapWidget) {
+		PlayerController->SetMinimapWidget(MinimapWidget);
+		PlayerController->SetFollowCamera(FollowCamera);
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("MinimapWidget No PlayerCharacter"));
 	}
 
 }
