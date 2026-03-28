@@ -6,6 +6,8 @@
 #include "CharacterStat/CharacterStatWidget/BaseWidget/BaseWidget.h"
 #include "MainWidget.generated.h"
 
+class UTextBlock;
+
 /**
  * 
  */
@@ -13,5 +15,29 @@ UCLASS()
 class PROJECT_API UMainWidget : public UBaseWidget
 {
 	GENERATED_BODY()
-	
+
+public:
+	virtual void UpdateCharacterData() override;
+
+	virtual void NativeConstruct() override;
+
+public:
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* HP_Content;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* Attack_Content;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* Defence_Content;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* Force_Content;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* Critical_Content;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* CriticalDamage_Content;
+
 };
