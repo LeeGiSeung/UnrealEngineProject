@@ -13,5 +13,8 @@ UCLASS()
 class PROJECT_API UStarWidget : public UBaseWidget
 {
 	GENERATED_BODY()
-	
+
+public:
+
+
 };

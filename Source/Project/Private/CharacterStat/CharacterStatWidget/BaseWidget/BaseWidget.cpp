@@ -4,11 +4,6 @@
 #include "CharacterStat/CharacterStatWidget/BaseWidget/BaseWidget.h"
 #include "Components/TextBlock.h"
 
-void UBaseWidget::UpdateCharacterData()
-{
-	UE_LOG(LogTemp, Error, TEXT("CharacterData Update"));
-}
-
 void UBaseWidget::WidgetSetText(UTextBlock* Target, float Value)
 {
 

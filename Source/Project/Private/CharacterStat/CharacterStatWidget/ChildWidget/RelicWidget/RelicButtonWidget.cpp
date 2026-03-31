@@ -2,4 +2,12 @@
 
 
 #include "CharacterStat/CharacterStatWidget/ChildWidget/RelicWidget/RelicButtonWidget.h"
+#include "Components/Image.h"
 
+void URelicButtonWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+
+
+}

@@ -14,7 +14,7 @@ class PROJECT_API UBaseWidget : public UUserWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void UpdateCharacterData();
+	virtual void UpdateCharacterData() {}
 
 	virtual void WidgetSetText(UTextBlock* Target, float Value);
 	virtual void WidgetSetText(UTextBlock* Target, float Value, FString etc);

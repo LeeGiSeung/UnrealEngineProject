@@ -13,5 +13,11 @@ UCLASS()
 class PROJECT_API URelicWidget : public UBaseWidget
 {
 	GENERATED_BODY()
-	
+
+public:
+
+	virtual void NativeConstruct() override;
+
+
+
 };

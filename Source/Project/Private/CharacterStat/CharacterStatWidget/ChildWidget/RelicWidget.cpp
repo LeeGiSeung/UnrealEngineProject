@@ -3,3 +3,11 @@
 
 #include "CharacterStat/CharacterStatWidget/ChildWidget/RelicWidget.h"
 
+
+void URelicWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+
+
+}

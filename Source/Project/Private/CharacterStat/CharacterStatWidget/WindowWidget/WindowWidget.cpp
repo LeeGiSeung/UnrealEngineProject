@@ -11,9 +11,6 @@ void UWindowWidget::NativeConstruct()
 
 	CharacterStat = Cast<ACharacterStat>(UGameplayStatics::GetActorOfClass(GetWorld(), ACharacterStat::StaticClass()));
 
-	if (!CharacterStat)
-		UE_LOG(LogTemp, Error, TEXT("NO STAT"));
-
 }
 
 void UWindowWidget::ChangeWindowWidget(ECharacterMenuState MenuState)

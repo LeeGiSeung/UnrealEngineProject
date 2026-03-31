@@ -15,6 +15,6 @@ public class Project : ModuleRules
         "NNERuntimeORTCpu",
             "ImageWrapper",
     "RenderCore",
-        "ImageCore"});
+        "ImageCore","Http", "Json", "JsonUtilities"});
 	}
 }
