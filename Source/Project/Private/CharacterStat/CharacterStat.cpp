@@ -8,6 +8,9 @@
 #include "CharacterStat/StatAnimInstance/StatAnimInstance.h"
 #include "ProjectCharacter.h"
 
+//Server
+#include "JsonObjectConverter.h"
+
 // Sets default values
 ACharacterStat::ACharacterStat()
 {

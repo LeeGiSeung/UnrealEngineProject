@@ -9,6 +9,11 @@
 #include "Interfaces/IHttpResponse.h"
 #include "HttpModule.h"
 
+//Server
+#include "Interfaces/IHttpRequest.h"
+#include "Interfaces/IHttpResponse.h"
+#include "HttpModule.h
+
 #include "SkillWidget.generated.h"
 
 class USkillButtonWidget;

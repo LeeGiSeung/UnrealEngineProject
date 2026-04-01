@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "ECharacterMenuState/ECharacterMenuState.h"
 #include "FCharacterStatAnimaionDataTable/FCharacterStatAnimaionDataTable.h"
+#include "Serverinfo/FCharacterDataWrapper/FCharacterDataWrapper.h"
+
 #include "CharacterStat.generated.h"
 
 class UCameraComponent;
@@ -16,6 +18,11 @@ UCLASS()
 class PROJECT_API ACharacterStat : public ACharacter
 {
 	GENERATED_BODY()
+
+//Server
+public:
+	UPROPERTY()
+	FCharacterDataWrapper CharacterDataWrapper;
 
 public:
 	// Sets default values for this character's properties
