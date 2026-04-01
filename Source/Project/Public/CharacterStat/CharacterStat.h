@@ -8,6 +8,11 @@
 #include "FCharacterStatAnimaionDataTable/FCharacterStatAnimaionDataTable.h"
 #include "Serverinfo/FCharacterDataWrapper/FCharacterDataWrapper.h"
 
+//Server
+#include "Interfaces/IHttpRequest.h"
+#include "Interfaces/IHttpResponse.h"
+#include "HttpModule.h"
+
 #include "CharacterStat.generated.h"
 
 class UCameraComponent;
@@ -23,6 +28,9 @@ class PROJECT_API ACharacterStat : public ACharacter
 public:
 	UPROPERTY()
 	FCharacterDataWrapper CharacterDataWrapper;
+
+	void SetBeginServerData();
+	void OnCharacterDataReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
 public:
 	// Sets default values for this character's properties

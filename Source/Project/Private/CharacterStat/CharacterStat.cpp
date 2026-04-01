@@ -11,6 +11,40 @@
 //Server
 #include "JsonObjectConverter.h"
 
+void ACharacterStat::SetBeginServerData()
+{
+    // Http 모듈 싱글톤 인스턴스 가져오기
+    FHttpModule* Http = &FHttpModule::Get();
+
+    if (Http)
+    {
+        TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
+
+        // ... 이후 URL 세팅 및 요청 로직
+        Request->SetURL(TEXT("https://a57b9c47-8b8e-42fc-8204-e424bd476fe0.mock.pstmn.io/CharacterData"));
+        Request->SetVerb(TEXT("GET"));
+        // BindUObject를 사용하고, 인자가 포함된 함수를 연결합니다.
+        Request->OnProcessRequestComplete().BindUObject(this, &ACharacterStat::OnCharacterDataReceived);
+
+        Request->ProcessRequest();
+    }
+    else {
+        UE_LOG(LogTemp, Error, TEXT("NO HTTP"));
+    }
+}
+
+void ACharacterStat::OnCharacterDataReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+    if (bWasSuccessful && Response.IsValid())
+    {
+        UE_LOG(LogTemp, Log, TEXT("Success: %s"), *Response->GetContentAsString());
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Request Failed"));
+    }
+}
+
 // Sets default values
 ACharacterStat::ACharacterStat()
 {
@@ -55,6 +89,8 @@ void ACharacterStat::BeginPlay()
     ViewCamera->SetActive(true);
 
     StatAnimInstance = Cast<UStatAnimInstance>(GetMesh()->GetAnimInstance());
+
+    SetBeginServerData();
 }
 
 // Called every frame

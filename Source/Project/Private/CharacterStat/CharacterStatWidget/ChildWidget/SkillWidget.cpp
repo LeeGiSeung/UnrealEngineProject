@@ -101,6 +101,8 @@ void USkillWidget::UpdateWithServerData(const FSkillInfo& Data)
 
 void USkillWidget::RequestSkillDataFromServer()
 {
+    return;
+
     // Http 모듈 싱글톤 인스턴스 가져오기
     FHttpModule* Http = &FHttpModule::Get();
 

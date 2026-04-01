@@ -16,11 +16,21 @@ struct FCharacterDataWrapper : public FTableRowBase
 {
 	GENERATED_BODY()
 
+	UPROPERTY()
+	FString CharacterId;
+
+	UPROPERTY()
+	FString CharacterName;
+
+	UPROPERTY()
 	FMaininfo Maininfo;
 
+	UPROPERTY()
 	FRelicinfo Relicinfo;
 
+	UPROPERTY()
 	FSkillInfo SkillInfo;
-
+	
+	UPROPERTY()
 	FStarinfo StarInfo;
 };
