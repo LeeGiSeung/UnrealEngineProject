@@ -28,7 +28,7 @@ public:
 
 //#Server
 public:
-	FSkillInfo ServerData;
+	FSkillInfo SkillData;
 
 	void OnSkillDataReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 	void UpdateWithServerData(const FSkillInfo& Data);

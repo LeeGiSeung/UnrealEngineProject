@@ -15,15 +15,14 @@ void UMainWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	float a = 240;
+}
 
-	WidgetSetText(HP_Content, 6521);
-	WidgetSetText(Attack_Content, 2700);
-	WidgetSetText(Defence_Content, 1200);
-	WidgetSetText(Force_Content, 130, FString("%"));
-	WidgetSetText(Critical_Content, 87, FString("%"));
-	WidgetSetText(CriticalDamage_Content, a, FString("%"));
-
-
-
+void UMainWidget::UpdateWithServerData(const FMaininfo& Data)
+{
+	WidgetSetText(HP_Content, Data.HP);
+	WidgetSetText(Attack_Content, Data.Attack);
+	WidgetSetText(Defence_Content, Data.Defence);
+	WidgetSetText(Force_Content, Data.Force, FString("%"));
+	WidgetSetText(Critical_Content, Data.Critical, FString("%"));
+	WidgetSetText(CriticalDamage_Content, Data.CriticalDamage, FString("%"));
 }

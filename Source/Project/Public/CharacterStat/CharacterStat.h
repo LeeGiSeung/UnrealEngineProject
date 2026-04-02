@@ -19,6 +19,11 @@ class UCameraComponent;
 class USpringArmComponent;
 class UStatAnimInstance;
 
+class USkillWidget;
+class URelicWidget;
+class UStarWidget;
+class UMainWidget;
+
 UCLASS()
 class PROJECT_API ACharacterStat : public ACharacter
 {
@@ -31,6 +36,20 @@ public:
 
 	void SetBeginServerData();
 	void OnCharacterDataReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+
+	UPROPERTY()
+	USkillWidget* SkillWidget;
+
+	UPROPERTY()
+	URelicWidget* RelicWidget;
+
+	UPROPERTY()
+	UStarWidget* StarWidget;
+
+	UPROPERTY()
+	UMainWidget* MainWidget;
+
+	void FindWidgetClass(USkillWidget* Skill, UMainWidget* Main, URelicWidget* Relic, UStarWidget* Star);
 
 public:
 	// Sets default values for this character's properties

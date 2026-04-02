@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "CharacterStat/CharacterStatWidget/BaseWidget/BaseWidget.h"
+#include "ServerInfo/Starinfo/FStarinfo.h"
+
 #include "StarWidget.generated.h"
 
 /**
@@ -15,6 +17,6 @@ class PROJECT_API UStarWidget : public UBaseWidget
 	GENERATED_BODY()
 
 public:
-
+	void UpdateWithServerData(const FStarinfo& Data);
 
 };

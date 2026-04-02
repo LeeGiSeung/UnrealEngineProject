@@ -3,3 +3,7 @@
 
 #include "CharacterStat/CharacterStatWidget/ChildWidget/StarWidget.h"
 
+void UStarWidget::UpdateWithServerData(const FStarinfo& Data)
+{
+		
+}

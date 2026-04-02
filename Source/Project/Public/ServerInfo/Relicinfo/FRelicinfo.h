@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Engine/Datatable.h"
+#include "ServerInfo/Relicinfo/RelicData.h"
+
 #include "FRelicinfo.generated.h"
 
 USTRUCT(BlueprintType)
@@ -12,18 +14,18 @@ struct FRelicinfo : public FTableRowBase {
 	GENERATED_BODY()
 
 	UPROPERTY()
-	FName Part_1;
+	FRelicData Part_0;
 
 	UPROPERTY()
-	FName Part_2;
+	FRelicData Part_1;
 
 	UPROPERTY()
-	FName Part_3;
+	FRelicData Part_2;
 
 	UPROPERTY()
-	FName Part_4;
+	FRelicData Part_3;
 
 	UPROPERTY()
-	FName Part_5;
+	FRelicData Part_4;
 
 };

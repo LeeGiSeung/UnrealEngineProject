@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "CharacterStat/CharacterStatWidget/BaseWidget/BaseWidget.h"
+#include "ServerInfo/MainInfo/FMaininfo.h"
+
+
 #include "MainWidget.generated.h"
 
 class UTextBlock;
@@ -20,6 +23,8 @@ public:
 	virtual void UpdateCharacterData() override;
 
 	virtual void NativeConstruct() override;
+
+	void UpdateWithServerData(const FMaininfo& Data);
 
 public:
 	UPROPERTY(meta = (BindWidget))

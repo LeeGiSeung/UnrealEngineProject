@@ -11,6 +11,13 @@
 //Server
 #include "JsonObjectConverter.h"
 
+//Widget
+#include "CharacterStat/CharacterStatWidget/ChildWidget/SkillWidget.h"
+#include "CharacterStat/CharacterStatWidget/ChildWidget/MainWidget.h"
+#include "CharacterStat/CharacterStatWidget/ChildWidget/RelicWidget.h"
+#include "CharacterStat/CharacterStatWidget/ChildWidget/StarWidget.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
+
 void ACharacterStat::SetBeginServerData()
 {
     // Http 모듈 싱글톤 인스턴스 가져오기
@@ -37,12 +44,52 @@ void ACharacterStat::OnCharacterDataReceived(FHttpRequestPtr Request, FHttpRespo
 {
     if (bWasSuccessful && Response.IsValid())
     {
-        UE_LOG(LogTemp, Log, TEXT("Success: %s"), *Response->GetContentAsString());
+        //UE_LOG(LogTemp, Log, TEXT("Success: %s"), *Response->GetContentAsString());
     }
-    else
+
+    if (!SkillWidget || !MainWidget || !StarWidget || !RelicWidget) {
+        UE_LOG(LogTemp, Error, TEXT("No Widget"), *Response->GetContentAsString());
+        return;
+    }
+
+    // 2. 서버에서 보낸 문자열 가져오기
+    FString JsonString = Response->GetContentAsString();
+    //UE_LOG(LogTemp, Log, TEXT("Server JSON: %s"), *JsonString);
+
+    // 3. JSON 문자열을 구조체로 변환 (역직렬화)
+    FCharacterDataWrapper RawData;
+
+    // TJsonReader를 생성하여 파싱 준비
+    TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
+    TSharedPtr<FJsonObject> JsonObject;
+
+    if (FJsonSerializer::Deserialize(Reader, JsonObject) && JsonObject.IsValid())
     {
-        UE_LOG(LogTemp, Error, TEXT("Request Failed"));
+        // JsonObjectConverter를 사용하면 한 줄로 구조체에 값이 담깁니다.
+        if (FJsonObjectConverter::JsonObjectToUStruct(JsonObject.ToSharedRef(), FCharacterDataWrapper::StaticStruct(), &RawData, 0, 0))
+        {
+            SkillWidget->UpdateWithServerData(RawData.SkillInfo);
+            StarWidget->UpdateWithServerData(RawData.StarInfo);
+            RelicWidget->UpdateWithServerData(RawData.Relicinfo);
+            MainWidget->UpdateWithServerData(RawData.Maininfo);
+        }
+        else {
+            UE_LOG(LogTemp, Error, TEXT("Faild JsonObjectToUStruct!"), *JsonString);
+        }
     }
+    else {
+        UE_LOG(LogTemp, Error, TEXT("Faild Deserialize!"), *JsonString);
+    }
+}
+
+void ACharacterStat::FindWidgetClass(USkillWidget* Skill, UMainWidget* Main, URelicWidget* Relic, UStarWidget* Star)
+{
+    SkillWidget = Skill;
+    MainWidget = Main;
+    RelicWidget = Relic;
+    StarWidget = Star;
+
+    SetBeginServerData();
 }
 
 // Sets default values
@@ -89,8 +136,6 @@ void ACharacterStat::BeginPlay()
     ViewCamera->SetActive(true);
 
     StatAnimInstance = Cast<UStatAnimInstance>(GetMesh()->GetAnimInstance());
-
-    SetBeginServerData();
 }
 
 // Called every frame

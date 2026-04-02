@@ -8,6 +8,10 @@
 #include "WindowWidget.generated.h"
 
 class ACharacterStat;
+class USkillWidget;
+class URelicWidget;
+class UStarWidget;
+class UMainWidget;
 
 /**
  * 
@@ -25,4 +29,17 @@ public:
 
 	UPROPERTY()
 	ACharacterStat* CharacterStat;
+
+	UPROPERTY(meta = (BindWidget))
+	USkillWidget* BP_SkillWidget;
+
+	UPROPERTY(meta = (BindWidget))
+	UMainWidget* BP_MainWidget;
+
+	UPROPERTY(meta = (BindWidget))
+	UStarWidget* BP_StarWidget;
+
+	UPROPERTY(meta = (BindWidget))
+	URelicWidget* BP_RelicWidget;
+
 };

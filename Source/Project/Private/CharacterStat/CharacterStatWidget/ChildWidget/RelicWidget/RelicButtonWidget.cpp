@@ -11,3 +11,12 @@ void URelicButtonWidget::NativeConstruct()
 
 
 }
+
+void URelicButtonWidget::SetRelicImage(UTexture2D* Image)
+{
+	if (!Image) {
+		UE_LOG(LogTemp, Error, TEXT("NO RELIC IMAGE"));
+		return;
+	}
+	RelicImage->SetBrushFromTexture(Image);
+}

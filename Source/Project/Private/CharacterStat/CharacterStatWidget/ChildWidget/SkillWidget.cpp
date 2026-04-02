@@ -31,14 +31,16 @@ void USkillWidget::UpdateCharacterData()
 {
 	Super::UpdateCharacterData();
 
-	if (AutoAttackWidget) AutoAttackWidget->SettingSkillLevel(ServerData.AutoAttackLevel);
-	if (EAttackWidget)    EAttackWidget->SettingSkillLevel(ServerData.EAttackLevel);
-	if (RAttackWidget)    RAttackWidget->SettingSkillLevel(ServerData.RAttackLevel);
-	if (PAttackWidget)    PAttackWidget->SettingSkillLevel(ServerData.PAttackLevel);
+	if (AutoAttackWidget) AutoAttackWidget->SettingSkillLevel(SkillData.AutoAttackLevel);
+	if (EAttackWidget)    EAttackWidget->SettingSkillLevel(SkillData.EAttackLevel);
+	if (RAttackWidget)    RAttackWidget->SettingSkillLevel(SkillData.RAttackLevel);
+	if (PAttackWidget)    PAttackWidget->SettingSkillLevel(SkillData.PAttackLevel);
 }
 
 void USkillWidget::OnSkillDataReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
+    return;
+
     // 1. 통신 성공 여부 확인
     if (!bWasSuccessful || !Response.IsValid())
     {
@@ -101,7 +103,6 @@ void USkillWidget::UpdateWithServerData(const FSkillInfo& Data)
 
 void USkillWidget::RequestSkillDataFromServer()
 {
-    return;
 
     // Http 모듈 싱글톤 인스턴스 가져오기
     FHttpModule* Http = &FHttpModule::Get();

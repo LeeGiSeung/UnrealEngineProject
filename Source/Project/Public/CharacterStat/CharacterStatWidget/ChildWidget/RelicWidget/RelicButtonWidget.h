@@ -7,6 +7,7 @@
 #include "RelicButtonWidget.generated.h"
 
 class UImage;
+class UTexture2D;
 
 /**
  * 
@@ -19,6 +20,8 @@ class PROJECT_API URelicButtonWidget : public UBaseWidget
 public:
 
 	virtual void NativeConstruct() override;
+
+	void SetRelicImage(UTexture2D* Image);
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* RelicImage;
