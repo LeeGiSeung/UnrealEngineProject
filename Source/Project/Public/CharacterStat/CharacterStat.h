@@ -37,6 +37,9 @@ public:
 	void SetBeginServerData();
 	void OnCharacterDataReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
+	void SendSkillUpgradeToServer(const FSkillInfo& NewSkillInfo);
+	void OnSkillUpgradeResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+
 	UPROPERTY()
 	USkillWidget* SkillWidget;
 

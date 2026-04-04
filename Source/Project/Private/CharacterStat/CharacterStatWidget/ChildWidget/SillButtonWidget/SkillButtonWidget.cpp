@@ -5,17 +5,27 @@
 #include "CharacterStat/CharacterStatWidget/ChildWidget/SkillWidget.h"
 #include "Components/Image.h"
 
+void USkillButtonWidget::SetSkillDataKey(FString value)
+{
+	SkillDataKey = value;
+}
+
+FString USkillButtonWidget::GetSkillDataKey()
+{
+	return SkillDataKey;
+}
+
 void USkillButtonWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 }
 
-void USkillButtonWidget::SettingSkillLevel(int value, USkillWidget* _SkillWidget)
+void USkillButtonWidget::SettingSkillLevel(int value)
 {
 
-	SkillWidget = _SkillWidget;
+	SettingNodeImage(true);
 
-	CurSkillLevel = FMath::Clamp(value,1,MaxSkillLevel);
+	CurSkillLevel = FMath::Clamp(value, 1, MaxSkillLevel);
 
 	ChangeSkillText();
 
@@ -34,11 +44,9 @@ void USkillButtonWidget::ChangeSkillText()
 	}
 }
 
-void USkillButtonWidget::SettingNodeImage(bool value, USkillWidget* _SkillWidget)
+void USkillButtonWidget::SettingNodeImage(bool value)
 {
 	UClass* CurrentClass = GetClass();
-
-	SkillWidget = _SkillWidget;
 
 	if (CurrentClass) {
 		FString ClassName = CurrentClass->GetName();
@@ -53,19 +61,20 @@ void USkillButtonWidget::SettingNodeImage(bool value, USkillWidget* _SkillWidget
 	}
 }
 
-void USkillButtonWidget::SettingSkillImage(UTexture2D* texture, USkillWidget* _SkillWidget)
+void USkillButtonWidget::SettingSkillImage(UTexture2D* texture)
 {
-	SkillWidget = _SkillWidget;
 
 	SkillImage->SetBrushFromTexture(texture);
 }
 
+void USkillButtonWidget::SettingSkillWidget(USkillWidget* value)
+{
+	SkillWidget = value;
+}
+
 void USkillButtonWidget::SelectButton()
 {
-	if (!SkillWidget) {
-		UE_LOG(LogTemp, Error, TEXT("NO SkillWidget"));
-	}
-	else {
-		UE_LOG(LogTemp, Error, TEXT("YES SkillWidget"));
-	}
+	if (!SkillWidget) return;
+
+	SkillWidget->RecoardSkillButtonWidget(this);
 }

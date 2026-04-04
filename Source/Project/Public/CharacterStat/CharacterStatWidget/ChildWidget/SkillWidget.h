@@ -38,13 +38,13 @@ public:
 	UPROPERTY()
 	USkillButtonWidget* LastRecoardSkillButtonWidget;
 
+	UPROPERTY()
+	FSkillInfo skillInfo;
+
 //#Server
 public:
-	FSkillInfo SkillData;
 
-	void OnSkillDataReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 	void UpdateWithServerData(const FSkillInfo& Data);
-	void RequestSkillDataFromServer();
 
 	UFUNCTION(BlueprintCallable, Category = "Post")
 	void TestGet();

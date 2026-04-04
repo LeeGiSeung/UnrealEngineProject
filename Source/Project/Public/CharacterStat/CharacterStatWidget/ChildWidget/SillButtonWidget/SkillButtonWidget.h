@@ -23,13 +23,24 @@ class PROJECT_API USkillButtonWidget : public UBaseWidget
 
 public:
 
+	void SetSkillDataKey(FString value);
+	FString GetSkillDataKey();
+
+	FString SkillDataKey;
+
 	virtual void NativeConstruct() override;
 
 	void ChangeSkillText();
 
-	void SettingSkillLevel(int value, USkillWidget* SkillWidget);
-	void SettingNodeImage(bool value, USkillWidget* SkillWidget);
-	void SettingSkillImage(UTexture2D* texture, USkillWidget* SkillWidget);
+	void SettingSkillLevel(int value);
+	int GetSkillLevel() {
+		return CurSkillLevel
+			;
+	}
+	void SettingNodeImage(bool value);
+	void SettingSkillImage(UTexture2D* texture);
+
+	void SettingSkillWidget(USkillWidget* value);
 
 	UFUNCTION(BlueprintCallable, Category = "SkillLevel")
 	void SelectButton();

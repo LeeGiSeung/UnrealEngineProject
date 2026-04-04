@@ -3,6 +3,7 @@
 
 #include "CharacterStat/CharacterStatWidget/ChildWidget/SkillWidget.h"
 #include "CharacterStat/CharacterStatWidget/ChildWidget/SillButtonWidget/SkillButtonWidget.h"
+#include "CharacterStat/CharacterStat.h"
 
 //#Server
 #include "JsonObjectConverter.h"
@@ -15,15 +16,54 @@ void USkillWidget::NativeConstruct()
 
 	if (!AutoAttackWidget || !EAttackWidget || !RAttackWidget || !PAttackWidget) return;
 
-	AutoAttackWidget->SettingSkillImage(AutoAttackImage, this);
+	AutoAttackWidget->SettingSkillImage(AutoAttackImage);
 	
-	EAttackWidget->SettingSkillImage(EAttackImage, this);
+	EAttackWidget->SettingSkillImage(EAttackImage);
 
-	RAttackWidget->SettingSkillImage(RAttackImage, this);
+	RAttackWidget->SettingSkillImage(RAttackImage);
 
-	PAttackWidget->SettingSkillImage(PAttackImage, this);
+	PAttackWidget->SettingSkillImage(PAttackImage);
 
-    RequestSkillDataFromServer();
+    AutoAttackWidget->SettingSkillWidget(this);
+    EAttackWidget->SettingSkillWidget(this);
+    RAttackWidget->SettingSkillWidget(this);
+    PAttackWidget->SettingSkillWidget(this);
+
+    Auto_0->SettingSkillWidget(this);
+    Auto_1->SettingSkillWidget(this);
+    Auto_2->SettingSkillWidget(this);
+
+    E_0->SettingSkillWidget(this);
+    E_1->SettingSkillWidget(this);
+    E_2->SettingSkillWidget(this);
+
+    P_0->SettingSkillWidget(this);
+    P_1->SettingSkillWidget(this);
+    P_2->SettingSkillWidget(this);
+
+    R_0->SettingSkillWidget(this);
+    R_1->SettingSkillWidget(this);
+    R_2->SettingSkillWidget(this);
+
+    AutoAttackWidget->SetSkillDataKey(TEXT("AutoAttackLevel"));
+    Auto_0->SetSkillDataKey(TEXT("AutoAttackNode_0"));
+    Auto_1->SetSkillDataKey(TEXT("AutoAttackNode_1"));
+    Auto_2->SetSkillDataKey(TEXT("AutoAttackNode_2"));
+
+    EAttackWidget->SetSkillDataKey(TEXT("EAttackLevel"));
+    E_0->SetSkillDataKey(TEXT("EAttackNode_0"));
+    E_1->SetSkillDataKey(TEXT("EAttackNode_1"));
+    E_2->SetSkillDataKey(TEXT("EAttackNode_2"));
+
+    RAttackWidget->SetSkillDataKey(TEXT("RAttackLevel"));
+    R_0->SetSkillDataKey(TEXT("RAttackNode_0"));
+    R_1->SetSkillDataKey(TEXT("RAttackNode_1"));
+    R_2->SetSkillDataKey(TEXT("RAttackNode_2"));
+
+    PAttackWidget->SetSkillDataKey(TEXT("PAttackLevel"));
+    P_0->SetSkillDataKey(TEXT("PAttackNode_0"));
+    P_1->SetSkillDataKey(TEXT("PAttackNode_1"));
+    P_2->SetSkillDataKey(TEXT("PAttackNode_2"));
 
 }
 
@@ -31,10 +71,6 @@ void USkillWidget::UpdateCharacterData()
 {
 	Super::UpdateCharacterData();
 
-	if (AutoAttackWidget) AutoAttackWidget->SettingSkillLevel(SkillData.AutoAttackLevel, this);
-	if (EAttackWidget)    EAttackWidget->SettingSkillLevel(SkillData.EAttackLevel, this);
-	if (RAttackWidget)    RAttackWidget->SettingSkillLevel(SkillData.RAttackLevel, this);
-	if (PAttackWidget)    PAttackWidget->SettingSkillLevel(SkillData.PAttackLevel, this);
 }
 
 void USkillWidget::SkillToMainStat(FSkillInfo Data)
@@ -44,7 +80,42 @@ void USkillWidget::SkillToMainStat(FSkillInfo Data)
 
 void USkillWidget::SkillLevelUp()
 {
-    
+    if (!LastRecoardSkillButtonWidget) return;
+
+    int CurLevel = LastRecoardSkillButtonWidget->GetSkillLevel();
+
+    LastRecoardSkillButtonWidget->SettingSkillLevel(++CurLevel);
+
+    FString Key = LastRecoardSkillButtonWidget->GetSkillDataKey();
+
+    // --- Auto Attack ---
+    if (Key == TEXT("AutoAttackLevel")) { skillInfo.AutoAttackLevel++; }
+    else if (Key == TEXT("AutoAttackNode_0")) { skillInfo.AutoAttackNode_0 = true; }
+    else if (Key == TEXT("AutoAttackNode_1")) { skillInfo.AutoAttackNode_1 = true; }
+    else if (Key == TEXT("AutoAttackNode_2")) { skillInfo.AutoAttackNode_2 = true; }
+
+    // --- E Attack ---
+    else if (Key == TEXT("EAttackLevel")) { skillInfo.EAttackLevel++; }
+    else if (Key == TEXT("EAttackNode_0")) { skillInfo.EAttackkNode_0 = true; } // 구조체 오타 반영 (EAttackkNode_0)
+    else if (Key == TEXT("EAttackNode_1")) { skillInfo.EAttackNode_1 = true; }
+    else if (Key == TEXT("EAttackNode_2")) { skillInfo.EAttackNode_2 = true; }
+
+    // --- R Attack ---
+    else if (Key == TEXT("RAttackLevel")) { skillInfo.RAttackLevel++; }
+    else if (Key == TEXT("RAttackNode_0")) { skillInfo.RAttackNode_0 = true; }
+    else if (Key == TEXT("RAttackNode_1")) { skillInfo.RAttackNode_1 = true; }
+    else if (Key == TEXT("RAttackNode_2")) { skillInfo.RAttackNode_2 = true; }
+
+    // --- P Attack ---
+    else if (Key == TEXT("PAttackLevel")) { skillInfo.PAttackLevel++; }
+    else if (Key == TEXT("PAttackNode_0")) { skillInfo.PAttackNode_0 = true; }
+    else if (Key == TEXT("PAttackNode_1")) { skillInfo.PAttackNode_1 = true; }
+    else if (Key == TEXT("PAttackNode_2")) { skillInfo.PAttackNode_2 = true; }
+
+    if (CharacterStat)
+    {
+        CharacterStat->SendSkillUpgradeToServer(skillInfo);
+    }
 }
 
 void USkillWidget::RecoardSkillButtonWidget(USkillButtonWidget* value)
@@ -52,92 +123,34 @@ void USkillWidget::RecoardSkillButtonWidget(USkillButtonWidget* value)
     LastRecoardSkillButtonWidget = value;
 }
 
-void USkillWidget::OnSkillDataReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
-{
-    return;
-
-    // 1. 통신 성공 여부 확인
-    if (!bWasSuccessful || !Response.IsValid())
-    {
-        UE_LOG(LogTemp, Error, TEXT("Server Faild!"));
-        return;
-    }
-
-    // 2. 서버에서 보낸 문자열 가져오기
-    FString JsonString = Response->GetContentAsString();
-    UE_LOG(LogTemp, Log, TEXT("Server JSON: %s"), *JsonString);
-
-    // 3. JSON 문자열을 구조체로 변환 (역직렬화)
-    FSkillInfo RawData;
-
-    // TJsonReader를 생성하여 파싱 준비
-    TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
-    TSharedPtr<FJsonObject> JsonObject;
-
-    if (FJsonSerializer::Deserialize(Reader, JsonObject) && JsonObject.IsValid())
-    {
-        // JsonObjectConverter를 사용하면 한 줄로 구조체에 값이 담깁니다.
-        if (FJsonObjectConverter::JsonObjectToUStruct(JsonObject.ToSharedRef(), FSkillInfo::StaticStruct(), &RawData, 0, 0))
-        {
-            // 4. 파싱된 데이터를 위젯에 반영
-            UpdateWithServerData(RawData);
-        }
-        else {
-            UE_LOG(LogTemp, Error, TEXT("Faild JsonObjectToUStruct!"), *JsonString);
-        }
-    }
-    else {
-        UE_LOG(LogTemp, Error, TEXT("Faild Deserialize!"), *JsonString);
-    }
-}
-
 void USkillWidget::UpdateWithServerData(const FSkillInfo& Data)
 {
-    if (AutoAttackWidget) AutoAttackWidget->SettingSkillLevel(Data.AutoAttackLevel, this);
-    if (EAttackWidget)    EAttackWidget->SettingSkillLevel(Data.EAttackLevel, this);
-    if (RAttackWidget)    RAttackWidget->SettingSkillLevel(Data.RAttackLevel, this);
-    if (PAttackWidget)    PAttackWidget->SettingSkillLevel(Data.PAttackLevel, this);
 
-    Auto_0->SettingNodeImage(Data.AutoAttackNode_0, this);
-    Auto_1->SettingNodeImage(Data.AutoAttackNode_1, this);
-    Auto_2->SettingNodeImage(Data.AutoAttackNode_2, this);
+    skillInfo = Data;
 
-    E_0->SettingNodeImage(Data.EAttackkNode_0, this);
-    E_1->SettingNodeImage(Data.EAttackNode_1, this);
-    E_2->SettingNodeImage(Data.EAttackNode_2, this);
+    if (AutoAttackWidget) AutoAttackWidget->SettingSkillLevel(Data.AutoAttackLevel);
+    if (EAttackWidget)    EAttackWidget->SettingSkillLevel(Data.EAttackLevel);
+    if (RAttackWidget)    RAttackWidget->SettingSkillLevel(Data.RAttackLevel);
+    if (PAttackWidget)    PAttackWidget->SettingSkillLevel(Data.PAttackLevel);
 
-    P_0->SettingNodeImage(Data.PAttackNode_0, this);
-    P_1->SettingNodeImage(Data.PAttackNode_1, this);
-    P_2->SettingNodeImage(Data.PAttackNode_2, this);
+    Auto_0->SettingNodeImage(Data.AutoAttackNode_0);
+    Auto_1->SettingNodeImage(Data.AutoAttackNode_1);
+    Auto_2->SettingNodeImage(Data.AutoAttackNode_2);
 
-    R_0->SettingNodeImage(Data.RAttackNode_0, this);
-    R_1->SettingNodeImage(Data.RAttackNode_0, this);
-    R_2->SettingNodeImage(Data.RAttackNode_0, this);
+    E_0->SettingNodeImage(Data.EAttackkNode_0);
+    E_1->SettingNodeImage(Data.EAttackNode_1);
+    E_2->SettingNodeImage(Data.EAttackNode_2);
+
+    P_0->SettingNodeImage(Data.PAttackNode_0);
+    P_1->SettingNodeImage(Data.PAttackNode_1);
+    P_2->SettingNodeImage(Data.PAttackNode_2);
+
+    R_0->SettingNodeImage(Data.RAttackNode_0);
+    R_1->SettingNodeImage(Data.RAttackNode_1);
+    R_2->SettingNodeImage(Data.RAttackNode_2);
     
-}
-
-void USkillWidget::RequestSkillDataFromServer()
-{
-
-    // Http 모듈 싱글톤 인스턴스 가져오기
-    FHttpModule* Http = &FHttpModule::Get();
-
-    if (Http)
-    {
-        TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
-
-        // ... 이후 URL 세팅 및 요청 로직
-        Request->SetURL(TEXT("https://a57b9c47-8b8e-42fc-8204-e424bd476fe0.mock.pstmn.io/skills"));
-        Request->SetVerb(TEXT("GET"));
-        Request->OnProcessRequestComplete().BindUObject(this, &USkillWidget::OnSkillDataReceived);
-        Request->ProcessRequest();
-    }
-    else {
-        UE_LOG(LogTemp, Error, TEXT("NO HTTP"));
-    }
 }
 
 void USkillWidget::TestGet()
 {
-    RequestSkillDataFromServer();
 }

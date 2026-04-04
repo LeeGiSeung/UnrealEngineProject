@@ -20,9 +20,6 @@ void URelicWidget::NativeConstruct()
 
 void URelicWidget::UpdateWithServerData(const FRelicinfo& Data)
 {
-
-	UE_LOG(LogTemp, Error, TEXT("Spawn RelicWidget"));
-
 	SettingRelicButtonImage(Data.Part_0, 0);
 	SettingRelicButtonImage(Data.Part_1, 1);
 	SettingRelicButtonImage(Data.Part_2, 2);

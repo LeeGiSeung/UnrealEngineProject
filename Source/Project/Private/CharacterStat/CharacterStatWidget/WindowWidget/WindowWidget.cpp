@@ -16,11 +16,7 @@ void UWindowWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	UE_LOG(LogTemp, Error, TEXT("Spawn MainWidget"));
-
 	CharacterStat->FindWidgetClass(BP_SkillWidget, BP_MainWidget, BP_RelicWidget, BP_StarWidget);
-
-	UE_LOG(LogTemp, Error, TEXT("Spawn WindowWidget"));
 
 	SetMainWidgetPointer(BP_MainWidget);
 }
