@@ -3,7 +3,8 @@
 
 #include "CharacterStat/CharacterStatWidget/ChildWidget/RelicWidget.h"
 #include "CharacterStat/CharacterStatWidget/ChildWidget/RelicWidget/RelicButtonWidget.h"
-
+#include "CharacterStat/CharacterStatWidget/ChildWidget/MainWidget.h"
+#include "CharacterStat/CharacterStat.h"
 
 void URelicWidget::NativeConstruct()
 {
@@ -19,14 +20,24 @@ void URelicWidget::NativeConstruct()
 
 void URelicWidget::UpdateWithServerData(const FRelicinfo& Data)
 {
-	SettingRelicButton(Data.Part_0, 0);
-	SettingRelicButton(Data.Part_1, 1);
-	SettingRelicButton(Data.Part_2, 2);
-	SettingRelicButton(Data.Part_3, 3);
-	SettingRelicButton(Data.Part_4, 4);
+
+	UE_LOG(LogTemp, Error, TEXT("Spawn RelicWidget"));
+
+	SettingRelicButtonImage(Data.Part_0, 0);
+	SettingRelicButtonImage(Data.Part_1, 1);
+	SettingRelicButtonImage(Data.Part_2, 2);
+	SettingRelicButtonImage(Data.Part_3, 3);
+	SettingRelicButtonImage(Data.Part_4, 4);
+
+	RelicToMainStat(Data.Part_0);
+	RelicToMainStat(Data.Part_1);
+	RelicToMainStat(Data.Part_2);
+	RelicToMainStat(Data.Part_3);
+	RelicToMainStat(Data.Part_4);
+
 }
 
-void URelicWidget::SettingRelicButton(FRelicData Data, int WidgetIndex)
+void URelicWidget::SettingRelicButtonImage(FRelicData Data, int WidgetIndex)
 {
 	FGameplayTag Tag = FNameChangeToTag(Data.RelicImageId);
 	if (Tag.IsValid())
@@ -37,6 +48,25 @@ void URelicWidget::SettingRelicButton(FRelicData Data, int WidgetIndex)
 			RelicArray[WidgetIndex]->SetRelicImage(*Found);
 		}
 	}
+}
+
+void URelicWidget::RelicToMainStat(FRelicData Data)
+{
+	FMaininfo LocalInfo = MakeMaininfoStruct(
+		Data.HP,
+		Data.Attack,
+		Data.Defence,
+		Data.Force,
+		Data.Critical,
+		Data.CriticalDamage
+	);
+
+	UE_LOG(LogTemp, Error, TEXT("%f"), Data.Critical);
+
+	if (!CharacterStat->GetMainWidget()) return;
+	
+
+	CharacterStat->GetMainWidget()->UpdateWithServerData(LocalInfo);
 }
 
 FGameplayTag URelicWidget::FNameChangeToTag(FName value)

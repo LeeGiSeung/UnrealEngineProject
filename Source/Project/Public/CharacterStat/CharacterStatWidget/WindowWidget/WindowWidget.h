@@ -27,8 +27,6 @@ public:
 
 	virtual void NativeConstruct() override;
 
-	UPROPERTY()
-	ACharacterStat* CharacterStat;
 
 	UPROPERTY(meta = (BindWidget))
 	USkillWidget* BP_SkillWidget;

@@ -10,6 +10,7 @@
 
 class UImage;
 class UTexture2D;
+class USkillWidget;
 
 /**
  * 
@@ -22,13 +23,19 @@ class PROJECT_API USkillButtonWidget : public UBaseWidget
 
 public:
 
-	void SettingSkillLevel(int value);
-
 	virtual void NativeConstruct() override;
 
 	void ChangeSkillText();
-	void SettingNodeImage(bool value);
-	void SettingSkillImage(UTexture2D* texture);
+
+	void SettingSkillLevel(int value, USkillWidget* SkillWidget);
+	void SettingNodeImage(bool value, USkillWidget* SkillWidget);
+	void SettingSkillImage(UTexture2D* texture, USkillWidget* SkillWidget);
+
+	UFUNCTION(BlueprintCallable, Category = "SkillLevel")
+	void SelectButton();
+
+	UPROPERTY()
+	USkillWidget* SkillWidget;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* SkillLevel;

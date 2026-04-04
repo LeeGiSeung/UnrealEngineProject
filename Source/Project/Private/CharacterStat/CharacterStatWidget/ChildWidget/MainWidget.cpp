@@ -2,13 +2,12 @@
 
 
 #include "CharacterStat/CharacterStatWidget/ChildWidget/MainWidget.h"
+#include "CharacterStat/CharacterStat.h"
 #include "Components/TextBlock.h"
 
 void UMainWidget::UpdateCharacterData()
 {
 	Super::UpdateCharacterData();
-
-	UE_LOG(LogTemp, Error, TEXT("MainWidget UpdateData"));
 }
 
 void UMainWidget::NativeConstruct()
@@ -19,10 +18,19 @@ void UMainWidget::NativeConstruct()
 
 void UMainWidget::UpdateWithServerData(const FMaininfo& Data)
 {
-	WidgetSetText(HP_Content, Data.HP);
-	WidgetSetText(Attack_Content, Data.Attack);
-	WidgetSetText(Defence_Content, Data.Defence);
-	WidgetSetText(Force_Content, Data.Force, FString("%"));
-	WidgetSetText(Critical_Content, Data.Critical, FString("%"));
-	WidgetSetText(CriticalDamage_Content, Data.CriticalDamage, FString("%"));
+	
+	if (!CharacterStat) return;
+
+	FMaininfo maininfo = CharacterStat->GetMainStat();
+
+	CharacterStat->SetMainStat(Data);
+
+	maininfo = CharacterStat->GetMainStat();
+
+	WidgetSetText(HP_Content, maininfo.HP);
+	WidgetSetText(Attack_Content, maininfo.Attack);
+	WidgetSetText(Defence_Content, maininfo.Defence);
+	WidgetSetText(Force_Content, maininfo.Force, FString("%"));
+	WidgetSetText(Critical_Content, maininfo.Critical, FString("%"));
+	WidgetSetText(CriticalDamage_Content, maininfo.CriticalDamage, FString("%"));
 }

@@ -27,7 +27,9 @@ public:
 
 	void UpdateWithServerData(const FRelicinfo& Data);
 
-	void SettingRelicButton(FRelicData Data, int WidgetIndex);
+	void SettingRelicButtonImage(FRelicData Data, int WidgetIndex);
+
+	void RelicToMainStat(FRelicData Data);
 
 	FGameplayTag FNameChangeToTag(FName value);
 

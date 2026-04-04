@@ -7,6 +7,7 @@
 #include "StarButtonWidget.generated.h"
 
 class UImage;
+class UTexture2D;
 
 /**
  * 
@@ -18,6 +19,8 @@ class PROJECT_API UStarButtonWidget : public UBaseWidget
 
 public:
 	virtual void NativeConstruct() override;
+
+	void SetStarImage(UTexture2D* value);
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* StarImage;

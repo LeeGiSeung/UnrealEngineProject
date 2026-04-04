@@ -82,6 +82,11 @@ void ACharacterStat::OnCharacterDataReceived(FHttpRequestPtr Request, FHttpRespo
     }
 }
 
+UMainWidget* ACharacterStat::GetMainWidget()
+{
+    return MainWidget;
+}
+
 void ACharacterStat::FindWidgetClass(USkillWidget* Skill, UMainWidget* Main, URelicWidget* Relic, UStarWidget* Star)
 {
     SkillWidget = Skill;
@@ -90,6 +95,22 @@ void ACharacterStat::FindWidgetClass(USkillWidget* Skill, UMainWidget* Main, URe
     StarWidget = Star;
 
     SetBeginServerData();
+}
+
+void ACharacterStat::SetMainStat(FMaininfo value)
+{
+    MainStat.HP += value.HP;
+    MainStat.Defence += value.Defence;
+    MainStat.Attack += value.Attack;
+    MainStat.Force += value.Force;
+    MainStat.Critical += value.Critical;
+    MainStat.CriticalDamage += value.CriticalDamage;
+
+}
+
+FMaininfo ACharacterStat::GetMainStat()
+{
+    return MainStat;
 }
 
 // Sets default values

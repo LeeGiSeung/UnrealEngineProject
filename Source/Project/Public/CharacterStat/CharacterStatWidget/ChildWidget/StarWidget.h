@@ -8,6 +8,8 @@
 
 #include "StarWidget.generated.h"
 
+class UStarButtonWidget;
+
 /**
  * 
  */
@@ -19,4 +21,30 @@ class PROJECT_API UStarWidget : public UBaseWidget
 public:
 	void UpdateWithServerData(const FStarinfo& Data);
 
+	void TurnOnStarImage(int value);
+
+	virtual void NativeConstruct() override;
+
+	int iMaxStarLevel;
+
+	UPROPERTY(BlueprintReadWrite, Category = "StarTexture")
+	TArray<UTexture2D*> StarTextures;
+
+	UPROPERTY()
+	UStarButtonWidget* StarButton[5];
+
+	UPROPERTY(meta = (BindWidget))
+	UStarButtonWidget* Star_0;
+
+	UPROPERTY(meta = (BindWidget))
+	UStarButtonWidget* Star_1;
+
+	UPROPERTY(meta = (BindWidget))
+	UStarButtonWidget* Star_2;
+
+	UPROPERTY(meta = (BindWidget))
+	UStarButtonWidget* Star_3;
+
+	UPROPERTY(meta = (BindWidget))
+	UStarButtonWidget* Star_4;
 };

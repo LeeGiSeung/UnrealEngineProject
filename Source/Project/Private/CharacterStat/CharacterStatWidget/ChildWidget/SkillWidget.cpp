@@ -15,13 +15,13 @@ void USkillWidget::NativeConstruct()
 
 	if (!AutoAttackWidget || !EAttackWidget || !RAttackWidget || !PAttackWidget) return;
 
-	AutoAttackWidget->SettingSkillImage(AutoAttackImage);
+	AutoAttackWidget->SettingSkillImage(AutoAttackImage, this);
 	
-	EAttackWidget->SettingSkillImage(EAttackImage);
+	EAttackWidget->SettingSkillImage(EAttackImage, this);
 
-	RAttackWidget->SettingSkillImage(RAttackImage);
+	RAttackWidget->SettingSkillImage(RAttackImage, this);
 
-	PAttackWidget->SettingSkillImage(PAttackImage);
+	PAttackWidget->SettingSkillImage(PAttackImage, this);
 
     RequestSkillDataFromServer();
 
@@ -31,10 +31,25 @@ void USkillWidget::UpdateCharacterData()
 {
 	Super::UpdateCharacterData();
 
-	if (AutoAttackWidget) AutoAttackWidget->SettingSkillLevel(SkillData.AutoAttackLevel);
-	if (EAttackWidget)    EAttackWidget->SettingSkillLevel(SkillData.EAttackLevel);
-	if (RAttackWidget)    RAttackWidget->SettingSkillLevel(SkillData.RAttackLevel);
-	if (PAttackWidget)    PAttackWidget->SettingSkillLevel(SkillData.PAttackLevel);
+	if (AutoAttackWidget) AutoAttackWidget->SettingSkillLevel(SkillData.AutoAttackLevel, this);
+	if (EAttackWidget)    EAttackWidget->SettingSkillLevel(SkillData.EAttackLevel, this);
+	if (RAttackWidget)    RAttackWidget->SettingSkillLevel(SkillData.RAttackLevel, this);
+	if (PAttackWidget)    PAttackWidget->SettingSkillLevel(SkillData.PAttackLevel, this);
+}
+
+void USkillWidget::SkillToMainStat(FSkillInfo Data)
+{
+
+}
+
+void USkillWidget::SkillLevelUp()
+{
+    
+}
+
+void USkillWidget::RecoardSkillButtonWidget(USkillButtonWidget* value)
+{
+    LastRecoardSkillButtonWidget = value;
 }
 
 void USkillWidget::OnSkillDataReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
@@ -78,26 +93,26 @@ void USkillWidget::OnSkillDataReceived(FHttpRequestPtr Request, FHttpResponsePtr
 
 void USkillWidget::UpdateWithServerData(const FSkillInfo& Data)
 {
-    if (AutoAttackWidget) AutoAttackWidget->SettingSkillLevel(Data.AutoAttackLevel);
-    if (EAttackWidget)    EAttackWidget->SettingSkillLevel(Data.EAttackLevel);
-    if (RAttackWidget)    RAttackWidget->SettingSkillLevel(Data.RAttackLevel);
-    if (PAttackWidget)    PAttackWidget->SettingSkillLevel(Data.PAttackLevel);
+    if (AutoAttackWidget) AutoAttackWidget->SettingSkillLevel(Data.AutoAttackLevel, this);
+    if (EAttackWidget)    EAttackWidget->SettingSkillLevel(Data.EAttackLevel, this);
+    if (RAttackWidget)    RAttackWidget->SettingSkillLevel(Data.RAttackLevel, this);
+    if (PAttackWidget)    PAttackWidget->SettingSkillLevel(Data.PAttackLevel, this);
 
-    Auto_0->SettingNodeImage(Data.AutoAttackNode_0);
-    Auto_1->SettingNodeImage(Data.AutoAttackNode_1);
-    Auto_2->SettingNodeImage(Data.AutoAttackNode_2);
+    Auto_0->SettingNodeImage(Data.AutoAttackNode_0, this);
+    Auto_1->SettingNodeImage(Data.AutoAttackNode_1, this);
+    Auto_2->SettingNodeImage(Data.AutoAttackNode_2, this);
 
-    E_0->SettingNodeImage(Data.EAttackkNode_0);
-    E_1->SettingNodeImage(Data.EAttackNode_1);
-    E_2->SettingNodeImage(Data.EAttackNode_2);
+    E_0->SettingNodeImage(Data.EAttackkNode_0, this);
+    E_1->SettingNodeImage(Data.EAttackNode_1, this);
+    E_2->SettingNodeImage(Data.EAttackNode_2, this);
 
-    P_0->SettingNodeImage(Data.PAttackNode_0);
-    P_1->SettingNodeImage(Data.PAttackNode_1);
-    P_2->SettingNodeImage(Data.PAttackNode_2);
+    P_0->SettingNodeImage(Data.PAttackNode_0, this);
+    P_1->SettingNodeImage(Data.PAttackNode_1, this);
+    P_2->SettingNodeImage(Data.PAttackNode_2, this);
 
-    R_0->SettingNodeImage(Data.RAttackNode_0);
-    R_1->SettingNodeImage(Data.RAttackNode_0);
-    R_2->SettingNodeImage(Data.RAttackNode_0);
+    R_0->SettingNodeImage(Data.RAttackNode_0, this);
+    R_1->SettingNodeImage(Data.RAttackNode_0, this);
+    R_2->SettingNodeImage(Data.RAttackNode_0, this);
     
 }
 

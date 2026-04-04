@@ -11,5 +11,8 @@ struct FStarinfo : public FTableRowBase {
 	GENERATED_BODY()
 
 	UPROPERTY()
+	FName CharacterID;
+
+	UPROPERTY()
 	int StarLevel;
 };

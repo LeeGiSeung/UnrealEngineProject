@@ -8,3 +8,8 @@ void UStarButtonWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 }
+
+void UStarButtonWidget::SetStarImage(UTexture2D* value)
+{
+	StarImage->SetBrushFromTexture(value);
+}

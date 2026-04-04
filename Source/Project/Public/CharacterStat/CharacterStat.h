@@ -49,7 +49,15 @@ public:
 	UPROPERTY()
 	UMainWidget* MainWidget;
 
+	UMainWidget* GetMainWidget();
+
 	void FindWidgetClass(USkillWidget* Skill, UMainWidget* Main, URelicWidget* Relic, UStarWidget* Star);
+
+	UPROPERTY()
+	FMaininfo MainStat;
+
+	void SetMainStat(FMaininfo value);
+	FMaininfo GetMainStat();
 
 public:
 	// Sets default values for this character's properties

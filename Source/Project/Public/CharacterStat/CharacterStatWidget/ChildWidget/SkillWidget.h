@@ -13,6 +13,7 @@
 
 class USkillButtonWidget;
 class UTexture;
+class UButton;
 
 /**
  * 
@@ -26,6 +27,17 @@ public:
 	virtual void NativeConstruct() override;
 	virtual void UpdateCharacterData() override;
 
+	void SkillToMainStat(FSkillInfo Data);
+
+	UFUNCTION(BlueprintCallable, Category = "SkillLevelUp")
+	void SkillLevelUp();
+	
+	UFUNCTION(BlueprintCallable, Category = "SkillLevelUp")
+	void RecoardSkillButtonWidget(USkillButtonWidget* value);
+
+	UPROPERTY()
+	USkillButtonWidget* LastRecoardSkillButtonWidget;
+
 //#Server
 public:
 	FSkillInfo SkillData;
@@ -36,6 +48,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Post")
 	void TestGet();
+
+	UPROPERTY(meta = (BindWidget))
+	UButton* LevelUpButton;
 
 public:
 	UPROPERTY(meta = (BindWidget))
