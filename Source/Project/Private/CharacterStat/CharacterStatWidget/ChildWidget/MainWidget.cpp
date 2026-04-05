@@ -27,10 +27,17 @@ void UMainWidget::UpdateWithServerData(const FMaininfo& Data)
 
 	maininfo = CharacterStat->GetMainStat();
 
+	MainInfo = maininfo;
+
 	WidgetSetText(HP_Content, maininfo.HP);
 	WidgetSetText(Attack_Content, maininfo.Attack);
 	WidgetSetText(Defence_Content, maininfo.Defence);
 	WidgetSetText(Force_Content, maininfo.Force, FString("%"));
 	WidgetSetText(Critical_Content, maininfo.Critical, FString("%"));
 	WidgetSetText(CriticalDamage_Content, maininfo.CriticalDamage, FString("%"));
+}
+
+FMaininfo UMainWidget::GetMainInfo()
+{
+	return MainInfo;
 }

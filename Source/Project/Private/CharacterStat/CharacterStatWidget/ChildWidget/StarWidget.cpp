@@ -15,9 +15,16 @@ void UStarWidget::NativeConstruct()
 }
 
 
+FStarinfo UStarWidget::GetStarInfo()
+{
+	return StarInfo;
+}
+
 void UStarWidget::UpdateWithServerData(const FStarinfo& Data)
 {
 	iMaxStarLevel = Data.StarLevel;
+
+	StarInfo = Data;
 
 	TurnOnStarImage(0);
 }

@@ -19,6 +19,9 @@ class PROJECT_API UStarWidget : public UBaseWidget
 	GENERATED_BODY()
 
 public:
+	FStarinfo StarInfo;
+	FStarinfo GetStarInfo();
+
 	void UpdateWithServerData(const FStarinfo& Data);
 
 	void TurnOnStarImage(int value);

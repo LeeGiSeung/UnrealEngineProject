@@ -84,6 +84,10 @@ void USkillWidget::SkillLevelUp()
 
     int CurLevel = LastRecoardSkillButtonWidget->GetSkillLevel();
 
+    UE_LOG(LogTemp, Error, TEXT("(LastRecoardSkillButtonWidget->GetMaxSkillLevel() %d , CurLevel : %d"), LastRecoardSkillButtonWidget->GetMaxSkillLevel(), CurLevel);
+
+    if (LastRecoardSkillButtonWidget->GetMaxSkillLevel() < CurLevel + 1) return;
+
     LastRecoardSkillButtonWidget->SettingSkillLevel(++CurLevel);
 
     FString Key = LastRecoardSkillButtonWidget->GetSkillDataKey();
@@ -112,10 +116,9 @@ void USkillWidget::SkillLevelUp()
     else if (Key == TEXT("PAttackNode_1")) { skillInfo.PAttackNode_1 = true; }
     else if (Key == TEXT("PAttackNode_2")) { skillInfo.PAttackNode_2 = true; }
 
-    if (CharacterStat)
-    {
-        CharacterStat->SendSkillUpgradeToServer(skillInfo);
-    }
+
+    CharacterStat->SendSkillUpgradeToServer();
+    
 }
 
 void USkillWidget::RecoardSkillButtonWidget(USkillButtonWidget* value)
@@ -153,4 +156,9 @@ void USkillWidget::UpdateWithServerData(const FSkillInfo& Data)
 
 void USkillWidget::TestGet()
 {
+}
+
+FSkillInfo USkillWidget::GetSkillInfo()
+{
+    return skillInfo;
 }

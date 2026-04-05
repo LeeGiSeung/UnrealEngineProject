@@ -13,7 +13,15 @@
 #include "Interfaces/IHttpResponse.h"
 #include "HttpModule.h"
 
+//WidgetInfo
+#include "ServerInfo/Starinfo/FStarinfo.h"
+#include "ServerInfo/Relicinfo/FRelicinfo.h"
+#include "ServerInfo/MainInfo/FMaininfo.h"
+#include "FSkillInfo/FSkillInfo.h"
+
+
 #include "CharacterStat.generated.h"
+
 
 class UCameraComponent;
 class USpringArmComponent;
@@ -37,7 +45,7 @@ public:
 	void SetBeginServerData();
 	void OnCharacterDataReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
-	void SendSkillUpgradeToServer(const FSkillInfo& NewSkillInfo);
+	void SendSkillUpgradeToServer();
 	void OnSkillUpgradeResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
 	UPROPERTY()

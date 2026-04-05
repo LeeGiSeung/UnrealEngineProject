@@ -52,6 +52,8 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UButton* LevelUpButton;
 
+	FSkillInfo GetSkillInfo();
+
 public:
 	UPROPERTY(meta = (BindWidget))
 	USkillButtonWidget* AutoAttackWidget;

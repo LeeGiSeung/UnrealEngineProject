@@ -37,6 +37,12 @@ public:
 		return CurSkillLevel
 			;
 	}
+
+	int GetMaxSkillLevel() {
+		return MaxSkillLevel
+			;
+	}
+
 	void SettingNodeImage(bool value);
 	void SettingSkillImage(UTexture2D* texture);
 

@@ -42,47 +42,7 @@ void ACharacterStat::SetBeginServerData()
 
 void ACharacterStat::OnCharacterDataReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
-    //if (bWasSuccessful && Response.IsValid())
-    //{
-    //    //UE_LOG(LogTemp, Log, TEXT("Success: %s"), *Response->GetContentAsString());
-    //}
-
-    //if (!SkillWidget || !MainWidget || !StarWidget || !RelicWidget) {
-    //    UE_LOG(LogTemp, Error, TEXT("No Widget"), *Response->GetContentAsString());
-    //    return;
-    //}
-
-    //// 2. 서버에서 보낸 문자열 가져오기
-    //FString JsonString = Response->GetContentAsString();
-    ////UE_LOG(LogTemp, Log, TEXT("Server JSON: %s"), *JsonString);
-
-    //// 3. JSON 문자열을 구조체로 변환 (역직렬화)
-    //FCharacterDataWrapper RawData;
-
-    //// TJsonReader를 생성하여 파싱 준비
-    //TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
-    //TSharedPtr<FJsonObject> JsonObject;
-
-    //if (FJsonSerializer::Deserialize(Reader, JsonObject) && JsonObject.IsValid())
-    //{
-    //    // JsonObjectConverter를 사용하면 한 줄로 구조체에 값이 담깁니다.
-    //    if (FJsonObjectConverter::JsonObjectToUStruct(JsonObject.ToSharedRef(), FCharacterDataWrapper::StaticStruct(), &RawData, 0, 0))
-    //    {
-    //        MainWidget->UpdateWithServerData(RawData.Maininfo);
-
-    //        SkillWidget->UpdateWithServerData(RawData.SkillInfo);
-
-    //        StarWidget->UpdateWithServerData(RawData.StarInfo);
-
-    //        RelicWidget->UpdateWithServerData(RawData.Relicinfo);
-    //    }
-    //    else {
-    //        UE_LOG(LogTemp, Error, TEXT("Faild JsonObjectToUStruct!"), *JsonString);
-    //    }
-    //}
-    //else {
-    //    UE_LOG(LogTemp, Error, TEXT("Faild Deserialize!"), *JsonString);
-    //}
+ 
     if (!bWasSuccessful || !Response.IsValid()) return;
 
     FString JsonString = Response->GetContentAsString();
@@ -346,30 +306,48 @@ void ACharacterStat::PlayAnimation(ECharacterMenuState value)
 }
 
 // .cpp 파일 구현
-void ACharacterStat::SendSkillUpgradeToServer(const FSkillInfo& NewSkillInfo)
+void ACharacterStat::SendSkillUpgradeToServer()
 {
     FHttpModule* Http = &FHttpModule::Get();
     if (!Http) return;
 
     TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
 
-    // 1. 서버 URL 설정 (우리가 만든 Node.js 주소)
-    // player_01 부분은 나중에 변수로 처리하면 좋습니다.
+    // 1. 통합 데이터 구조체 생성 및 데이터 채우기
+    FCharacterDataWrapper TotalData;
+
+    // 요청하신 대로 고정값 세팅
+    TotalData.CharacterId = TEXT("CH_V_001");
+    TotalData.CharacterName = TEXT("Aria");
+
+    // 각 위젯으로부터 개별 구조체 데이터 수집
+    if (SkillWidget) TotalData.SkillInfo = SkillWidget->GetSkillInfo();
+    if (RelicWidget) TotalData.Relicinfo = RelicWidget->GetRelicInfo();
+    if (StarWidget)  TotalData.StarInfo = StarWidget->GetStarInfo();
+    if (MainWidget)  TotalData.Maininfo = MainWidget->GetMainInfo();
+
+    // 2. 서버 URL 및 헤더 설정
     Request->SetURL(TEXT("http://localhost:3000/api/skills/player_01"));
     Request->SetVerb(TEXT("POST"));
     Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
 
-    // 2. 구조체를 JSON 문자열로 변환 (직렬화)
+    // 3. FCharacterDataWrapper 전체를 JSON 문자열로 변환
     FString JsonString;
-    if (FJsonObjectConverter::UStructToJsonObjectString(NewSkillInfo, JsonString))
+    if (FJsonObjectConverter::UStructToJsonObjectString(TotalData, JsonString))
     {
         Request->SetContentAsString(JsonString);
 
-        // 3. 응답 처리 바인딩
+        // 응답 처리 바인딩
         Request->OnProcessRequestComplete().BindUObject(this, &ACharacterStat::OnSkillUpgradeResponse);
 
         Request->ProcessRequest();
-        UE_LOG(LogTemp, Log, TEXT("Sending Upgrade Data: %s"), *JsonString);
+
+        // 로그로 전체 데이터 확인
+        UE_LOG(LogTemp, Log, TEXT("Sending Full Character Data: %s"), *JsonString);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to serialize CharacterDataWrapper!"));
     }
 }
 

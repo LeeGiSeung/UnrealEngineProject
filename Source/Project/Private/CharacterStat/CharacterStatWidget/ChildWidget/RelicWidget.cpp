@@ -6,6 +6,11 @@
 #include "CharacterStat/CharacterStatWidget/ChildWidget/MainWidget.h"
 #include "CharacterStat/CharacterStat.h"
 
+FRelicinfo URelicWidget::GetRelicInfo()
+{
+	return RelicInfo;
+}
+
 void URelicWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -20,6 +25,9 @@ void URelicWidget::NativeConstruct()
 
 void URelicWidget::UpdateWithServerData(const FRelicinfo& Data)
 {
+
+	RelicInfo = Data;
+
 	SettingRelicButtonImage(Data.Part_0, 0);
 	SettingRelicButtonImage(Data.Part_1, 1);
 	SettingRelicButtonImage(Data.Part_2, 2);

@@ -23,6 +23,10 @@ class PROJECT_API URelicWidget : public UBaseWidget
 
 public:
 
+	FRelicinfo RelicInfo;
+
+	FRelicinfo GetRelicInfo();
+
 	virtual void NativeConstruct() override;
 
 	void UpdateWithServerData(const FRelicinfo& Data);

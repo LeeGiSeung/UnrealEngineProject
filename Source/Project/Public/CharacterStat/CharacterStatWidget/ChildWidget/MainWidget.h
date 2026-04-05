@@ -26,6 +26,10 @@ public:
 
 	void UpdateWithServerData(const FMaininfo& Data);
 
+	FMaininfo MainInfo;
+
+	FMaininfo GetMainInfo();
+
 public:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* HP_Content;
