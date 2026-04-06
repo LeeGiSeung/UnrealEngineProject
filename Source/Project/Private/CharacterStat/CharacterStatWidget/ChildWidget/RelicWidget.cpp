@@ -5,6 +5,7 @@
 #include "CharacterStat/CharacterStatWidget/ChildWidget/RelicWidget/RelicButtonWidget.h"
 #include "CharacterStat/CharacterStatWidget/ChildWidget/MainWidget.h"
 #include "CharacterStat/CharacterStat.h"
+#include "Components/WidgetSwitcher.h"
 
 FRelicinfo URelicWidget::GetRelicInfo()
 {
@@ -83,4 +84,14 @@ FGameplayTag URelicWidget::FNameChangeToTag(FName value)
 	);
 
 	return Tag;
+}
+
+void URelicWidget::ChangeRelicWidget()
+{
+	if (!WidgetSwitcher) return;
+	iRelicWidgetIndex = (iRelicWidgetIndex + 1) % 2;
+	WidgetSwitcher->SetActiveWidgetIndex(iRelicWidgetIndex);
+
+	UE_LOG(LogTemp, Error, TEXT("%d"), iRelicWidgetIndex);
+
 }

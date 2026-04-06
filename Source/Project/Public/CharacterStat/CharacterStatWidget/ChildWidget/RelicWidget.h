@@ -12,6 +12,7 @@
 
 class Texture2D;
 class URelicButtonWidget;
+class UWidgetSwitcher;
 
 /**
  * 
@@ -57,5 +58,14 @@ public:
 
 	UPROPERTY()
 	URelicButtonWidget* RelicArray[5];
+
+	UPROPERTY(EditAnywhere, Category = "RelicWidget")
+	int iRelicWidgetIndex = 0;
+
+	UFUNCTION(BlueprintCallable, Category = "RelicWidget")
+	void ChangeRelicWidget();
+
+	UPROPERTY(meta = (BindWidget))
+	UWidgetSwitcher* WidgetSwitcher;
 
 };

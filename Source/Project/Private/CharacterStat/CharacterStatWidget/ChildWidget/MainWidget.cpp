@@ -68,7 +68,15 @@ void UMainWidget::LevelUp()
 		MainInfo.Level += 1;
 
 		WidgetSetText(LVTextBlock, MainInfo.Level, FString(" .Lv"));
+
+		MainInfo.HP += 100;
+		MainInfo.Attack += 30;
+		MainInfo.Defence += 50;
 		
+		WidgetSetText(HP_Content, MainInfo.HP);
+		WidgetSetText(Attack_Content, MainInfo.Attack);
+		WidgetSetText(Defence_Content, MainInfo.Defence);
+
 	}
 
 	MainInfo.LevelEXP = EXPBar->GetPercent();
