@@ -23,7 +23,6 @@ void UMainWidget::UpdateWithServerData(const FMaininfo& Data)
 	
 	if (Data.Level <= 0 || Data.Level > 10000)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Invalid Data Received!"));
 		return;
 	}
 
