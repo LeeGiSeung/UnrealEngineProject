@@ -10,7 +10,8 @@
 #include "MainWidget.generated.h"
 
 class UTextBlock;
-
+class UProgressBar;
+class UButton;
 /**
  * 
  */
@@ -31,6 +32,21 @@ public:
 	FMaininfo GetMainInfo();
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "MainLevelUp")
+	void LevelUp();
+
+	UPROPERTY()
+	int Level;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* LVTextBlock;
+
+	UPROPERTY(meta = (BindWidget))
+	UButton* EXPLevelUpButton;
+
+	UPROPERTY(meta = (BindWidget))
+	UProgressBar* EXPBar;
+
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* HP_Content;
 

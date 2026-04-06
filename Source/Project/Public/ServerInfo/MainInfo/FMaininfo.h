@@ -10,7 +10,13 @@ USTRUCT(BlueprintType)
 struct FMaininfo : public FTableRowBase {
 
 	GENERATED_BODY();
-	
+
+	UPROPERTY()
+	int Level;
+
+	UPROPERTY()
+	float LevelEXP;
+
 	UPROPERTY()
 	float HP;
 	

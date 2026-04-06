@@ -30,6 +30,15 @@ void UBaseWidget::WidgetSetText(UTextBlock* Target, float Value, FString etc)
 	Target->SetText(FText::FromString(CombinedString));
 }
 
+void UBaseWidget::WidgetSetText(UTextBlock* Target, int Value, FString etc)
+{
+	if (!Target) return;
+
+	FString CombinedString = FString::Printf(TEXT("%d%s"), Value, *etc);
+
+	Target->SetText(FText::FromString(CombinedString));
+}
+
 void UBaseWidget::SetMainWidgetPointer(UMainWidget* _MainWidgetPointer)
 {
 	MainWidgetPointer = _MainWidgetPointer;

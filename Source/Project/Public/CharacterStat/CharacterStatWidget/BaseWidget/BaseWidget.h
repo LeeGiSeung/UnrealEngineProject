@@ -28,6 +28,7 @@ public:
 
 	virtual void WidgetSetText(UTextBlock* Target, float Value);
 	virtual void WidgetSetText(UTextBlock* Target, float Value, FString etc);
+	virtual void WidgetSetText(UTextBlock* Target, int Value, FString etc);
 
 	UPROPERTY()
 	UMainWidget* MainWidgetPointer;

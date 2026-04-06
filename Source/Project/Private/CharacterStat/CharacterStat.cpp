@@ -89,12 +89,15 @@ void ACharacterStat::FindWidgetClass(USkillWidget* Skill, UMainWidget* Main, URe
 
 void ACharacterStat::SetMainStat(FMaininfo value)
 {
+
     MainStat.HP += value.HP;
     MainStat.Defence += value.Defence;
     MainStat.Attack += value.Attack;
     MainStat.Force += value.Force;
     MainStat.Critical += value.Critical;
     MainStat.CriticalDamage += value.CriticalDamage;
+    MainStat.Level += value.Level;
+    MainStat.LevelEXP += value.LevelEXP;
 
 }
 
@@ -343,7 +346,7 @@ void ACharacterStat::SendSkillUpgradeToServer()
         Request->ProcessRequest();
 
         // 로그로 전체 데이터 확인
-        UE_LOG(LogTemp, Log, TEXT("Sending Full Character Data: %s"), *JsonString);
+        //UE_LOG(LogTemp, Log, TEXT("Sending Full Character Data: %s"), *JsonString);
     }
     else
     {
@@ -355,7 +358,7 @@ void ACharacterStat::OnSkillUpgradeResponse(FHttpRequestPtr Request, FHttpRespon
 {
     if (bWasSuccessful && Response.IsValid())
     {
-        UE_LOG(LogTemp, Log, TEXT("Upgrade Success! Server Response: %s"), *Response->GetContentAsString());
+        //UE_LOG(LogTemp, Log, TEXT("Upgrade Success! Server Response: %s"), *Response->GetContentAsString());
         // 성공 시 UI를 다시 갱신하거나 효과음을 재생하는 로직을 여기에 넣으세요.
 
 

@@ -66,11 +66,8 @@ void URelicWidget::RelicToMainStat(FRelicData Data)
 		Data.CriticalDamage
 	);
 
-	UE_LOG(LogTemp, Error, TEXT("%f"), Data.Critical);
-
 	if (!CharacterStat->GetMainWidget()) return;
 	
-
 	CharacterStat->GetMainWidget()->UpdateWithServerData(LocalInfo);
 }
 
