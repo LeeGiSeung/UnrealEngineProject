@@ -40,4 +40,11 @@ public:
 
 	FMaininfo MakeMaininfoStruct(float HP, float Attack, float Defence, float Force, float Critical, float CriticalDamage);
 
+	UPROPERTY();
+	UBaseWidget* ParentWidget;
+
+	void SetParentWidget(UBaseWidget* value);
+
+public:
+	virtual void UseParentFunction();
 };

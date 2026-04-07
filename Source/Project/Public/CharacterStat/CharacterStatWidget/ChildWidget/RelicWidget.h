@@ -13,6 +13,8 @@
 class Texture2D;
 class URelicButtonWidget;
 class UWidgetSwitcher;
+class URelic_Content_Widget;
+class URelic_List_Widget;
 
 /**
  * 
@@ -42,6 +44,9 @@ public:
 	TMap< FGameplayTag, UTexture2D*> RelicMap;
 
 	UPROPERTY(meta = (BindWidget))
+	URelic_Content_Widget* RelicAllContent;
+
+	UPROPERTY(meta = (BindWidget))
 	URelicButtonWidget* Relic_0;
 
 	UPROPERTY(meta = (BindWidget))
@@ -59,13 +64,16 @@ public:
 	UPROPERTY()
 	URelicButtonWidget* RelicArray[5];
 
-	UPROPERTY(EditAnywhere, Category = "RelicWidget")
-	int iRelicWidgetIndex = 0;
-
 	UFUNCTION(BlueprintCallable, Category = "RelicWidget")
 	void ChangeRelicWidget();
 
-	UPROPERTY(meta = (BindWidget))
-	UWidgetSwitcher* WidgetSwitcher;
+	void RelicWidgetAddToViewPort();
+
+	URelic_List_Widget* Relic_List_Widget = nullptr;
+
+	URelic_List_Widget* GetRelic_List_Widget();
+
+	UPROPERTY(BlueprintReadWrite, Category = "URelic_List_Widget")
+	TSubclassOf<URelic_List_Widget> Relic_List_Widget_Class;
 
 };

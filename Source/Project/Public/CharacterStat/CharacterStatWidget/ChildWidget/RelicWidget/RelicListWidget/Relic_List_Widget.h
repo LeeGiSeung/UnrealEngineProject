@@ -7,6 +7,7 @@
 #include "Relic_List_Widget.generated.h"
 
 class URelicButtonWidget;
+class URelicWidget;
 
 /**
  * 
@@ -17,6 +18,17 @@ class PROJECT_API URelic_List_Widget : public UBaseWidget
 	GENERATED_BODY()
 	
 public:
+	URelicWidget* RelicWidget;
+	void ReferenceRelicWidget(URelicWidget* value);
+
+	virtual void NativeConstruct() override;
+
+	virtual void UseParentFunction() override;
+
+//BindWidget
+public:
+	TArray<URelicButtonWidget*> RelicButton_Array;
+
 	UPROPERTY(meta = (BindWidget))
 	URelicButtonWidget* RelicList_0;
 

@@ -7,6 +7,9 @@
 #include "CharacterStat/CharacterStat.h"
 #include "Components/WidgetSwitcher.h"
 
+#include "CharacterStat/CharacterStatWidget/ChildWidget/RelicWidget/Relic_Content_Widget/Relic_Content_Widget.h"
+#include "CharacterStat/CharacterStatWidget/ChildWidget/RelicWidget/RelicListWidget/Relic_List_Widget.h"
+
 FRelicinfo URelicWidget::GetRelicInfo()
 {
 	return RelicInfo;
@@ -21,6 +24,14 @@ void URelicWidget::NativeConstruct()
 	RelicArray[2] = Relic_2;
 	RelicArray[3] = Relic_3;
 	RelicArray[4] = Relic_4;
+
+	for (URelicButtonWidget* Widget : RelicArray)
+	{
+		if (Widget)
+		{
+			Widget->SetRelicWidget(this);
+		}
+	}
 
 }
 
@@ -41,6 +52,14 @@ void URelicWidget::UpdateWithServerData(const FRelicinfo& Data)
 	RelicToMainStat(Data.Part_3);
 	RelicToMainStat(Data.Part_4);
 
+	RelicAllContent->SetRelicStat(Data.Part_0);
+	RelicAllContent->SetRelicStat(Data.Part_1);
+	RelicAllContent->SetRelicStat(Data.Part_2);
+	RelicAllContent->SetRelicStat(Data.Part_3);
+	RelicAllContent->SetRelicStat(Data.Part_4);
+
+	RelicAllContent->SetRelicWidgetContentText();
+	
 }
 
 void URelicWidget::SettingRelicButtonImage(FRelicData Data, int WidgetIndex)
@@ -88,10 +107,18 @@ FGameplayTag URelicWidget::FNameChangeToTag(FName value)
 
 void URelicWidget::ChangeRelicWidget()
 {
-	if (!WidgetSwitcher) return;
-	iRelicWidgetIndex = (iRelicWidgetIndex + 1) % 2;
-	WidgetSwitcher->SetActiveWidgetIndex(iRelicWidgetIndex);
 
-	UE_LOG(LogTemp, Error, TEXT("%d"), iRelicWidgetIndex);
+}
 
+void URelicWidget::RelicWidgetAddToViewPort()
+{
+	if (Relic_List_Widget || !Relic_List_Widget_Class) return;
+
+	Relic_List_Widget = CreateWidget<URelic_List_Widget>(this, Relic_List_Widget_Class);
+	Relic_List_Widget->AddToViewport();
+}
+
+URelic_List_Widget* URelicWidget::GetRelic_List_Widget()
+{
+	return Relic_List_Widget;
 }

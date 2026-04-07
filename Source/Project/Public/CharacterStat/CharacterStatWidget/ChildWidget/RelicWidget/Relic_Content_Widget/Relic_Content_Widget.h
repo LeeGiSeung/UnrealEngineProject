@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "CharacterStat/CharacterStatWidget/BaseWidget/BaseWidget.h"
+#include "ServerInfo/Relicinfo/FRelicinfo.h"
+#include "ServerInfo/MainInfo/FMaininfo.h"
+
 #include "Relic_Content_Widget.generated.h"
 
 class UTextBlock;
@@ -34,4 +37,11 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* CriticalDamage_Content;
+
+	UPROPERTY()
+	FMaininfo ContentInfo;
+
+	void SetRelicStat(const FRelicData Data);
+
+	void SetRelicWidgetContentText();
 };

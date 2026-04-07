@@ -57,3 +57,12 @@ FMaininfo UBaseWidget::MakeMaininfoStruct(float HP, float Attack, float Defence,
 
 	return result;
 }
+
+void UBaseWidget::SetParentWidget(UBaseWidget* value)
+{
+	ParentWidget = value;
+}
+
+void UBaseWidget::UseParentFunction() {
+
+}
