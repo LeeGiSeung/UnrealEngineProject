@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "CharacterStat/CharacterStatWidget/BaseWidget/BaseWidget.h"
+#include "ServerInfo/Relicinfo/RelicData.h"
+
 #include "RelicButtonWidget.generated.h"
 
 class UImage;
@@ -17,10 +19,21 @@ class PROJECT_API URelicButtonWidget : public UBaseWidget
 	GENERATED_BODY()
 
 public:
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnRelicClicked, URelicButtonWidget*, ClickedWidget);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnRelicClicked OnRelicClicked;
+
+public:
 
 	virtual void NativeConstruct() override;
 
 	void SetRelicImage(UTexture2D* Image);
+
+	void SetRelicTexture2D(UTexture2D* value);
+	UTexture2D* GetRelicTexture2D();
+
+	UTexture2D* RelicTexture2D;
 
 	UFUNCTION(BlueprintCallable, Category = "OpenRelic")
 	void OpenRelicListWidget();
@@ -31,11 +44,7 @@ public:
 	void SetRelicWidget(URelicWidget* value);
 	URelicWidget* RelicWidget;
 
-	URelic_List_Widget* RelicListWidget;
-	bool bOpenRelicListWidget = false;
-	bool GetbOpenRelicListWidget();
-	void SetbOpenRelicListWidget(bool value);
-
-
+	UPROPERTY()
+	FRelicData RelicData;
 
 };

@@ -62,7 +62,7 @@ public:
 	URelicButtonWidget* Relic_4;
 
 	UPROPERTY()
-	URelicButtonWidget* RelicArray[5];
+	TArray<URelicButtonWidget*> RelicArray;
 
 	UFUNCTION(BlueprintCallable, Category = "RelicWidget")
 	void ChangeRelicWidget();
@@ -72,6 +72,8 @@ public:
 	URelic_List_Widget* Relic_List_Widget = nullptr;
 
 	URelic_List_Widget* GetRelic_List_Widget();
+
+	void RemoveRelic_List_Widget();
 
 	UPROPERTY(BlueprintReadWrite, Category = "URelic_List_Widget")
 	TSubclassOf<URelic_List_Widget> Relic_List_Widget_Class;

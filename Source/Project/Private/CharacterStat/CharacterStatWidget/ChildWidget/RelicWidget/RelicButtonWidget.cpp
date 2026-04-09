@@ -21,6 +21,17 @@ void URelicButtonWidget::SetRelicImage(UTexture2D* Image)
 		return;
 	}
 	RelicImage->SetBrushFromTexture(Image);
+	SetRelicTexture2D(Image);
+}
+
+void URelicButtonWidget::SetRelicTexture2D(UTexture2D* value)
+{
+	RelicTexture2D = value;
+}
+
+UTexture2D* URelicButtonWidget::GetRelicTexture2D()
+{
+	return RelicTexture2D;
 }
 
 void URelicButtonWidget::OpenRelicListWidget()
@@ -31,8 +42,19 @@ void URelicButtonWidget::OpenRelicListWidget()
 		RelicWidget->RelicWidgetAddToViewPort();
 	}
 	else {
-		if (!ParentWidget) return;
-		ParentWidget->UseParentFunction();
+		if (!ParentWidget) {
+			UE_LOG(LogTemp, Error, TEXT("NO PAR"));
+			return;
+		}
+
+		//UE_LOG(LogTemp, Error, TEXT("Clicked Widget: %s / Parent: %p"),
+		//	*GetName(),
+		//	ParentWidget);
+
+		OnRelicClicked.Broadcast(this);
+
+
+
 	}
 
 }
@@ -40,14 +62,4 @@ void URelicButtonWidget::OpenRelicListWidget()
 void URelicButtonWidget::SetRelicWidget(URelicWidget* value)
 {
 	RelicWidget = value;
-}
-
-bool URelicButtonWidget::GetbOpenRelicListWidget()
-{
-	return bOpenRelicListWidget;
-}
-
-void URelicButtonWidget::SetbOpenRelicListWidget(bool value)
-{
-	bOpenRelicListWidget = value;
 }

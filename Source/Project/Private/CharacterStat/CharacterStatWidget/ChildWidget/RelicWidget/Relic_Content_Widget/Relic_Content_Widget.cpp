@@ -25,3 +25,13 @@ void URelic_Content_Widget::SetRelicWidgetContentText()
 	WidgetSetText(Critical_Content, ContentInfo.Critical, FString("%"));
 	WidgetSetText(CriticalDamage_Content, ContentInfo.CriticalDamage, FString("%"));
 }
+
+void URelic_Content_Widget::ResetRelicStat()
+{
+	ContentInfo.Attack = 0;
+	ContentInfo.Defence = 0;
+	ContentInfo.Force = 0;
+	ContentInfo.HP = 0;
+	ContentInfo.Critical = 0;
+	ContentInfo.CriticalDamage = 0;
+}

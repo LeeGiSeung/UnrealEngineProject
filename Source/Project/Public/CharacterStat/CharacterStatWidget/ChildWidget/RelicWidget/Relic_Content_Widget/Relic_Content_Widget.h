@@ -44,4 +44,6 @@ public:
 	void SetRelicStat(const FRelicData Data);
 
 	void SetRelicWidgetContentText();
+
+	void ResetRelicStat();
 };

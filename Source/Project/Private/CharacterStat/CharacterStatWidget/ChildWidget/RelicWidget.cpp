@@ -19,11 +19,11 @@ void URelicWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	RelicArray[0] = Relic_0;
-	RelicArray[1] = Relic_1;
-	RelicArray[2] = Relic_2;
-	RelicArray[3] = Relic_3;
-	RelicArray[4] = Relic_4;
+	RelicArray.Add(Relic_0);
+	RelicArray.Add(Relic_1);
+	RelicArray.Add(Relic_2);
+	RelicArray.Add(Relic_3);
+	RelicArray.Add(Relic_4);
 
 	for (URelicButtonWidget* Widget : RelicArray)
 	{
@@ -71,6 +71,7 @@ void URelicWidget::SettingRelicButtonImage(FRelicData Data, int WidgetIndex)
 		{
 			if (!RelicArray[WidgetIndex]) return;
 			RelicArray[WidgetIndex]->SetRelicImage(*Found);
+			RelicArray[WidgetIndex]->RelicData = Data;
 		}
 	}
 }
@@ -116,9 +117,16 @@ void URelicWidget::RelicWidgetAddToViewPort()
 
 	Relic_List_Widget = CreateWidget<URelic_List_Widget>(this, Relic_List_Widget_Class);
 	Relic_List_Widget->AddToViewport();
+	Relic_List_Widget->SetWearRelicWidget(RelicArray);
+	Relic_List_Widget->ReferenceRelicWidget(this);
 }
 
 URelic_List_Widget* URelicWidget::GetRelic_List_Widget()
 {
 	return Relic_List_Widget;
+}
+
+void URelicWidget::RemoveRelic_List_Widget()
+{
+	Relic_List_Widget = nullptr;
 }

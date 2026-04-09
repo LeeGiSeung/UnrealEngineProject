@@ -110,6 +110,36 @@ let playerSkillData = {
     }
 };
 
+// 예비 유물 데이터 따로 저장
+let playerInventoryRelics = {
+    "player_01": [
+        {
+            "RelicUID": "relic_001",
+            "RelicId": "Relic.Three.BlueSkull",
+            "RelicImageId": "Relic.Three.BlueSkull",
+            "Level": 4,
+            "HP": 80.0,
+            "Attack": 15.0,
+            "Defence": 10.0,
+            "Force": 6.0,
+            "Critical": 3.0,
+            "CriticalDamage": 8.0
+        },
+        {
+            "RelicUID": "relic_002",
+            "RelicId": "Relic.Four.RedSkull",
+            "RelicImageId": "Relic.Four.RedSkull",
+            "Level": 5,
+            "HP": 200.0,
+            "Attack": 25.0,
+            "Defence": 20.0,
+            "Force": 10.0,
+            "Critical": 5.0,
+            "CriticalDamage": 15.0
+        }
+    ]
+};
+
 // [GET] 캐릭터의 모든 스킬 정보 조회
 app.get('/api/skills/:playerId', (req, res) => {
     const playerId = req.params.playerId;
@@ -135,6 +165,18 @@ app.post('/api/skills/:playerId', (req, res) => {
     console.log(newData); // 터미널에서 바뀐 내용 확인
 
     res.status(200).json({ message: "Success", savedData: newData });
+});
+
+app.get('/api/relics/:playerId', (req, res) => {
+    const playerId = req.params.playerId;
+    const data = playerInventoryRelics[playerId];
+
+    if (data) {
+        console.log(`[조회] ${playerId}의 예비 유물 데이터를 전송합니다.`);
+        res.json({ InventoryRelics: data });
+    } else {
+        res.status(404).json({ message: "Inventory not found" });
+    }
 });
 
 app.listen(port, () => {
