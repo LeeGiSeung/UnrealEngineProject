@@ -8,9 +8,11 @@
 #include "Components/Border.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
-
+//UMG 위젯 이벤트 오버라이딩해서 해결 어차피 reutrn 값들이 전부 이벤트 들이여서 굳이 super은 안해도됨
 FReply URelicButtonWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
+	if (!GetRelicTexture2D()) return FReply::Unhandled();
+
 	OpenRelicListWidget();
 	
 	return UWidgetBlueprintLibrary::DetectDragIfPressed(
@@ -54,6 +56,7 @@ bool URelicButtonWidget::NativeOnDrop(const FGeometry& InGeometry, const FDragDr
 
 		if (Relic_List_Widget) {
 			//UE_LOG(LogTemp, Error, TEXT("StartWidge"));
+			if (!DraggedData->GetRelicTexture2D() || !GetRelicTexture2D()) return false;
 			Relic_List_Widget->HandleRelicDrop(DraggedData, this);
 		}
 
@@ -106,10 +109,6 @@ void URelicButtonWidget::OpenRelicListWidget()
 			UE_LOG(LogTemp, Error, TEXT("NO PAR"));
 			return;
 		}
-
-		//UE_LOG(LogTemp, Error, TEXT("Clicked Widget: %s / Parent: %p"),
-		//	*GetName(),
-		//	ParentWidget);
 
 		OnRelicClicked.Broadcast(this);
 

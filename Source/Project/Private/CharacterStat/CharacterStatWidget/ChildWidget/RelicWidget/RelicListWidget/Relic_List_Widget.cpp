@@ -200,8 +200,8 @@ void URelic_List_Widget::HandleRelicDrop(URelicButtonWidget* StartWidget, URelic
 	FRelicData EndData = EndWidget->RelicData;;
 	UTexture2D* EndTexture2D = EndWidget->GetRelicTexture2D();
 
-	if (StartWidget->GetRelicTexture2D()) UE_LOG(LogTemp, Error, TEXT("Before Start Image : %s"), *StartWidget->GetRelicTexture2D()->GetName()); //ÀÌ°Å³ª¿È
-	if (EndWidget->GetRelicTexture2D()) UE_LOG(LogTemp, Error, TEXT("Before Start Image : % s"), *EndWidget->GetRelicTexture2D()->GetName());
+	//if (StartWidget->GetRelicTexture2D()) UE_LOG(LogTemp, Error, TEXT("Before Start Image : %s"), *StartWidget->GetRelicTexture2D()->GetName()); //ÀÌ°Å³ª¿È
+	//if (EndWidget->GetRelicTexture2D()) UE_LOG(LogTemp, Error, TEXT("Before Start Image : % s"), *EndWidget->GetRelicTexture2D()->GetName());
 
 	StartWidget->SetRelicImage(EndTexture2D);
 	StartWidget->RelicData = EndData;
@@ -209,8 +209,8 @@ void URelic_List_Widget::HandleRelicDrop(URelicButtonWidget* StartWidget, URelic
 	EndWidget->SetRelicImage(StartTexture2D);
 	EndWidget->RelicData = StartData;
 
-	if (StartWidget->GetRelicTexture2D()) UE_LOG(LogTemp, Error, TEXT("After Start Image : %s"), *StartWidget->GetRelicTexture2D()->GetName());
-	if (EndWidget->GetRelicTexture2D()) UE_LOG(LogTemp, Error, TEXT("After End Image : %s"), *EndWidget->GetRelicTexture2D()->GetName()); //ÀÌ°Å³ª¿È
+	//if (StartWidget->GetRelicTexture2D()) UE_LOG(LogTemp, Error, TEXT("After Start Image : %s"), *StartWidget->GetRelicTexture2D()->GetName());
+	//if (EndWidget->GetRelicTexture2D()) UE_LOG(LogTemp, Error, TEXT("After End Image : %s"), *EndWidget->GetRelicTexture2D()->GetName()); //ÀÌ°Å³ª¿È
 	
 	//LogTemp: Error: Before Start Image : BlueSkull_1
 	//LogTemp : Error: After End Image : BlueSkull_1
