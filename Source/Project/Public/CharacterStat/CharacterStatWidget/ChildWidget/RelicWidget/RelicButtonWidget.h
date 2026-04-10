@@ -12,6 +12,7 @@ class UImage;
 class UTexture2D;
 class URelic_List_Widget;
 class URelicWidget;
+class UBorder;
 
 UCLASS()
 class PROJECT_API URelicButtonWidget : public UBaseWidget
@@ -23,6 +24,22 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnRelicClicked OnRelicClicked;
+
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDropRelicDropClicked, URelicButtonWidget*, StartWidget, URelicButtonWidget*, EndWidget);
+
+	UPROPERTY(BlueprintAssignable)
+	FDropRelicDropClicked DropRelicDropClicked;
+
+public:
+	UPROPERTY()
+	URelic_List_Widget* Relic_List_Widget;
+
+	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+
+	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
+
+	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 
 public:
 
@@ -40,6 +57,11 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* RelicImage;
+
+	UPROPERTY(meta = (BindWidget))
+	UBorder* SelectBoarder;
+
+	void SetSelectBoarderVistity(ESlateVisibility value);
 
 	void SetRelicWidget(URelicWidget* value);
 	URelicWidget* RelicWidget;

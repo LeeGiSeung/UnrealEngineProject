@@ -8,6 +8,9 @@
 #include "CharacterStat/CharacterStatWidget/ChildWidget/RelicWidget/Relic_Content_Widget/Relic_Content_Widget.h"
 #include "CharacterStat/CharacterStat.h"
 #include "Components/Image.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
+#include "ServerInfo/Relicinfo/RelicData.h"
+
 
 #include "JsonObjectConverter.h"
 
@@ -54,11 +57,17 @@ void URelic_List_Widget::NativeConstruct()
 	for (auto* Item : RelicButton_Array)
 	{
 		Item->OnRelicClicked.AddDynamic(this, &URelic_List_Widget::OnRelicSelected);
+		Item->DropRelicDropClicked.AddDynamic(this, &URelic_List_Widget::HandleRelicDrop);
+
+		Item->Relic_List_Widget = this;
 	}
 
 	for (auto* Item : WearRelicButton_Array)
 	{
 		Item->OnRelicClicked.AddDynamic(this, &URelic_List_Widget::OnRelicSelected);
+		Item->DropRelicDropClicked.AddDynamic(this, &URelic_List_Widget::HandleRelicDrop);
+
+		Item->Relic_List_Widget = this;
 	}
 
 	RequestInventory();
@@ -68,8 +77,6 @@ void URelic_List_Widget::NativeConstruct()
 void URelic_List_Widget::UseParentFunction()
 {
 	if (!ParentWidget) return;
-
-	UE_LOG(LogTemp, Error, TEXT("PAR"));
 
 }
 
@@ -85,7 +92,7 @@ void URelic_List_Widget::SetWearRelicWidget(TArray<URelicButtonWidget*> value)
 	for (int i = 0; i < WearRelicButton_Array.Num(); i++) {
 		WearRelicButton_Array[i]->RelicData = value[i]->RelicData;
 		WearRelicButton_Array[i]->RelicImage->SetBrushFromTexture(value[i]->GetRelicTexture2D());
-		
+		WearRelicButton_Array[i]->SetRelicTexture2D(value[i]->GetRelicTexture2D());
 		//UE_LOG(LogTemp, Error, TEXT("Critical : %f"), WearRelicButton_Array[i]->RelicData.Critical);
 		
 
@@ -98,12 +105,18 @@ void URelic_List_Widget::SetWearRelicWidget(TArray<URelicButtonWidget*> value)
 
 void URelic_List_Widget::OnRelicSelected(URelicButtonWidget* ClickedWidget)
 {
+	if (SelectRelicWidget) { //이미 selectwidget이 있을때
+		SelectRelicWidget->SetSelectBoarderVistity(ESlateVisibility::SelfHitTestInvisible);
+	}
+	
 
 	SelectRelicWidget = ClickedWidget;
-
+	
 	SelectRelicContent->ResetRelicStat();
 	SelectRelicContent->SetRelicStat(SelectRelicWidget->RelicData);
 	SelectRelicContent->SetRelicWidgetContentText();
+
+	ClickedWidget->SetSelectBoarderVistity(ESlateVisibility::Visible);
 
 }
 
@@ -156,12 +169,6 @@ void URelic_List_Widget::UpdateInventoryUI()
 	for (int i = 0; i < InventoryRelics.Num(); i++) {
 		if (RelicButton_Array.Num() <= i) break; //더이상 못채우면 break
 
-		//SettingRelicButtonImage(Data.Part_4, 4); //이거 지금 Relic
-
-		//RelicToMainStat(Data.Part_0);
-
-		//RelicAllContent->SetRelicStat(Data.Part_0);
-
 		RelicButton_Array[i]->RelicData = InventoryRelics[i];
 
 		FGameplayTag tag = RelicWidget->FNameChangeToTag(InventoryRelics[i].RelicImageId);
@@ -170,6 +177,41 @@ void URelic_List_Widget::UpdateInventoryUI()
 		{
 			RelicButton_Array[i]->SetRelicImage(*Found);
 		}
+	}
+
+	for (int i = 0; i < WearRelicButton_Array.Num(); i++) 
+	{
+		//WearRelicButton_Array[i]->SetRelicTexture2D();
 
 	}
+}
+
+void URelic_List_Widget::HandleRelicDrop(URelicButtonWidget* StartWidget, URelicButtonWidget* EndWidget)
+{
+	//UE_LOG(LogTemp, Error, TEXT("StartWidget : %s, EndWidget : %s"), *StartWidget->GetName(), *EndWidget->GetName());
+
+	//StarWidget 과 EndWidget의 데이터를 바꿔야함
+
+	URelicButtonWidget;
+
+	FRelicData StartData = StartWidget->RelicData;
+	UTexture2D* StartTexture2D = StartWidget->GetRelicTexture2D();
+
+	FRelicData EndData = EndWidget->RelicData;;
+	UTexture2D* EndTexture2D = EndWidget->GetRelicTexture2D();
+
+	if (StartWidget->GetRelicTexture2D()) UE_LOG(LogTemp, Error, TEXT("Before Start Image : %s"), *StartWidget->GetRelicTexture2D()->GetName()); //이거나옴
+	if (EndWidget->GetRelicTexture2D()) UE_LOG(LogTemp, Error, TEXT("Before Start Image : % s"), *EndWidget->GetRelicTexture2D()->GetName());
+
+	StartWidget->SetRelicImage(EndTexture2D);
+	StartWidget->RelicData = EndData;
+
+	EndWidget->SetRelicImage(StartTexture2D);
+	EndWidget->RelicData = StartData;
+
+	if (StartWidget->GetRelicTexture2D()) UE_LOG(LogTemp, Error, TEXT("After Start Image : %s"), *StartWidget->GetRelicTexture2D()->GetName());
+	if (EndWidget->GetRelicTexture2D()) UE_LOG(LogTemp, Error, TEXT("After End Image : %s"), *EndWidget->GetRelicTexture2D()->GetName()); //이거나옴
+	
+	//LogTemp: Error: Before Start Image : BlueSkull_1
+	//LogTemp : Error: After End Image : BlueSkull_1
 }

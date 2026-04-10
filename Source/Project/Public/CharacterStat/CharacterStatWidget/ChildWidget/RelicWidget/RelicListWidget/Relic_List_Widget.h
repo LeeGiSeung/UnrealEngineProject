@@ -59,6 +59,8 @@ public:
 
 	void UpdateInventoryUI();
 
+	void HandleRelicDrop(URelicButtonWidget* StartWidget, URelicButtonWidget* EndWidget);
+
 //BindWidget
 public:
 	void SetWearRelicWidget(TArray<URelicButtonWidget*> value);
