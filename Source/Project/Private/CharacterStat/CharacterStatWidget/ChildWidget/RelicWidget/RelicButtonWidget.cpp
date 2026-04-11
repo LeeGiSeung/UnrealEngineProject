@@ -43,26 +43,23 @@ void URelicButtonWidget::NativeOnDragDetected(
 bool URelicButtonWidget::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
 	// 1. 엔진이 들고 온 상자(InOperation)가 비어있는지 확인
-	if (InOperation == nullptr) return false;
-
+	if (InOperation == nullptr) {
+		UE_LOG(LogTemp, Error, TEXT("NO INOPERATION"));
+		return false;
+	}
 	URelicButtonWidget* DraggedData = Cast<URelicButtonWidget>(InOperation->Payload);
 
 	if (DraggedData)
 	{
-		// 3. 내용물이 확인됐으니 처리!
-		//RelicList에 event 보냄
 		DropRelicDropClicked.Broadcast(DraggedData, this);
 
 
 		if (Relic_List_Widget) {
 			//UE_LOG(LogTemp, Error, TEXT("StartWidge"));
-			if (!DraggedData->GetRelicTexture2D() || !GetRelicTexture2D()) return false;
+			if (!DraggedData->GetRelicTexture2D()) return false;
 			Relic_List_Widget->HandleRelicDrop(DraggedData, this);
 		}
 
-
-
-		//this, InOperation 보내서 두개의 data 바꾸면됨
 		return true;
 	}
 
@@ -80,7 +77,8 @@ void URelicButtonWidget::NativeConstruct()
 void URelicButtonWidget::SetRelicImage(UTexture2D* Image)
 {
 	if (!Image) {
-		UE_LOG(LogTemp, Error, TEXT("NO RELIC IMAGE"));
+		RelicImage->SetBrushFromTexture(nullptr);
+		SetRelicTexture2D(nullptr);
 		return;
 	}
 	RelicImage->SetBrushFromTexture(Image);
@@ -111,9 +109,6 @@ void URelicButtonWidget::OpenRelicListWidget()
 		}
 
 		OnRelicClicked.Broadcast(this);
-
-
-
 	}
 
 }

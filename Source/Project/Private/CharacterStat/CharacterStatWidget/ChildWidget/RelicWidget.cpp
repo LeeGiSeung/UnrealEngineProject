@@ -106,6 +106,49 @@ FGameplayTag URelicWidget::FNameChangeToTag(FName value)
 	return Tag;
 }
 
+void URelicWidget::SyncRelicInfoFromUI()
+{
+	for (int i = 0; i < RelicArray.Num(); i++)
+	{
+		if (!RelicArray[i]) continue;
+
+		FRelicData Data = RelicArray[i]->RelicData;
+
+		switch (i)
+		{
+		case 0: RelicInfo.Part_0 = Data; break;
+		case 1: RelicInfo.Part_1 = Data; break;
+		case 2: RelicInfo.Part_2 = Data; break;
+		case 3: RelicInfo.Part_3 = Data; break;
+		case 4: RelicInfo.Part_4 = Data; break;
+		}
+	}
+}
+
+void URelicWidget::ChangeRelicArray(TArray<URelicButtonWidget*>* value)
+{
+
+	RelicAllContent->ResetRelicStat(); //바꾸기전에 초기화
+
+	for (int i = 0; i < RelicArray.Num(); i++) {
+
+		FRelicData valueData = (*value)[i]->RelicData;
+		UTexture2D* valueTexture2D = (*value)[i]->GetRelicTexture2D();
+
+		RelicArray[i]->SetRelicImage(valueTexture2D);
+		RelicArray[i]->RelicData = valueData;
+
+		RelicAllContent->SetRelicStat(valueData);
+	}
+	
+	RelicAllContent->SetRelicWidgetContentText();
+
+	SyncRelicInfoFromUI();
+
+	CharacterStat->SendSkillUpgradeToServer();
+
+}
+
 void URelicWidget::ChangeRelicWidget()
 {
 

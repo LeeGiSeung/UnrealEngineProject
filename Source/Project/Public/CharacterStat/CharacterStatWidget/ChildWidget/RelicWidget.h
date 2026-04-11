@@ -64,8 +64,12 @@ public:
 	UPROPERTY()
 	TArray<URelicButtonWidget*> RelicArray;
 
+	void ChangeRelicArray(TArray<URelicButtonWidget*> *value);
+
 	UFUNCTION(BlueprintCallable, Category = "RelicWidget")
 	void ChangeRelicWidget();
+
+	void SyncRelicInfoFromUI();
 
 	void RelicWidgetAddToViewPort();
 

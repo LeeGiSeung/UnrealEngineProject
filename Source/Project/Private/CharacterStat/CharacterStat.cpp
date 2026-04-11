@@ -311,6 +311,8 @@ void ACharacterStat::PlayAnimation(ECharacterMenuState value)
 // .cpp 파일 구현
 void ACharacterStat::SendSkillUpgradeToServer()
 {
+    UE_LOG(LogTemp, Error, TEXT("SendSkillUpgradeToServer"));
+
     FHttpModule* Http = &FHttpModule::Get();
     if (!Http) return;
 

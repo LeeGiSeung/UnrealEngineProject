@@ -37,6 +37,8 @@ public:
 
 	virtual void NativeConstruct() override;
 
+	void SettingRelicButton();
+
 	virtual void UseParentFunction() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Close")
@@ -60,6 +62,14 @@ public:
 	void UpdateInventoryUI();
 
 	void HandleRelicDrop(URelicButtonWidget* StartWidget, URelicButtonWidget* EndWidget);
+
+	void PostRelicInventory();
+	void RelicInventoryStruct(FHttpRequestPtr Request,
+		FHttpResponsePtr Response,
+		bool bWasSuccessful);
+
+
+	void PostWearingRelic();
 
 //BindWidget
 public:

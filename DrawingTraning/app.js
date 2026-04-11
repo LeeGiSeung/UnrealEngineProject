@@ -179,6 +179,18 @@ app.get('/api/relics/:playerId', (req, res) => {
     }
 });
 
+app.post('/api/relics/:playerId', (req, res) => {
+    const playerId = req.params.playerId;
+    const data = playerInventoryRelics[playerId];
+
+    if (data) {
+        console.log(`[조회-POST] ${playerId}의 예비 유물 데이터를 전송합니다.`);
+        res.json({ InventoryRelics: data });
+    } else {
+        res.status(404).json({ message: "Inventory not found" });
+    }
+});
+
 app.listen(port, () => {
     console.log(`🚀 ProjectV 스킬 서버가 http://localhost:${port} 에서 실행 중입니다!`);
 });

@@ -23,6 +23,14 @@ void URelic_List_Widget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	SettingRelicButton();
+
+	RequestInventory();
+
+}
+
+void URelic_List_Widget::SettingRelicButton()
+{
 	RelicButton_Array.Add(RelicList_0);
 	RelicButton_Array.Add(RelicList_1);
 	RelicButton_Array.Add(RelicList_2);
@@ -69,9 +77,6 @@ void URelic_List_Widget::NativeConstruct()
 
 		Item->Relic_List_Widget = this;
 	}
-
-	RequestInventory();
-
 }
 
 void URelic_List_Widget::UseParentFunction()
@@ -93,9 +98,6 @@ void URelic_List_Widget::SetWearRelicWidget(TArray<URelicButtonWidget*> value)
 		WearRelicButton_Array[i]->RelicData = value[i]->RelicData;
 		WearRelicButton_Array[i]->RelicImage->SetBrushFromTexture(value[i]->GetRelicTexture2D());
 		WearRelicButton_Array[i]->SetRelicTexture2D(value[i]->GetRelicTexture2D());
-		//UE_LOG(LogTemp, Error, TEXT("Critical : %f"), WearRelicButton_Array[i]->RelicData.Critical);
-		
-
 		
 		RelicContent->SetRelicStat(WearRelicButton_Array[i]->RelicData);
 	}
@@ -157,7 +159,7 @@ void URelic_List_Widget::OnInventoryResponse(
 	{
 		InventoryRelics = Data.InventoryRelics;
 
-		UE_LOG(LogTemp, Warning, TEXT("Inventory Loaded: %d"), InventoryRelics.Num());
+		//UE_LOG(LogTemp, Warning, TEXT("Inventory Loaded: %d"), InventoryRelics.Num());
 
 		UpdateInventoryUI();
 	}
@@ -178,21 +180,13 @@ void URelic_List_Widget::UpdateInventoryUI()
 			RelicButton_Array[i]->SetRelicImage(*Found);
 		}
 	}
-
-	for (int i = 0; i < WearRelicButton_Array.Num(); i++) 
-	{
-		//WearRelicButton_Array[i]->SetRelicTexture2D();
-
-	}
 }
 
 void URelic_List_Widget::HandleRelicDrop(URelicButtonWidget* StartWidget, URelicButtonWidget* EndWidget)
 {
-	//UE_LOG(LogTemp, Error, TEXT("StartWidget : %s, EndWidget : %s"), *StartWidget->GetName(), *EndWidget->GetName());
+	UE_LOG(LogTemp, Error, TEXT("StartWidget : %s, EndWidget : %s"), *StartWidget->GetName(), *EndWidget->GetName());
 
 	//StarWidget 과 EndWidget의 데이터를 바꿔야함
-
-	URelicButtonWidget;
 
 	FRelicData StartData = StartWidget->RelicData;
 	UTexture2D* StartTexture2D = StartWidget->GetRelicTexture2D();
@@ -200,18 +194,56 @@ void URelic_List_Widget::HandleRelicDrop(URelicButtonWidget* StartWidget, URelic
 	FRelicData EndData = EndWidget->RelicData;;
 	UTexture2D* EndTexture2D = EndWidget->GetRelicTexture2D();
 
-	//if (StartWidget->GetRelicTexture2D()) UE_LOG(LogTemp, Error, TEXT("Before Start Image : %s"), *StartWidget->GetRelicTexture2D()->GetName()); //이거나옴
-	//if (EndWidget->GetRelicTexture2D()) UE_LOG(LogTemp, Error, TEXT("Before Start Image : % s"), *EndWidget->GetRelicTexture2D()->GetName());
-
 	StartWidget->SetRelicImage(EndTexture2D);
 	StartWidget->RelicData = EndData;
 
 	EndWidget->SetRelicImage(StartTexture2D);
 	EndWidget->RelicData = StartData;
 
-	//if (StartWidget->GetRelicTexture2D()) UE_LOG(LogTemp, Error, TEXT("After Start Image : %s"), *StartWidget->GetRelicTexture2D()->GetName());
-	//if (EndWidget->GetRelicTexture2D()) UE_LOG(LogTemp, Error, TEXT("After End Image : %s"), *EndWidget->GetRelicTexture2D()->GetName()); //이거나옴
-	
-	//LogTemp: Error: Before Start Image : BlueSkull_1
-	//LogTemp : Error: After End Image : BlueSkull_1
+	//1. 유물 바꾼거 Inventory에 Post
+	//2. Wearing Character에 post
+
+	//PostRelicInventory();
+	PostWearingRelic();
+}
+
+void URelic_List_Widget::PostRelicInventory()
+{
+	TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest();
+
+	Request->SetURL("http://127.0.0.1:3000/api/relics/player_01");
+	Request->SetVerb("POST");
+
+	Request->OnProcessRequestComplete().BindUObject(
+		this,
+		&URelic_List_Widget::RelicInventoryStruct
+	);
+
+	Request->ProcessRequest();
+}
+
+void URelic_List_Widget::RelicInventoryStruct(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+	if (!bWasSuccessful || !Response.IsValid())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Inventory Post Failed"));
+		return;
+	}
+
+	UE_LOG(LogTemp, Error, TEXT("Inventory Post Suscced"));
+
+}
+
+void URelic_List_Widget::PostWearingRelic()
+{
+	//RelicWidget으로 현재 Wearing Widget 보내기
+	RelicWidget->ChangeRelicArray(&WearRelicButton_Array);
+
+	//CharacterStat에서 다시 넘기기
+	if (!CharacterStat)
+	{
+		UE_LOG(LogTemp, Error, TEXT("NO CHARACTERSTAT"));
+		return;
+	}
+
 }
