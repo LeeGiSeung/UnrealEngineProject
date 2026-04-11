@@ -184,9 +184,7 @@ void URelic_List_Widget::UpdateInventoryUI()
 
 void URelic_List_Widget::HandleRelicDrop(URelicButtonWidget* StartWidget, URelicButtonWidget* EndWidget)
 {
-	UE_LOG(LogTemp, Error, TEXT("StartWidget : %s, EndWidget : %s"), *StartWidget->GetName(), *EndWidget->GetName());
-
-	//StarWidget 과 EndWidget의 데이터를 바꿔야함
+	//UE_LOG(LogTemp, Error, TEXT("StartWidget : %s, EndWidget : %s"), *StartWidget->GetName(), *EndWidget->GetName());
 
 	FRelicData StartData = StartWidget->RelicData;
 	UTexture2D* StartTexture2D = StartWidget->GetRelicTexture2D();
@@ -200,10 +198,16 @@ void URelic_List_Widget::HandleRelicDrop(URelicButtonWidget* StartWidget, URelic
 	EndWidget->SetRelicImage(StartTexture2D);
 	EndWidget->RelicData = StartData;
 
-	//1. 유물 바꾼거 Inventory에 Post
-	//2. Wearing Character에 post
+	//InventoryRelics 여기에 접근해서 자체를 바꿔줘야함 InventoryRelics는 이전 RelicWidget의 포인터를 잡고있음
+	int32 StartIndex = RelicButton_Array.Find(StartWidget);
+	int32 EndIndex = RelicButton_Array.Find(EndWidget);
 
-	//PostRelicInventory();
+	if (StartIndex != INDEX_NONE && EndIndex != INDEX_NONE)
+	{
+		InventoryRelics.Swap(StartIndex, EndIndex);
+	}
+
+	PostRelicInventory();
 	PostWearingRelic();
 }
 
@@ -211,27 +215,48 @@ void URelic_List_Widget::PostRelicInventory()
 {
 	TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest();
 
-	Request->SetURL("http://127.0.0.1:3000/api/relics/player_01");
-	Request->SetVerb("POST");
+	// 1. 데이터 만들기
+	FInventoryResponse InventoryResponse;
 
-	Request->OnProcessRequestComplete().BindUObject(
-		this,
-		&URelic_List_Widget::RelicInventoryStruct
-	);
+	for (int i = 0; i < RelicButton_Array.Num(); i++) {
+		InventoryResponse.InventoryRelics.Add(
+			RelicButton_Array[i]->RelicData
+		);
+	}
 
-	Request->ProcessRequest();
-}
-
-void URelic_List_Widget::RelicInventoryStruct(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
-{
-	if (!bWasSuccessful || !Response.IsValid())
+	// 2. JSON 변환
+	FString JsonString;
+	if (!FJsonObjectConverter::UStructToJsonObjectString(InventoryResponse, JsonString))
 	{
-		UE_LOG(LogTemp, Error, TEXT("Inventory Post Failed"));
+		UE_LOG(LogTemp, Error, TEXT("Failed to serialize Inventory"));
 		return;
 	}
 
-	UE_LOG(LogTemp, Error, TEXT("Inventory Post Suscced"));
+	UE_LOG(LogTemp, Warning, TEXT("Sending JSON: %s"), *JsonString);
 
+	// 3. 요청 세팅
+	Request->SetURL(TEXT("http://127.0.0.1:3000/api/relics/player_01"));
+	Request->SetVerb(TEXT("POST"));
+	Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+	Request->SetContentAsString(JsonString);
+
+	// 4. 응답 처리
+	Request->OnProcessRequestComplete().BindLambda(
+		[](FHttpRequestPtr Req, FHttpResponsePtr Res, bool bSuccess)
+		{
+			if (!bSuccess || !Res.IsValid())
+			{
+				UE_LOG(LogTemp, Error, TEXT("POST Failed"));
+				return;
+			}
+
+			
+
+			UE_LOG(LogTemp, Warning, TEXT("POST Success"));
+		}
+	);
+
+	Request->ProcessRequest();
 }
 
 void URelic_List_Widget::PostWearingRelic()

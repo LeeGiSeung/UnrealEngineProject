@@ -184,8 +184,11 @@ app.post('/api/relics/:playerId', (req, res) => {
     const data = playerInventoryRelics[playerId];
 
     if (data) {
-        console.log(`[조회-POST] ${playerId}의 예비 유물 데이터를 전송합니다.`);
+        console.log(`[조회-POST] ${playerId}의 예비 유물 데이터를 업데이트합니다.`);
         res.json({ InventoryRelics: data });
+
+        playerInventoryRelics[playerId] = req.body.inventoryRelics;
+
     } else {
         res.status(404).json({ message: "Inventory not found" });
     }
