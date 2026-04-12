@@ -4,6 +4,12 @@ const port = 3000;
 
 app.use(express.json());
 
+const mongoose = require('mongoose');
+
+mongoose.connect('mongodb://127.0.0.1:27017/projectV')
+    .then(() => console.log("MongoDB 연결 성공"))
+    .catch(err => console.log(err));
+
 // 초기 데이터 (FSkillInfo 구조에 맞춘 샘플)
 let playerSkillData = {
     // 언리얼에서 요청하는 ID (0 또는 player_01)

@@ -61,12 +61,13 @@ public:
 
 	void UpdateInventoryUI();
 
+	UFUNCTION()
 	void HandleRelicDrop(URelicButtonWidget* StartWidget, URelicButtonWidget* EndWidget);
 
 	void PostRelicInventory();
-	void RelicInventoryStruct(FHttpRequestPtr Request,
-		FHttpResponsePtr Response,
-		bool bWasSuccessful);
+	//void RelicInventoryStruct(FHttpRequestPtr Request,
+	//	FHttpResponsePtr Response,
+	//	bool bWasSuccessful);
 
 
 	void PostWearingRelic();
