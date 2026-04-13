@@ -184,7 +184,13 @@ void URelic_List_Widget::UpdateInventoryUI()
 
 void URelic_List_Widget::HandleRelicDrop(URelicButtonWidget* StartWidget, URelicButtonWidget* EndWidget)
 {
+	//교환
+
 	//UE_LOG(LogTemp, Error, TEXT("StartWidget : %s, EndWidget : %s"), *StartWidget->GetName(), *EndWidget->GetName());
+
+	UE_LOG(LogTemp, Warning, TEXT("=== Before (Before Swap) ==="));
+	UE_LOG(LogTemp, Log, TEXT("StartWidget: ID=%s"), *StartWidget->RelicData.RelicImageId.ToString());
+	UE_LOG(LogTemp, Log, TEXT("EndWidget  : ID=%s"), *EndWidget->RelicData.RelicImageId.ToString());
 
 	FRelicData StartData = StartWidget->RelicData;
 	UTexture2D* StartTexture2D = StartWidget->GetRelicTexture2D();
@@ -197,6 +203,10 @@ void URelic_List_Widget::HandleRelicDrop(URelicButtonWidget* StartWidget, URelic
 
 	EndWidget->SetRelicImage(StartTexture2D);
 	EndWidget->RelicData = StartData;
+
+	UE_LOG(LogTemp, Warning, TEXT("=== After (After Swap) ==="));
+	UE_LOG(LogTemp, Log, TEXT("StartWidget: ID=%s"), *StartWidget->RelicData.RelicImageId.ToString());
+	UE_LOG(LogTemp, Log, TEXT("EndWidget  : ID=%s"), *EndWidget->RelicData.RelicImageId.ToString());
 
 	//InventoryRelics 여기에 접근해서 자체를 바꿔줘야함 InventoryRelics는 이전 RelicWidget의 포인터를 잡고있음
 	int32 StartIndex = RelicButton_Array.Find(StartWidget);
@@ -232,7 +242,9 @@ void URelic_List_Widget::PostRelicInventory()
 		return;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Sending JSON: %s"), *JsonString);
+	UE_LOG(LogTemp, Log, TEXT("Sending Full Relic Data: %s"), *JsonString);
+
+	//UE_LOG(LogTemp, Warning, TEXT("Sending JSON: %s"), *JsonString);
 
 	// 3. 요청 세팅
 	Request->SetURL(TEXT("http://127.0.0.1:3000/api/relics/player_01"));
@@ -252,7 +264,7 @@ void URelic_List_Widget::PostRelicInventory()
 
 			
 
-			UE_LOG(LogTemp, Warning, TEXT("POST Success"));
+			//UE_LOG(LogTemp, Warning, TEXT("POST Success"));
 		}
 	);
 

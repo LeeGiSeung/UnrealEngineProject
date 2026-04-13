@@ -116,7 +116,6 @@ void USkillWidget::SkillLevelUp()
     else if (Key == TEXT("PAttackNode_1")) { skillInfo.PAttackNode_1 = true; }
     else if (Key == TEXT("PAttackNode_2")) { skillInfo.PAttackNode_2 = true; }
 
-
     CharacterStat->SendSkillUpgradeToServer();
     
 }
@@ -152,10 +151,6 @@ void USkillWidget::UpdateWithServerData(const FSkillInfo& Data)
     R_1->SettingNodeImage(Data.RAttackNode_1);
     R_2->SettingNodeImage(Data.RAttackNode_2);
     
-}
-
-void USkillWidget::TestGet()
-{
 }
 
 FSkillInfo USkillWidget::GetSkillInfo()

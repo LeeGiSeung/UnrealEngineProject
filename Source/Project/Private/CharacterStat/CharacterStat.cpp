@@ -322,6 +322,7 @@ void ACharacterStat::SendSkillUpgradeToServer()
     FCharacterDataWrapper TotalData;
 
     // 요청하신 대로 고정값 세팅
+    TotalData.PlayerId = TEXT("player_01");
     TotalData.CharacterId = TEXT("CH_V_001");
     TotalData.CharacterName = TEXT("Aria");
 
@@ -348,7 +349,7 @@ void ACharacterStat::SendSkillUpgradeToServer()
         Request->ProcessRequest();
 
         // 로그로 전체 데이터 확인
-        //UE_LOG(LogTemp, Log, TEXT("Sending Full Character Data: %s"), *JsonString);
+        UE_LOG(LogTemp, Log, TEXT("Sending Full Character Data: %s"), *JsonString);
     }
     else
     {

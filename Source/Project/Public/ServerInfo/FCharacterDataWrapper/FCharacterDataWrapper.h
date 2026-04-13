@@ -17,6 +17,9 @@ struct FCharacterDataWrapper : public FTableRowBase
 	GENERATED_BODY()
 
 	UPROPERTY()
+	FString PlayerId;
+
+	UPROPERTY()
 	FString CharacterId;
 
 	UPROPERTY()

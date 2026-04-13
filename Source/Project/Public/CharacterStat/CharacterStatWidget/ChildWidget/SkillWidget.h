@@ -46,9 +46,6 @@ public:
 
 	void UpdateWithServerData(const FSkillInfo& Data);
 
-	UFUNCTION(BlueprintCallable, Category = "Post")
-	void TestGet();
-
 	UPROPERTY(meta = (BindWidget))
 	UButton* LevelUpButton;
 
