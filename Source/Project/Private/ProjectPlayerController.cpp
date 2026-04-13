@@ -195,6 +195,12 @@ void AProjectPlayerController::DrawingEnd()
 void AProjectPlayerController::SpawnDecalActor(TArray<FVector2D> _DrawPosition, EColor CurChoiceColor)
 {
 
+    if (DrawPosition.Num() == 0)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("DrawPosition Zero"));
+        return;
+    }
+
     DrawPosition = _DrawPosition;
 
     FVector2D MinScale = FVector2D(FLT_MAX, FLT_MAX);
@@ -225,24 +231,15 @@ void AProjectPlayerController::SpawnDecalActor(TArray<FVector2D> _DrawPosition, 
     }
     else {
         SetSpawnRandom(true);
-        //return; //DrawingEnergy가 부족하면 그림을 그릴 수 없음
     }
     
     SetActorSpawnScale(ScaleX, ScaleY);
-
-    //DrawingColor = CurChoiceColor;
 
     if (GetSpawnRandom()) {
         DrawingColor = static_cast<EColor>(FMath::RandRange(0, 3));
     }
     else {
         DrawingColor = CurChoiceColor;
-    }
-
-    if (DrawPosition.Num() == 0)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("DrawPosition Zero"));
-        return;
     }
 
     FVector2D Sum(0.f, 0.f);
@@ -261,7 +258,7 @@ void AProjectPlayerController::SpawnDecalActor(TArray<FVector2D> _DrawPosition, 
     FVector End = Start + WorldDirection * 50000.f;
 
     FCollisionQueryParams Params;
-    Params.AddIgnoredActor(GetPawn()); //나 자신은 무시
+    Params.AddIgnoredActor(GetPawn());
 
     bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params); //맞는지 검사
 
@@ -270,49 +267,35 @@ void AProjectPlayerController::SpawnDecalActor(TArray<FVector2D> _DrawPosition, 
         FPaths::ProjectContentDir(),
         TEXT("DrawingImage/Drawing.png")
     );
-    //FString ImagePath = TEXT("C:/Users/82103/Documents/Unreal Projects/ProjectV/UnrealEngineProject/Content/DrawingImage/Drawing.png"); //이 이미지를 수정하기만 하면됨
 
     TArray<float> InputFeature;
 
     float Threshold = 0.97f;
 
-    //코사인 검사
-    bool bIsCorrect = IsSameShape(
-        ImagePath,
-        Threshold);
+    if (!IsSameShape(ImagePath, Threshold)) return;
 
-    if (bIsCorrect)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("yes !"));
-    }
-    else
-    {
-        UE_LOG(LogTemp, Warning, TEXT("no!"));
-        return;
-    }
+    //코사인 검사
+//bool bIsCorrect = IsSameShape(
+//    ImagePath,
+//    Threshold);
+
+    //if (!bIsCorrect) return;
+    //{
+    //    UE_LOG(LogTemp, Warning, TEXT("yes !"));
+    //}
 
 #if !UE_BUILD_SHIPPING
     //DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.f, 0, 1.f); //디버그 모드에서만 line그려서 검사확인
 #endif
 
-    if (bHit && Hit.GetActor() && Hit.GetActor()->ActorHasTag(TEXT("DrawAble"))) //맞았고, 해당 위치에 액터가 있고, 액터가 그릴 수 있는 액터면
+    if (bHit && Hit.GetActor() && Hit.GetActor()->ActorHasTag(TEXT("DrawAble"))) //Hit했고, 해당 위치에 액터가 존재하며, 허용되면
     {
         SpawnDecalAtHit();
     }
     else
     {
-        if (!bHit) {
-            UE_LOG(LogTemp, Warning, TEXT("NO !bHit"));
-            return;
-        }
-            if (!Hit.GetActor()){ UE_LOG(LogTemp, Warning, TEXT("NO !Hit.GetActor()"));
-            return;
-            }
-        if (!Hit.GetActor()->ActorHasTag(TEXT("DrawAble"))){ UE_LOG(LogTemp, Warning, TEXT("NO DrawAble"));
-        return;
-        }
-
         UE_LOG(LogTemp, Warning, TEXT("No valid hit on Drawable actor"));
+        return;
     }
 }
 
@@ -361,7 +344,7 @@ void AProjectPlayerController::DrawingObject_UseAbility()
     }
 
     DrawingActor->UseAbility();
-    DrawingActor->GetDecalActor()->Destroy(); //삭제
+    DrawingActor->GetDecalActor()->Destroy(); //Decal은 삭제
 }
 
 void AProjectPlayerController::RegisterDrawingActor(ADrawingBaseActor* _ADrawingBaseActor)
@@ -439,26 +422,18 @@ void AProjectPlayerController::SpawnDecalAtHit()
 
     if (!DecalMaterialMap[DrawingColor]) return;
 
-    // 1. Slightly offset the location to avoid z-fighting
     float Margin = 2.f;
     FVector SelectedSpawnLocation = Hit.ImpactPoint + Hit.ImpactNormal;
 
-    // 2. Base rotation: Forward aligned to impact normal
     FRotator BaseRotation = UKismetMathLibrary::MakeRotFromZ(Hit.ImpactNormal);
 
-    // 4. Spawn decal actor
     Decal = GetWorld()->SpawnActor<ADecalActor>(SelectedSpawnLocation, BaseRotation);
     if (!Decal) return;
 
-    // 5. Set decal material and size
     Decal->SetDecalMaterial(DecalMaterialMap[DrawingColor]);
 
-    //Decal->GetDecal()->DecalSize = FVector(); //나중에 유동적 사이즈로 변경 //어차피 아래에서 사이즈 변경해서 여기서 설정할 필요는 업승ㅁ
-
-    // 6. Optional lifespan
     Decal->SetLifeSpan(0.f);
 
-    // 7. Random rotation around decal forward axis (impact normal)
     const float RandomAngle = FMath::FRandRange(0.f, 360.f);
     const FVector RotationAxis = Hit.ImpactNormal;
 
@@ -577,8 +552,6 @@ void AProjectPlayerController::SpawnCubeAtHit()
                 default:
                     break;
                 }
-
-                
             }
         }
     }
@@ -905,8 +878,7 @@ void AProjectPlayerController::SpecialCameraSetting()
     if (!ProjectChar) return;
 
     FaceCameraAnchor = ProjectChar->FaceCameraAnchor;
-    //FaceCameraAnchor : 삼각대
-    //FaceCameraActor : 카메라
+
     if (FaceCameraActor) return;
     FaceCameraActor = GetWorld()->SpawnActor<ACameraActor>();
 }
@@ -920,9 +892,6 @@ void AProjectPlayerController::CameraGrayTrans()
 
 void AProjectPlayerController::CameraColorTrans()
 {
-    //if (!PCamera) return;
-    //PCamera->PostProcessSettings.ColorSaturation = FVector4(1, 1, 1, 1);
-    //UE_LOG(LogTemp, Warning, TEXT("Color"));
 
     if (!PostProcessVolume) return;
     PostProcessVolume->BlendWeight = 0.f;
@@ -1053,7 +1022,6 @@ void AProjectPlayerController::SetMinimapWidget(UMinimapWidget* widget)
 
 void AProjectPlayerController::StartCrouchBack()
 {
-    //PCharacter->GetCharacterMovement()->StopMovementImmediately();
 
     //시야, 이동 변경 금지
     SetIgnoreLookInput(true);
@@ -1105,7 +1073,6 @@ void AProjectPlayerController::StartDialogue() {
 
 }
 
-
 float AProjectPlayerController::CosineSimilarity(const TArray<float>& A, const TArray<float>& B)
 {
     if (A.Num() != B.Num()) return 0.f;
@@ -1135,7 +1102,6 @@ bool AProjectPlayerController::IsSameShape( const FString& PlayerImagePath, floa
     if (!RunONNX(PlayerImagePath, PlayerFeature))
         return false;
 
-    //UE_LOG(LogTemp, Warning, TEXT("PlayerFeature Num: %d"), PlayerFeature.Num());
     float Similarity = 0.f;
 
     switch (DrawingColor)
@@ -1157,13 +1123,12 @@ bool AProjectPlayerController::IsSameShape( const FString& PlayerImagePath, floa
         UE_LOG(LogTemp, Warning, TEXT("green"));
         break;
     case EColor::RANDOM:
-        Similarity = 1.f; //Random은 그냥 무조건 허용되게 해야함 모양을 모르니까
+        Similarity = 1.f;
         break;
     default:
         break;
     }
      
-
     UE_LOG(LogTemp, Warning, TEXT("Similarity: %f"), Similarity);
 
     return Similarity > Threshold;
@@ -1207,10 +1172,6 @@ bool AProjectPlayerController::RunONNX(const FString& ImagePath, TArray<float>& 
 
     InputBindings[0].Data = InputTensor.GetData();
     InputBindings[0].SizeInBytes = InputTensor.Num() * sizeof(float);
-
-    // -------------------------
-    // 출력 텐서 정보 가져오기
-    // -------------------------
   
     TConstArrayView<UE::NNE::FTensorShape> OutputShapes = ModelInstance->GetOutputTensorShapes();
     if (OutputShapes.Num() == 0)
@@ -1233,7 +1194,7 @@ bool AProjectPlayerController::RunONNX(const FString& ImagePath, TArray<float>& 
         NumElements *= Dim;
     }
 
-    // 3. 할당 크기 제한 (예: 최대 100 million)
+    // 3. 할당 크기 제한
     const int64 MaxElements = 100000000;
     if (NumElements > MaxElements)
     {

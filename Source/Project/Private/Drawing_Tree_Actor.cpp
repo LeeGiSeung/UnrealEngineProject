@@ -29,7 +29,6 @@ void ADrawing_Tree_Actor::Tick(float DeltaTime)
 
 void ADrawing_Tree_Actor::GrowTree()
 {
-	//if (CurTime > GrowTime) return; //성장 시간 넘기면 return
 	if (CurTime > Energy / 4) return; //성장 시간 넘기면 return
 	
 	FVector NewScale = GetActorScale3D();

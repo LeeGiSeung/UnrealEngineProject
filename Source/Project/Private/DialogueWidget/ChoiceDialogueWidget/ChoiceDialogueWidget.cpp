@@ -35,6 +35,7 @@ void UChoiceDialogueWidget::SetChoiceBaseSetting()
     if (!DirectingManager)
     {
         UE_LOG(LogTemp, Warning, TEXT("NO DIRECTINGMANAGER"));
+        return;
     }
 }
 
@@ -48,8 +49,6 @@ void UChoiceDialogueWidget::PlayerChoiceSelect(int _num)
     case 3: NextID = ChoiceRow->ChoiceTextAnswer4; break;
     default: return;
     }
-    
-    //UE_LOG(LogTemp, Warning, TEXT("%s"), *NextID.ToString());
 
     ProjectPlayerController->bShowMouseCursor = false;
 

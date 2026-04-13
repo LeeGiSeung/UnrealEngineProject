@@ -116,17 +116,16 @@ void AProjectCharacter::Tick(float DeltaTime)
 
 	Super::Tick(DeltaTime);
 
+	bool bHitWall = false;
+
 	FHitResult HitResult;
 	FVector Start = GetActorLocation();
-	FVector End = Start + (GetActorForwardVector() * 120.0f); // 그냥 항상 앞으로만 쏘면 됩니다.
+	FVector End = Start + (GetActorForwardVector() * 120.0f);
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
 
-	bool bHitWall = false;
-
 	if (!PlayerAnimInstance) return;
 
-	// WallChange 중일 때는 굳이 전방 트레이스 연산을 할 필요도 없습니다.
 	if (!PlayerAnimInstance->GetWallChange() && GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params))
 	{
 		if (FMath::Abs(HitResult.Normal.Z) < 0.2f)
@@ -134,27 +133,13 @@ void AProjectCharacter::Tick(float DeltaTime)
 			bHitWall = true;
 		}
 	}
-	//else {
-	//	if (PlayerAnimInstance->GetIsClimb()) {
-	//		if (PlayerAnimInstance->GetbWallUpStandTo()) {
-	//			GetCharacterMovement()->SetMovementMode(MOVE_Falling);
-	//			GetCharacterMovement()->bOrientRotationToMovement = true;
-	//			OffClimb();
-	//		}
-	//	}
-	//}
-
 
 	if (bHitWall && !PlayerAnimInstance->GetIsClimb() && GetCanClimb() && !PlayerAnimInstance->GetWallChange() && bOffClimb)
 	{
 		StartClimb(HitResult);
 	}
-	else {
 
-	}
-	
-
-	// 2. 이미 벽을 타고 있는 중일 때의 로직 (자동 올라가기 체크)
+	// 2. 이미 벽을 타고 있는 중일 때의 로직
 	if (PlayerAnimInstance->GetIsClimb())
 	{
 		ClimbAndStand(Params, bHitWall);
@@ -178,7 +163,7 @@ void AProjectCharacter::FallingRolling(FCollisionQueryParams& Params)
 {
 	FHitResult RollingHit;
 	FVector RollingStart = GetActorLocation();
-	FVector RollingEnd = RollingStart - FVector(0.f, 0.f, 300.f); // 아래로 쏨
+	FVector RollingEnd = RollingStart - FVector(0.f, 0.f, 300.f);
 
 	FCollisionQueryParams RollingParams;
 	Params.AddIgnoredActor(this);
@@ -213,18 +198,16 @@ void AProjectCharacter::ClimbAndStand(FCollisionQueryParams& Params, bool bHitWa
 
 	if (GetLastMovementInputVector().Y == 0.f && GetLastMovementInputVector().Z == 0)
 	{
-		// 애니메이션 파라미터도 중립으로 서서히 돌려보내고 싶다면 여기서 처리
 		PlayerAnimInstance->SetClimbInputXY(FVector2D(0.5f, 0.5f));
 	}
 
-	// 캡슐 중심에서 위로 올린 후 앞(벽 쪽)으로 조금 이동한 곳에서 아래로 트레이스
+	//캡슐 중심에서 위로 올린 후 앞쯕으로 조금 이동
 	FVector LedgeTraceStart = GetActorLocation() + FVector(0.f, 0.f, 150.f) + (GetActorForwardVector() * 50.f);
 	FVector LedgeTraceEnd = LedgeTraceStart - FVector(0.f, 0.f, 200.f);
 	FHitResult LedgeHit;
 
 	bool bHitLedge = GetWorld()->LineTraceSingleByChannel(LedgeHit, LedgeTraceStart, LedgeTraceEnd, ECC_Visibility, Params);
 
-	// 1. 애니메이션이 실제로 올라가는 높이 (에디터에서 확인 후 입력)
 	const float AnimationClimbHeight = 150.0f;
 
 	if (bHitLedge && !PlayerAnimInstance->GetIsClimbStand())
@@ -233,19 +216,16 @@ void AProjectCharacter::ClimbAndStand(FCollisionQueryParams& Params, bool bHitWa
 		float LedgeZ = LedgeHit.ImpactPoint.Z;
 		float CharacterFootZ = GetActorLocation().Z - GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 
-		// 캐릭터의 '발' 위치에서 벽 꼭대기까지의 실제 거리
+		// 캐릭터의 발 위치에서 벽 꼭대기까지의 실제 거리
 		float VerticalDistanceToLedge = LedgeZ - CharacterFootZ;
 
-		// 2. 오차 범위 설정 (약 5~10 unit 정도의 여유)
+		//오차 범위
 		float ErrorMargin = 10.0f;
-
-		//UE_LOG(LogTemp, Error, TEXT("LedgeZ : %f ChatercterFootZ : %f VertiicalDeistanceToLEDGE : %f"), LedgeZ, CharacterFootZ, VerticalDistanceToLedge);
 
 		// 현재 남은 거리가 애니메이션이 올라갈 높이와 거의 일치할 때 실행
 		if (FMath::IsWithin(VerticalDistanceToLedge, AnimationClimbHeight - 5.f, AnimationClimbHeight + 5.f))
 		{
 			GetCharacterMovement()->StopMovementImmediately();
-			// 상태 전환 및 타이머 실행
 			StandUpTo();
 			SetbUseFTimerHandle();
 		}
@@ -440,21 +420,16 @@ void AProjectCharacter::Move(const FInputActionValue& Value)
 
 			PlayerAnimInstance->SetClimbInputXY(FVector2D(TargetX, TargetY));
 
-			//if (TargetY == 0.5f) TargetY = 1.f;
-			//if (TargetX == 0.5f) TargetX = 1.f;
-
 			// 2. 실제 캐릭터 이동 처리
-			// 클라이밍 상태에서는 캐릭터의 Up 벡터가 '위', Right 벡터가 '오른쪽'이 됩니다.
+			// 클라이밍 상태에서는 캐릭터의 Up 벡터가 위, Right 벡터가 오른쪽
 			const FVector UpDirection = GetActorUpVector();
 			const FVector RightDirection = GetActorRightVector();
 
 			MovementVector = MovementVector / 5;
-
-			// 입력값에 따라 이동 명령 전달
 			
-			// MovementVector.Y (W/S) -> 위/아래 이동
+			//위/아래 이동
 			AddMovementInput(UpDirection, MovementVector.Y);
-			// MovementVector.X (A/D) -> 왼쪽/오른쪽 이동
+			//왼쪽/오른쪽 이동
 			AddMovementInput(RightDirection, MovementVector.X);
 
 		}
@@ -531,7 +506,7 @@ bool AProjectCharacter::CheckWallBehind(float Distance)
 		}
 	}
 
-	// 벽이 없거나 수직이 아님 (빨간색 선)
+	// 벽이 없거나 수직이 아님
 	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 1.0f, 0, 2.0f);
 	return false;
 }

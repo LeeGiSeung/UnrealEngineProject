@@ -75,16 +75,11 @@ void ADialogueManager::BeginPlay()
 
 }
 
-//외부 Actor로 부터 상호작용해 컷신 시작하기
 void ADialogueManager::StartDialogue(FName _ID, EDialogueUIType _Type)
 {
-	//여기서 csv에 접근해서 ID, eventkey 등 여러개 가져와야함
-
-	ID = _ID; //처음 아이디 지정
-	UIType = _Type; //처음 UITYPE 지정
+	ID = _ID;
+	UIType = _Type;
 	SetUseIdalogue(true);
-	
-	//현재 보여줘야 하는 컷신을 정해줌
 
 	ProjectPlayerController->IgnoreLookMove();
 
@@ -131,7 +126,6 @@ void ADialogueManager::ShowCurDialogue()
 		EventKey = NormalRow->DirectingKey;
 
 		break;
-		//선택지 넘길 수 있게 추가해야함
 
 	case EDialogueUIType::Choice:
 		ChoiceRow = DialogueChoiceTable->FindRow<FChoiceDialogueRow>(ID, TEXT("No Choice"));
@@ -183,11 +177,6 @@ void ADialogueManager::ShowCurDialogue()
 	}
 
 	CurUIType = UIType;
-
-	//CurDialogueWidget = CreateWidget<UBaseDialogueWidget>(
-	//	GetWorld()->GetFirstPlayerController(),
-	//	DialogueWidgetMap[UIType]);
-
 
 	switch (UIType)
 	{

@@ -69,15 +69,10 @@ void ADrawing_Fire_Actor::UseAbility()
 
         FVector Normal = hit.ImpactNormal;
 
-        constexpr float SurfaceThreshold = 0.7f;
+        float SurfaceThreshold = 0.7f;
 
-        // 표면 법선 기준 회전
         FRotator SelectedSpawnRotation = UKismetMathLibrary::MakeRotFromZ(Normal);
-
-        //CurLocation.Z += 100; //이것도 나중에 유동적 사이즈 되면 수정할거
         FVector Forward = GetActorForwardVector();
-
-
 
         if (ABurnActor_Meteor* actor = Cast<ABurnActor_Meteor>(hit.GetActor())) {
             FireComp = UNiagaraFunctionLibrary::SpawnSystemAttached(
