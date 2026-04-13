@@ -66,7 +66,7 @@ void USoundManager::OnFinishedPlayDialogueSound()
 {
 	if (CurType != EDialogueUIType::Auto) return;
 	//Normal, Choice는 현재 npc의 음성과 관계없이 선택을 해야 넘어가지만, 
-	//Auto는 사람 말이 끝나야 넘어가는게 있음
+	//Auto는 사람 말이 끝나야 넘어가야 한다.
 
 	for (TActorIterator<ADialogueManager> It(GetWorld()); It; ++It)
 	{
@@ -74,13 +74,13 @@ void USoundManager::OnFinishedPlayDialogueSound()
 		break;
 	}
 
-	check(DialogueManager); // 없으면 바로 알 수 있게
+	check(DialogueManager);
 
 	GetWorld()->GetTimerManager().SetTimer(
 		SoundDelayHandle,
 		DialogueManager,
 		&ADialogueManager::NextNormalDialogue,
-		1.0f,      // 딜레이 시간
-		false      // 반복 아님
+		1.0f,
+		false
 	);
 }

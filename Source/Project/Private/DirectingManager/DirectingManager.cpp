@@ -9,9 +9,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 #include "MovieSceneBinding.h"
-#include "MovieSceneObjectBindingID.h"
-
-
 
 ADirectingManager::ADirectingManager()
 {
@@ -41,7 +38,7 @@ void ADirectingManager::PlayEvent(FName DirectingKey, EDialogueUIType value)
     if (!Row) return;
 
     UIType = value;
-    LoopFrame = Row->LoopFrame; //LoopFrame
+    LoopFrame = Row->LoopFrame;
     SetLevelSequencePlay(false);
     PlayLevelSequence(Row->LevelSequence);
 
