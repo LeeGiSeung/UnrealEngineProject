@@ -84,7 +84,7 @@ void USkillWidget::SkillLevelUp()
 
     int CurLevel = LastRecoardSkillButtonWidget->GetSkillLevel();
 
-    UE_LOG(LogTemp, Error, TEXT("(LastRecoardSkillButtonWidget->GetMaxSkillLevel() %d , CurLevel : %d"), LastRecoardSkillButtonWidget->GetMaxSkillLevel(), CurLevel);
+    //UE_LOG(LogTemp, Error, TEXT("(LastRecoardSkillButtonWidget->GetMaxSkillLevel() %d , CurLevel : %d"), LastRecoardSkillButtonWidget->GetMaxSkillLevel(), CurLevel);
 
     if (LastRecoardSkillButtonWidget->GetMaxSkillLevel() < CurLevel + 1) return;
 

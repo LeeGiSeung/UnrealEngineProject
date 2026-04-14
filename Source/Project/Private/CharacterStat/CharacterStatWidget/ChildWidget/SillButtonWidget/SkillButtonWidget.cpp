@@ -22,7 +22,6 @@ void USkillButtonWidget::NativeConstruct()
 
 void USkillButtonWidget::SettingSkillLevel(int value)
 {
-
 	SettingNodeImage(true);
 
 	CurSkillLevel = FMath::Clamp(value, 1, MaxSkillLevel);
@@ -63,7 +62,6 @@ void USkillButtonWidget::SettingNodeImage(bool value)
 
 void USkillButtonWidget::SettingSkillImage(UTexture2D* texture)
 {
-
 	SkillImage->SetBrushFromTexture(texture);
 }
 

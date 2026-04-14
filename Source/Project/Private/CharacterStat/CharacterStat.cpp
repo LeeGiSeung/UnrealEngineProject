@@ -20,17 +20,14 @@
 
 void ACharacterStat::SetBeginServerData()
 {
-    // Http 모듈 싱글톤 인스턴스 가져오기
     FHttpModule* Http = &FHttpModule::Get();
 
     if (Http)
     {
         TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
 
-        // ... 이후 URL 세팅 및 요청 로직
         Request->SetURL(TEXT("http://localhost:3000/api/skills/player_01"));
         Request->SetVerb(TEXT("GET"));
-        // BindUObject를 사용하고, 인자가 포함된 함수를 연결합니다.
         Request->OnProcessRequestComplete().BindUObject(this, &ACharacterStat::OnCharacterDataReceived);
 
         Request->ProcessRequest();
@@ -53,8 +50,6 @@ void ACharacterStat::OnCharacterDataReceived(FHttpRequestPtr Request, FHttpRespo
     {
         FCharacterDataWrapper RawData;
 
-        // [중요] Postman 결과처럼 데이터가 바로 들어오므로, 
-        // 추가적인 Field 체크 없이 바로 UStruct로 변환합니다.
         if (FJsonObjectConverter::JsonObjectToUStruct(JsonObject.ToSharedRef(), FCharacterDataWrapper::StaticStruct(), &RawData, 0, 0))
         {
             if (SkillWidget) SkillWidget->UpdateWithServerData(RawData.SkillInfo);
@@ -62,7 +57,7 @@ void ACharacterStat::OnCharacterDataReceived(FHttpRequestPtr Request, FHttpRespo
             if (RelicWidget) RelicWidget->UpdateWithServerData(RawData.Relicinfo);
             if (MainWidget)  MainWidget->UpdateWithServerData(RawData.Maininfo);
 
-            UE_LOG(LogTemp, Log, TEXT("Successfully updated data for: %s"), *RawData.CharacterName);
+            //UE_LOG(LogTemp, Log, TEXT("Successfully updated data for: %s"), *RawData.CharacterName);
         }
         else
         {
@@ -278,16 +273,6 @@ FName ACharacterStat::GetCurrentCharacterKey()
 
 void ACharacterStat::PlayAnimation(ECharacterMenuState value)
 {
-    //Y 수직 X 수평
-    //1 main 정면
-    //2 relic 오른쪽 위
-    //3 skill 왼쪽 아래
-    //4 star 왼쪽 위
-
-    //Relic	Skill
-
-    //Main	Star
-
     switch (value)
     {
     case ECharacterMenuState::Main:
@@ -332,12 +317,10 @@ void ACharacterStat::SendSkillUpgradeToServer()
     if (StarWidget)  TotalData.StarInfo = StarWidget->GetStarInfo();
     if (MainWidget)  TotalData.Maininfo = MainWidget->GetMainInfo();
 
-    // 2. 서버 URL 및 헤더 설정
     Request->SetURL(TEXT("http://localhost:3000/api/skills/player_01"));
     Request->SetVerb(TEXT("POST"));
     Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
 
-    // 3. FCharacterDataWrapper 전체를 JSON 문자열로 변환
     FString JsonString;
     if (FJsonObjectConverter::UStructToJsonObjectString(TotalData, JsonString))
     {

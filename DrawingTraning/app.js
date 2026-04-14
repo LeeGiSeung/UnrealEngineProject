@@ -50,7 +50,7 @@ async function initializeDatabase() {
                     CriticalDamage: 50
                 },
                 relicinfo: {
-                    Part_0: { RelicId: "Relic.Four.Redskull", RelicImageId: "Relic.Four.Redskull", Level: 3, HP: 150, Attack: 10, Defence: 25, Force: 5, Critical: 2.5, CriticalDamage: 10 },
+                    Part_0: { RelicId: "Relic.Four.RedSkull", RelicImageId: "Relic.Four.RedSkull", Level: 3, HP: 150, Attack: 10, Defence: 25, Force: 5, Critical: 2.5, CriticalDamage: 10 },
                     Part_1: { RelicId: "Relic.Three.RedSkull", RelicImageId: "Relic.Three.RedSkull", Level: 2, HP: 120, Attack: 5, Defence: 20, Force: 3, Critical: 1, CriticalDamage: 5 },
                     Part_2: { RelicId: "Relic.Three.BlueSkull", RelicImageId: "Relic.Three.BlueSkull", Level: 4, HP: 80, Attack: 15, Defence: 10, Force: 6, Critical: 3, CriticalDamage: 8 },
                     Part_3: { RelicId: "Relic.One.RedSkull", RelicImageId: "Relic.One.RedSkull", Level: 1, HP: 60, Attack: 2, Defence: 12, Force: 2, Critical: 0.5, CriticalDamage: 2 },
@@ -94,6 +94,8 @@ app.post('/api/relics/:playerId', async (req, res) => {
         // 언리얼에서 'InventoryRelics'라는 이름으로 배열을 보낸다고 가정합니다.
         const { InventoryRelics } = req.body;
 
+        console.log(req.body);
+
         const updated = await Player.findOneAndUpdate(
             { playerId: playerId },
             { $set: { InventoryRelics: InventoryRelics } }, // 인벤토리 필드만 정밀 타격해서 수정
@@ -116,8 +118,12 @@ app.get('/api/relics/:playerId', async (req, res) => {
         // DB에서 해당 유저를 찾는데, InventoryRelics 필드만 골라서 가져옵니다.
         const player = await Player.findOne({ playerId: playerId }, 'InventoryRelics');
 
+
+
         if (player) {
             // 인벤토리 배열만 깔끔하게 응답
+            console.log("인벤토리 Get 요청 성공");
+            console.log("응답 보냄:", player.InventoryRelics);
             res.json({ InventoryRelics: player.InventoryRelics });
         } else {
             res.status(404).json({ message: "Player Not Found" });

@@ -225,7 +225,6 @@ void URelic_List_Widget::PostRelicInventory()
 {
 	TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest();
 
-	// 1. 데이터 만들기
 	FInventoryResponse InventoryResponse;
 
 	for (int i = 0; i < RelicButton_Array.Num(); i++) {
@@ -234,7 +233,7 @@ void URelic_List_Widget::PostRelicInventory()
 		);
 	}
 
-	// 2. JSON 변환
+	// JSON 변환
 	FString JsonString;
 	if (!FJsonObjectConverter::UStructToJsonObjectString(InventoryResponse, JsonString))
 	{
@@ -242,17 +241,13 @@ void URelic_List_Widget::PostRelicInventory()
 		return;
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("Sending Full Relic Data: %s"), *JsonString);
-
-	//UE_LOG(LogTemp, Warning, TEXT("Sending JSON: %s"), *JsonString);
-
-	// 3. 요청 세팅
+	// 요청 세팅
 	Request->SetURL(TEXT("http://127.0.0.1:3000/api/relics/player_01"));
 	Request->SetVerb(TEXT("POST"));
 	Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
 	Request->SetContentAsString(JsonString);
 
-	// 4. 응답 처리
+	// 응답 처리
 	Request->OnProcessRequestComplete().BindLambda(
 		[](FHttpRequestPtr Req, FHttpResponsePtr Res, bool bSuccess)
 		{
@@ -261,10 +256,6 @@ void URelic_List_Widget::PostRelicInventory()
 				UE_LOG(LogTemp, Error, TEXT("POST Failed"));
 				return;
 			}
-
-			
-
-			//UE_LOG(LogTemp, Warning, TEXT("POST Success"));
 		}
 	);
 

@@ -42,7 +42,7 @@ void UMainWidget::UpdateWithServerData(const FMaininfo& Data)
 	WidgetSetText(Force_Content, maininfo.Force, FString("%"));
 	WidgetSetText(Critical_Content, maininfo.Critical, FString("%"));
 	WidgetSetText(CriticalDamage_Content, maininfo.CriticalDamage, FString("%"));
-	WidgetSetText(LVTextBlock, Data.Level, FString(" .LV")); //오버라이드 된거임
+	WidgetSetText(LVTextBlock, Data.Level, FString(" .LV")); //오버라이드
 
 	EXPBar->SetPercent(Data.LevelEXP);
 	
