@@ -83,6 +83,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Falling")
 	bool bIsFullFalling;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Together")
+	bool bIsIsTogether = true;
 
 	bool GetIsCppFalling() {
 		return bIsCppFalling;
