@@ -193,7 +193,6 @@ void ACharacterStat::SwitchCameraComponent(ECharacterMenuState MenuState)
 
     if (TargetCam)
     {
-        // 목표 지점을 해당 카메라의 '상대 좌표'로 설정합니다.
         TargetLocation = TargetCam->GetRelativeLocation();
         TargetRotation = TargetCam->GetRelativeRotation();
     }
@@ -296,7 +295,6 @@ void ACharacterStat::PlayAnimation(ECharacterMenuState value)
 // .cpp 파일 구현
 void ACharacterStat::SendSkillUpgradeToServer()
 {
-    //UE_LOG(LogTemp, Error, TEXT("SendSkillUpgradeToServer"));
 
     FHttpModule* Http = &FHttpModule::Get();
     if (!Http) return;

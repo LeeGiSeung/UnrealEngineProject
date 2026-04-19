@@ -12,7 +12,7 @@
 //ONNX Model
 #include "NNE.h"
 #include "NNERuntimeCPU.h"
-#include  "NNEModelData.h"
+#include "NNEModelData.h"
 #include "NNERuntime.h"
 
 #include "ProjectPlayerController.generated.h"

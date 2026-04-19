@@ -184,7 +184,6 @@ void AProjectCharacter::FallingRolling(FCollisionQueryParams& Params)
 		{
 			if (FallingTime > 1.f)
 			{
-				UE_LOG(LogTemp, Error, TEXT("Falling"));
 				PlayerAnimInstance->SetIsFullFalling(true);
 				FallingTime = 0.f;
 			}
@@ -263,8 +262,6 @@ void AProjectCharacter::StartClimb(FHitResult& HitResult)
 	float Distance = GetCapsuleComponent()->GetScaledCapsuleRadius();
 	FVector NewLocation = HitResult.ImpactPoint + (WallNormal * Distance) + FVector(0.0f, 0.0f, 15.0f);;
 
-	// 일반 등반일 때만 SetActorLocation으로 벽에 즉시 붙여줌
-	// (WallChange 애니메이션 도중에는 강제 이동시키면 애니메이션이 튈 수 있으므로 제외)
 	if (!PlayerAnimInstance->GetWallChange()) {
 		SetActorLocation(NewLocation);
 	}
@@ -415,8 +412,6 @@ void AProjectCharacter::Move(const FInputActionValue& Value)
 
 			float TargetX = (MovementVector.X * 0.5f) + 0.5;
 			float TargetY = (MovementVector.Y * 0.5f) + 0.5;
-
-			//UE_LOG(LogTemp, Error, TEXT("TargetX : %f, TargetY : %f"), TargetX, TargetY);
 
 			PlayerAnimInstance->SetClimbInputXY(FVector2D(TargetX, TargetY));
 

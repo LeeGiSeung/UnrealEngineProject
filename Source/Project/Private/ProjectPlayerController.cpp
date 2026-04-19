@@ -274,16 +274,6 @@ void AProjectPlayerController::SpawnDecalActor(TArray<FVector2D> _DrawPosition, 
 
     if (!IsSameShape(ImagePath, Threshold)) return;
 
-    //코사인 검사
-//bool bIsCorrect = IsSameShape(
-//    ImagePath,
-//    Threshold);
-
-    //if (!bIsCorrect) return;
-    //{
-    //    UE_LOG(LogTemp, Warning, TEXT("yes !"));
-    //}
-
 #if !UE_BUILD_SHIPPING
     //DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.f, 0, 1.f); //디버그 모드에서만 line그려서 검사확인
 #endif
@@ -305,26 +295,18 @@ void AProjectPlayerController::SpawnRandomActor()
 
     if (!DecalMaterialMap[DrawingColor]) return;
 
-    // 1. Slightly offset the location to avoid z-fighting
     float Margin = 2.f;
     FVector SelectedSpawnLocation = Hit.ImpactPoint + Hit.ImpactNormal;
 
-    // 2. Base rotation: Forward aligned to impact normal
     FRotator BaseRotation = UKismetMathLibrary::MakeRotFromZ(Hit.ImpactNormal);
 
-    // 4. Spawn decal actor
     Decal = GetWorld()->SpawnActor<ADecalActor>(SelectedSpawnLocation, BaseRotation);
     if (!Decal) return;
     
-    // 5. Set decal material and size
     Decal->SetDecalMaterial(DecalMaterialMap[DrawingColor]);
 
-    //Decal->GetDecal()->DecalSize = FVector(); //나중에 유동적 사이즈로 변경 //어차피 아래에서 사이즈 변경해서 여기서 설정할 필요는 업승ㅁ
-
-    // 6. Optional lifespan
     Decal->SetLifeSpan(0.f);
 
-    // 7. Random rotation around decal forward axis (impact normal)
     const float RandomAngle = FMath::FRandRange(0.f, 360.f);
     const FVector RotationAxis = Hit.ImpactNormal;
 
@@ -825,7 +807,7 @@ void AProjectPlayerController::BeginPlay() {
         ),
         FireFeature))
     {
-        UE_LOG(LogTemp, Error, TEXT("Failed to generate FireFeature")); //여기 오류
+        UE_LOG(LogTemp, Error, TEXT("Failed to generate FireFeature"));
         return;
     }
 
@@ -1182,7 +1164,7 @@ bool AProjectPlayerController::RunONNX(const FString& ImagePath, TArray<float>& 
 
     const UE::NNE::FTensorShape& OutputShape = OutputShapes[0];
 
-    // 2. 차원 값 유효성 검사 및 요소 수 계산
+    //유효성 검사 및 요소 수 계산
     int64 NumElements = 1;
     for (int32 Dim : OutputShape.GetData())
     {

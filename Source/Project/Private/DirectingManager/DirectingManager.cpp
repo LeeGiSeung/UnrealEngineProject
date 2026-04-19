@@ -91,11 +91,6 @@ void ADirectingManager::SetLevelSequencePlay(bool _value)
     }
 }
 
-bool ADirectingManager::GetLevelSequencePlay()
-{
-    return bLevelSequencePlay;
-}
-
 void ADirectingManager::EndLevelSequence()
 {
 
@@ -109,7 +104,12 @@ void ADirectingManager::EndLevelSequence()
         Params.PositionType = EMovieScenePositionType::Frame;
 
         SequencePlayer->SetPlaybackPosition(Params);
-    }    
+    }
+}
+
+bool ADirectingManager::GetLevelSequencePlay()
+{
+    return bLevelSequencePlay;
 }
 
 void ADirectingManager::SetNextFrame(bool _value)

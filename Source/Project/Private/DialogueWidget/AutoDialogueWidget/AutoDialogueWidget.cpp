@@ -40,6 +40,8 @@ void UAutoDialogueWidget::SetAutoBaseSetting()
 
     TextTime += AutoRow->FirstText.ToString().Len();
     TextTime += AutoRow->SecondText.ToString().Len();
+
+    UE_LOG(LogTemp, Error, TEXT("Limit Time : %f"), TextTime);
 }
 
 void UAutoDialogueWidget::CheckAutoDialogueTime(float DeltaTime)
@@ -48,7 +50,11 @@ void UAutoDialogueWidget::CheckAutoDialogueTime(float DeltaTime)
 
     CurAutoTime += DeltaTime * 3;
 
+    
+
     if (CurAutoTime >= TextTime) {
+        UE_LOG(LogTemp, Error, TEXT("CurAutoTime : %f"), CurAutoTime);
+        TextTime = 0.f;
         CurAutoTime = 0.f;
         DirectingManager->SetLevelSequencePlay(true);
         DialogueManager->StartDialogue(AutoRow->NextID, AutoRow->UIType);

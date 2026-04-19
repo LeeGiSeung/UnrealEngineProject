@@ -56,17 +56,15 @@ void USoundManager::StopDialogueSound()
 	if (!AudioComp)
 		return;
 
-	if (AudioComp->IsPlaying())
-	{
-		AudioComp->Stop();
-	}
+	if (AudioComp->IsPlaying()) AudioComp->Stop();
+
 }
 
 void USoundManager::OnFinishedPlayDialogueSound()
 {
 	if (CurType != EDialogueUIType::Auto) return;
 	//Normal, Choice는 현재 npc의 음성과 관계없이 선택을 해야 넘어가지만, 
-	//Auto는 사람 말이 끝나야 넘어가야 한다.
+	//Auto는 음성이 끝나야 넘어가야 한다.
 
 	for (TActorIterator<ADialogueManager> It(GetWorld()); It; ++It)
 	{
@@ -84,3 +82,6 @@ void USoundManager::OnFinishedPlayDialogueSound()
 		false
 	);
 }
+
+
+

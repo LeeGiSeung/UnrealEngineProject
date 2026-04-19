@@ -55,9 +55,7 @@ bool URelicButtonWidget::NativeOnDrop(const FGeometry& InGeometry, const FDragDr
 
 
 		if (Relic_List_Widget) {
-			//UE_LOG(LogTemp, Error, TEXT("StartWidge"));
 			if (!DraggedData->GetRelicTexture2D()) return false;
-			//Relic_List_Widget->HandleRelicDrop(DraggedData, this);
 		}
 
 		return true;

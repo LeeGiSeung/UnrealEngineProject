@@ -89,6 +89,7 @@ void ADialogueManager::StartDialogue(FName _ID, EDialogueUIType _Type)
 }
 
 //현재 적용돼있는 ID에 해당하는 Dialogue를 보여줌
+
 void ADialogueManager::ShowCurDialogue()
 {
 
@@ -272,9 +273,6 @@ void ADialogueManager::ResetCurDialogueWidget()
 	CurDialogueWidget->SetDownEmpty();
 
 	CurDialogueWidget->SetVisibility(ESlateVisibility::Collapsed);
-
-	//CurDialogueWidget->RemoveFromParent();
-	//CurDialogueWidget = nullptr;
 }
 
 void ADialogueManager::ChangeCurDialogueWidgetNormalText()
@@ -340,7 +338,6 @@ void ADialogueManager::ChangeCurDialogueWidgetAutoText()
 		if (AutoRow->FirstText.IsEmptyOrWhitespace()) CurDialogueWidget->SetMiddleText(AutoRow->SecondText);
 		else if (AutoRow->SecondText.IsEmptyOrWhitespace()) {
 			CurDialogueWidget->SetMiddleText(AutoRow->FirstText);
-			UE_LOG(LogTemp, Warning, TEXT("FDSAFS"));
 		}
 		CurDialogueWidget->SetUpEmpty();
 		CurDialogueWidget->SetDownEmpty();
@@ -355,8 +352,6 @@ void ADialogueManager::ChangeCurDialogueWidgetAutoText()
 
 void ADialogueManager::ChangeCurDialogueWidgetChoice()
 {
-	CurDialogueWidget;
-	ChoiceRow;
 
 	int NumCount = 0;
 
@@ -375,7 +370,6 @@ void ADialogueManager::ChangeCurDialogueWidgetChoice()
 		Cast<UChoiceDialogueWidget>(CurDialogueWidget)->SetFourChoice();
 	}
 	else {
-		UE_LOG(LogTemp, Warning, TEXT("NO CHOICENUM"));
 		return;
 	}
 

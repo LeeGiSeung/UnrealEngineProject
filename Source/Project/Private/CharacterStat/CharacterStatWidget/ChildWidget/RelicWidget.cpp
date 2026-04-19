@@ -128,7 +128,7 @@ void URelicWidget::SyncRelicInfoFromUI()
 void URelicWidget::ChangeRelicArray(TArray<URelicButtonWidget*>* value)
 {
 
-	RelicAllContent->ResetRelicStat(); //바꾸기전에 초기화
+	RelicAllContent->ResetRelicStat();
 
 	for (int i = 0; i < RelicArray.Num(); i++) {
 
