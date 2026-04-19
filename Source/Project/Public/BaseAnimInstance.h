@@ -83,9 +83,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Falling")
 	bool bIsFullFalling;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Together")
-	bool bIsIsTogether = true;
-
 	bool GetIsCppFalling() {
 		return bIsCppFalling;
 	}
@@ -126,4 +123,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "WallUpStandTo")
 	void StartWallUpStandTo();
+
+//#Together
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Together")
+	bool bIsTogether;
+
+	void SetbIsTogether(bool value);
+	bool GetbIsTogether();
+
 };

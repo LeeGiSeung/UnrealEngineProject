@@ -16,6 +16,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "BaseAnimInstance.h"
 #include "DialogueWidget/MinimapWidget/MinimapWidget.h"
+#include "NPC/TogetherRun/TogetherRunBase.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -107,6 +108,28 @@ void AProjectCharacter::BeginPlay()
 	}
 	else {
 		UE_LOG(LogTemp, Error, TEXT("MinimapWidget No PlayerCharacter"));
+	}
+
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATogetherRunBase::StaticClass(), FoundActors);
+
+	FVector MyLocation = GetActorLocation();
+
+	for (AActor* Actor : FoundActors)
+	{
+		float Distance = FVector::Dist(MyLocation, Actor->GetActorLocation());
+
+		if (Distance <= 500.f)
+		{
+			if (ATogetherRunBase* TogetherRunBaseActor_Sub = Cast<ATogetherRunBase>(Actor)) {
+				TogetherRunBaseActor = TogetherRunBaseActor_Sub;
+				break;
+			}
+		}
+	}
+
+	if (TogetherRunBaseActor) {
+		PlayerAnimInstance->SetbIsTogether(true);
 	}
 
 }

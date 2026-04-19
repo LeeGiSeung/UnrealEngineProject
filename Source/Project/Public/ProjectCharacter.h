@@ -15,6 +15,7 @@ class UInputAction;
 class AProjectPlayerController;
 class UBaseAnimInstance;
 class UMinimapWidget;
+class ATogetherRunBase;
 
 struct FInputActionValue;
 
@@ -203,5 +204,14 @@ public:
 //#MinimapWidget
 	UPROPERTY(EditAnywhere, BlueprintReadWrite ,Category = "MinimapWidget")
 	UMinimapWidget* MinimapWidget;
+
+
+//TogetherRun
+public:
+	UPROPERTY(BlueprintReadWrite, Category = "Essential Movement Data")
+	float fGroundSpeed;
+
+	UPROPERTY()
+	ATogetherRunBase* TogetherRunBaseActor;
 };
 

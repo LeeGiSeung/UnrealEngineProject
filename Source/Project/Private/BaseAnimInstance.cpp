@@ -188,3 +188,13 @@ void UBaseAnimInstance::StartWallUpStandTo()
 {
 	SetbWallUpStandTo(true);
 }
+
+void UBaseAnimInstance::SetbIsTogether(bool value)
+{
+	bIsTogether = value;
+}
+
+bool UBaseAnimInstance::GetbIsTogether()
+{
+	return bIsTogether;
+}
