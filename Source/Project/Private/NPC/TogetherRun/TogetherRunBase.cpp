@@ -5,6 +5,8 @@
 
 #include "ProjectCharacter.h"
 #include "NPC/TogetherRun/AnimInstance/TogetherRunAnimInstance.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 ATogetherRunBase::ATogetherRunBase()
@@ -27,6 +29,8 @@ void ATogetherRunBase::BeginPlay()
 
 	TogetherRunAnimInstance = Cast<UTogetherRunAnimInstance>(GetMesh()->GetAnimInstance());
 
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+
 }
 
 void ATogetherRunBase::SetProjectPlayerReference(AProjectCharacter* Player)
@@ -41,6 +45,10 @@ void ATogetherRunBase::Tick(float DeltaTime)
 
 	if (!PlayerCharacter) return;
 
+	FVector Direction = PlayerCharacter->GetActorForwardVector();
+
+	AddMovementInput(Direction, 1.0f);
+
 }
 
 // Called to bind functionality to input
@@ -53,6 +61,8 @@ void ATogetherRunBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 void ATogetherRunBase::SetTogetherActorSpeed(float value)
 {
 	fGroundSpeed = value;
+	GetCharacterMovement()->MaxWalkSpeed = fGroundSpeed;
+
 	TogetherRunAnimInstance->SetfTogetherAnimGroundSpeed(fGroundSpeed);
 
 	TogetherRunAnimInstance->SetfTogetherAnimShouldMove(fGroundSpeed > 0);
