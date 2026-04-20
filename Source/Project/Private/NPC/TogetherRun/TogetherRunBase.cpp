@@ -2,6 +2,7 @@
 
 
 #include "NPC/TogetherRun/TogetherRunBase.h"
+#include "ProjectCharacter.h"
 
 // Sets default values
 ATogetherRunBase::ATogetherRunBase()
@@ -11,17 +12,30 @@ ATogetherRunBase::ATogetherRunBase()
 
 }
 
+
+
 // Called when the game starts or when spawned
 void ATogetherRunBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	FReferenceProjectPlayer.AddUObject(this , &ATogetherRunBase::SetProjectPlayerReference);
+
+	OnfGroundSpeedFromPlayer.AddUObject(this, &ATogetherRunBase::SetTogetherActorSpeed);
+
+}
+
+void ATogetherRunBase::SetProjectPlayerReference(AProjectCharacter* Player)
+{
+	PlayerCharacter = Player;
 }
 
 // Called every frame
 void ATogetherRunBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (!PlayerCharacter) return;
 
 }
 
@@ -30,5 +44,11 @@ void ATogetherRunBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void ATogetherRunBase::SetTogetherActorSpeed(float value)
+{
+	fGroundSpeed = value;
+	UE_LOG(LogTemp, Error, TEXT("TogetherActor fGroundSpeed : %f"), value);
 }
 

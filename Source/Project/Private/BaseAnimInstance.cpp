@@ -198,3 +198,13 @@ bool UBaseAnimInstance::GetbIsTogether()
 {
 	return bIsTogether;
 }
+
+void UBaseAnimInstance::SetfGroundSpeed(float value)
+{
+	fGroundSpeed = value;
+
+	if (!OwningCharacter) return;
+
+	OwningCharacter->GetGroundSpeedTo.Broadcast(fGroundSpeed);
+
+}

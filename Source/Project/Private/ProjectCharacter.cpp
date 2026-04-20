@@ -110,6 +110,8 @@ void AProjectCharacter::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("MinimapWidget No PlayerCharacter"));
 	}
 
+	GetGroundSpeedTo.AddUObject(this, &AProjectCharacter::SetfGroundSpeedToAniminstance);
+
 	FindTogetherRunActor();
 
 }
@@ -135,6 +137,7 @@ void AProjectCharacter::FindTogetherRunActor()
 	}
 
 	if (TogetherRunBaseActor) {
+		TogetherRunBaseActor->FReferenceProjectPlayer.Broadcast(this);
 		PlayerAnimInstance->SetbIsTogether(true);
 	}
 }
@@ -579,4 +582,15 @@ void AProjectCharacter::CheckGroundWhileClimbing()
 void AProjectCharacter::SetOffClimbTrue()
 {
 	bOffClimb = true;
+}
+
+float AProjectCharacter::GetfGroundSpeed()
+{
+	return fGroundSpeed;
+}
+
+void AProjectCharacter::SetfGroundSpeedToAniminstance(float value)
+{
+	fGroundSpeed = value;
+	TogetherRunBaseActor->OnfGroundSpeedFromPlayer.Broadcast(fGroundSpeed);
 }

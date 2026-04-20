@@ -6,6 +6,11 @@
 #include "GameFramework/Character.h"
 #include "TogetherRunBase.generated.h"
 
+class AProjectCharacter;
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerActorReference, AProjectCharacter*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnfGroundSpeedFromPlayer, float);
+
 UCLASS()
 class PROJECT_API ATogetherRunBase : public ACharacter
 {
@@ -14,6 +19,12 @@ class PROJECT_API ATogetherRunBase : public ACharacter
 public:
 	// Sets default values for this character's properties
 	ATogetherRunBase();
+
+	FOnfGroundSpeedFromPlayer OnfGroundSpeedFromPlayer;
+
+	FOnPlayerActorReference FReferenceProjectPlayer;
+
+	void SetProjectPlayerReference(AProjectCharacter* Player);
 
 protected:
 	// Called when the game starts or when spawned
@@ -28,5 +39,10 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "GroundSpeed")
 	float fGroundSpeed;
+
+	UPROPERTY()
+	AProjectCharacter* PlayerCharacter;
+
+	void SetTogetherActorSpeed(float value);
 
 };

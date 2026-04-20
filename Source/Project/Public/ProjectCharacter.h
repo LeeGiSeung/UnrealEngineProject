@@ -21,6 +21,8 @@ struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FGetFGroundSpeedTo, float);
+
 UCLASS(config=Game)
 class AProjectCharacter : public ACharacter
 {
@@ -215,5 +217,11 @@ public:
 
 	UPROPERTY()
 	ATogetherRunBase* TogetherRunBaseActor;
+
+	float GetfGroundSpeed();
+	void SetfGroundSpeedToAniminstance(float value);
+
+	FGetFGroundSpeedTo GetGroundSpeedTo;
+
 };
 

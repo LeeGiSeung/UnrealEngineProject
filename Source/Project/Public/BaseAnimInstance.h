@@ -131,4 +131,10 @@ public:
 	void SetbIsTogether(bool value);
 	bool GetbIsTogether();
 
+	UPROPERTY(BlueprintReadWrite, Category = "Together")
+	float fGroundSpeed;
+
+	UFUNCTION(BlueprintCallable, Category = "Together")
+	void SetfGroundSpeed(float value);
+
 };
