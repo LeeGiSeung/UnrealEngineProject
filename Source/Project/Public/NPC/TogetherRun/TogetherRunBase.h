@@ -7,6 +7,7 @@
 #include "TogetherRunBase.generated.h"
 
 class AProjectCharacter;
+class UTogetherRunAnimInstance;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerActorReference, AProjectCharacter*);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnfGroundSpeedFromPlayer, float);
@@ -37,11 +38,17 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UPROPERTY(BlueprintReadWrite, Category = "GroundSpeed")
+	UPROPERTY(BlueprintReadWrite, Category = "MovementData")
 	float fGroundSpeed;
+
+	UPROPERTY(BlueprintReadWrite, Category = "MovementData")
+	bool bShouldMove;
 
 	UPROPERTY()
 	AProjectCharacter* PlayerCharacter;
+
+	UPROPERTY()
+	UTogetherRunAnimInstance* TogetherRunAnimInstance;
 
 	void SetTogetherActorSpeed(float value);
 

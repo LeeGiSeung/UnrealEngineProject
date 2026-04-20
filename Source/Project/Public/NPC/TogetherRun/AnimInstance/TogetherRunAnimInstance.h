@@ -15,6 +15,10 @@ class PROJECT_API UTogetherRunAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 	
 public:
+
+	void SetfTogetherAnimGroundSpeed(float value);
+	void SetfTogetherAnimShouldMove(bool value);
+
 	UPROPERTY(BlueprintReadWrite, Category = "Essential Movement Data")
 	float fGroundSpeed;
 

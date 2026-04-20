@@ -2,7 +2,9 @@
 
 
 #include "NPC/TogetherRun/TogetherRunBase.h"
+
 #include "ProjectCharacter.h"
+#include "NPC/TogetherRun/AnimInstance/TogetherRunAnimInstance.h"
 
 // Sets default values
 ATogetherRunBase::ATogetherRunBase()
@@ -22,6 +24,8 @@ void ATogetherRunBase::BeginPlay()
 	FReferenceProjectPlayer.AddUObject(this , &ATogetherRunBase::SetProjectPlayerReference);
 
 	OnfGroundSpeedFromPlayer.AddUObject(this, &ATogetherRunBase::SetTogetherActorSpeed);
+
+	TogetherRunAnimInstance = Cast<UTogetherRunAnimInstance>(GetMesh()->GetAnimInstance());
 
 }
 
@@ -49,6 +53,10 @@ void ATogetherRunBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 void ATogetherRunBase::SetTogetherActorSpeed(float value)
 {
 	fGroundSpeed = value;
-	UE_LOG(LogTemp, Error, TEXT("TogetherActor fGroundSpeed : %f"), value);
+	TogetherRunAnimInstance->SetfTogetherAnimGroundSpeed(fGroundSpeed);
+
+	TogetherRunAnimInstance->SetfTogetherAnimShouldMove(fGroundSpeed > 0);
+
+	//UE_LOG(LogTemp, Error, TEXT("TogetherActor fGroundSpeed : %d"), fGroundSpeed > 0);
 }
 

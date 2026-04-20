@@ -3,3 +3,12 @@
 
 #include "NPC/TogetherRun/AnimInstance/TogetherRunAnimInstance.h"
 
+void UTogetherRunAnimInstance::SetfTogetherAnimGroundSpeed(float value)
+{
+	fGroundSpeed = value;
+}
+
+void UTogetherRunAnimInstance::SetfTogetherAnimShouldMove(bool value)
+{
+	bShouldMove = value;
+}
