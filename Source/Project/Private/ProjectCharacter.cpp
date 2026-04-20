@@ -110,6 +110,12 @@ void AProjectCharacter::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("MinimapWidget No PlayerCharacter"));
 	}
 
+	FindTogetherRunActor();
+
+}
+
+void AProjectCharacter::FindTogetherRunActor()
+{
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATogetherRunBase::StaticClass(), FoundActors);
 
@@ -131,7 +137,6 @@ void AProjectCharacter::BeginPlay()
 	if (TogetherRunBaseActor) {
 		PlayerAnimInstance->SetbIsTogether(true);
 	}
-
 }
 
 void AProjectCharacter::Tick(float DeltaTime)

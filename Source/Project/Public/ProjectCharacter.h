@@ -120,6 +120,8 @@ protected:
 	// To add mapping context
 	virtual void BeginPlay();
 
+	void FindTogetherRunActor();
+
 	virtual void Tick(float DeltaTime) override;
 
 	void FallingRolling(FCollisionQueryParams& Params);
