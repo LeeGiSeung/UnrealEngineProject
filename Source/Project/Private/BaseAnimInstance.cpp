@@ -208,3 +208,13 @@ void UBaseAnimInstance::SetfGroundSpeed(float value)
 	OwningCharacter->GetGroundSpeedTo.Broadcast(fGroundSpeed);
 
 }
+
+void UBaseAnimInstance::SetPlayerRightHandLocation(FVector value)
+{
+	RightHandLocation = value;
+}
+
+void UBaseAnimInstance::SetPlayerRightHandRotation(FRotator value)
+{
+	RightHandRotation = value;
+}

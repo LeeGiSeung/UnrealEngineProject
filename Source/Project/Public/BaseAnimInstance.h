@@ -137,4 +137,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Together")
 	void SetfGroundSpeed(float value);
 
+	void SetPlayerRightHandLocation(FVector value);
+	void SetPlayerRightHandRotation(FRotator value);
+
+	UPROPERTY(BlueprintReadOnly, Category = "CoupleRun")
+	FVector RightHandLocation;
+
+	UPROPERTY(BlueprintReadOnly, Category = "CoupleRun")
+	FRotator RightHandRotation;
+
 };

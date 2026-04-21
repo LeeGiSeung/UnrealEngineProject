@@ -31,11 +31,19 @@ void ATogetherRunBase::BeginPlay()
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+
 }
 
 void ATogetherRunBase::SetProjectPlayerReference(AProjectCharacter* Player)
 {
 	PlayerCharacter = Player;
+	
+	//AttachToComponent 사용하면 Player가 움직일때의 흔들림도 다 적용됨
+	//AttachToComponent(
+	//	Player->GetMesh(),
+	//	FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+	//	Player->GetPlayerRHandSocketName());
 }
 
 // Called every frame
@@ -58,13 +66,34 @@ void ATogetherRunBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 }
 
-void ATogetherRunBase::SetTogetherActorSpeed(float value)
+void ATogetherRunBase::SetTogetherActorSpeed(float value, FVector HandLocation)
 {
 	fGroundSpeed = value;
 	GetCharacterMovement()->MaxWalkSpeed = fGroundSpeed;
 
-	TogetherRunAnimInstance->SetfTogetherAnimGroundSpeed(fGroundSpeed);
+	PlayerRightHandLocation = HandLocation;
 
+	NPCHaneSocketNameLocation = GetMesh()->GetSocketLocation(TogetherNPCLeftHandName);
+
+	// 차이 계산
+	FVector Offset = PlayerRightHandLocation - NPCHaneSocketNameLocation;
+
+	FVector ExtraRightOffset = PlayerCharacter->GetActorRightVector() * 25.0f;
+	FVector ExtraBackOffset = -PlayerCharacter->GetActorForwardVector() * 40.0f;
+
+	float LocalX = GetActorLocation().X;
+	float LocalY = GetActorLocation().Y;
+	float LocalZ = GetActorLocation().Z;
+
+	LocalX += Offset.X;
+	LocalY += Offset.Y;
+	// NPC 이동
+	
+	FVector ActorLocation = FVector(LocalX, LocalY, LocalZ) + ExtraRightOffset + ExtraBackOffset;
+
+	SetActorLocation(ActorLocation);
+
+	TogetherRunAnimInstance->SetfTogetherAnimGroundSpeed(fGroundSpeed);
 	TogetherRunAnimInstance->SetfTogetherAnimShouldMove(fGroundSpeed > 0);
 
 	//UE_LOG(LogTemp, Error, TEXT("TogetherActor fGroundSpeed : %d"), fGroundSpeed > 0);

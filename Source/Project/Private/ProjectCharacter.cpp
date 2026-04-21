@@ -114,6 +114,8 @@ void AProjectCharacter::BeginPlay()
 
 	FindTogetherRunActor();
 
+	
+
 }
 
 void AProjectCharacter::FindTogetherRunActor()
@@ -155,7 +157,7 @@ void AProjectCharacter::Tick(float DeltaTime)
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
 
-	if (!PlayerAnimInstance) return;
+	if (!PlayerAnimInstance || PlayerAnimInstance->GetbIsTogether()) return;
 
 	if (!PlayerAnimInstance->GetWallChange() && GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params))
 	{
@@ -592,5 +594,15 @@ float AProjectCharacter::GetfGroundSpeed()
 void AProjectCharacter::SetfGroundSpeedToAniminstance(float value)
 {
 	fGroundSpeed = value;
-	TogetherRunBaseActor->OnfGroundSpeedFromPlayer.Broadcast(fGroundSpeed);
+	PlayerRightHandLocation = GetMesh()->GetSocketTransform(HandSocketName).GetLocation();
+
+	PlayerAnimInstance->SetPlayerRightHandLocation(PlayerRightHandLocation);
+	PlayerAnimInstance->SetPlayerRightHandRotation(GetMesh()->GetSocketRotation(HandSocketName));
+
+	TogetherRunBaseActor->OnfGroundSpeedFromPlayer.Broadcast(fGroundSpeed, PlayerRightHandLocation);
+}
+
+FName AProjectCharacter::GetPlayerRHandSocketName()
+{
+	return HandSocketName;
 }

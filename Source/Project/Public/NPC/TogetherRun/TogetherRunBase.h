@@ -10,7 +10,7 @@ class AProjectCharacter;
 class UTogetherRunAnimInstance;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerActorReference, AProjectCharacter*);
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnfGroundSpeedFromPlayer, float);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnfGroundSpeedFromPlayer, float, FVector);
 
 UCLASS()
 class PROJECT_API ATogetherRunBase : public ACharacter
@@ -50,6 +50,13 @@ public:
 	UPROPERTY()
 	UTogetherRunAnimInstance* TogetherRunAnimInstance;
 
-	void SetTogetherActorSpeed(float value);
+	UPROPERTY()
+	FVector PlayerRightHandLocation;
+
+	void SetTogetherActorSpeed(float value, FVector HandLocation);
+
+	FName TogetherNPCLeftHandName = "hand_l_Socket";
+
+	FVector NPCHaneSocketNameLocation;
 
 };

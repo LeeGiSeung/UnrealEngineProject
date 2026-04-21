@@ -223,5 +223,10 @@ public:
 
 	FGetFGroundSpeedTo GetGroundSpeedTo;
 
+	FName HandSocketName = "hand_r_Socket";
+
+	FName GetPlayerRHandSocketName();
+	FVector PlayerRightHandLocation;
+
 };
 
