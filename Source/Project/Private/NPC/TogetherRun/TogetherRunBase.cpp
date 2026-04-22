@@ -29,21 +29,19 @@ void ATogetherRunBase::BeginPlay()
 
 	TogetherRunAnimInstance = Cast<UTogetherRunAnimInstance>(GetMesh()->GetAnimInstance());
 
+	TogetherRunAnimInstance->SetNPCReference(this); //NPC 주소 참조시켜줌
+
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
 }
 
 void ATogetherRunBase::SetProjectPlayerReference(AProjectCharacter* Player)
 {
 	PlayerCharacter = Player;
-	
-	//AttachToComponent 사용하면 Player가 움직일때의 흔들림도 다 적용됨
-	//AttachToComponent(
-	//	Player->GetMesh(),
-	//	FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-	//	Player->GetPlayerRHandSocketName());
+
+	GetCapsuleComponent()->IgnoreActorWhenMoving(PlayerCharacter, true);
 }
 
 // Called every frame
@@ -96,6 +94,13 @@ void ATogetherRunBase::SetTogetherActorSpeed(float value, FVector HandLocation)
 	TogetherRunAnimInstance->SetfTogetherAnimGroundSpeed(fGroundSpeed);
 	TogetherRunAnimInstance->SetfTogetherAnimShouldMove(fGroundSpeed > 0);
 
-	//UE_LOG(LogTemp, Error, TEXT("TogetherActor fGroundSpeed : %d"), fGroundSpeed > 0);
+	//여기서 Player의 HandR Location, Rotation 보내줘야함
+
+	check(PlayerCharacter);
+
+	FVector PlayerHandLocation = PlayerCharacter->GetPlayerRightHandLocation();
+
+	TogetherRunAnimInstance->SetHandLocation(PlayerHandLocation);
+
 }
 

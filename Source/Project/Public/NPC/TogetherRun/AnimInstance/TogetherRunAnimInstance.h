@@ -6,6 +6,7 @@
 #include "Animation/AnimInstance.h"
 #include "TogetherRunAnimInstance.generated.h"
 
+class ATogetherRunBase;
 /**
  * 
  */
@@ -25,4 +26,21 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Essential Movement Data")
 	bool bShouldMove;
 
+	UPROPERTY(BlueprintReadOnly, Category = "CoupleRun")
+	FVector LeftHandLocation;
+
+	UPROPERTY(BlueprintReadOnly, Category = "CoupleRun")
+	FRotator LeftHandRotation;
+
+	UPROPERTY(BlueprintReadOnly, Category = "CoupleRun")
+	FVector LocalFVector;
+
+	UPROPERTY(BlueprintReadOnly, Category = "CoupleRun")
+	FVector JointTarget;
+
+	UPROPERTY()
+	ATogetherRunBase* NPC;
+
+	void SetHandLocation(FVector Location);
+	void SetNPCReference(ATogetherRunBase* value);
 };

@@ -226,7 +226,10 @@ public:
 	FName HandSocketName = "hand_r_Socket";
 
 	FName GetPlayerRHandSocketName();
+
 	FVector PlayerRightHandLocation;
+
+	FVector GetPlayerRightHandLocation();
 
 };
 

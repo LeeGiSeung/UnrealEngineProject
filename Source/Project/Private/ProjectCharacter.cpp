@@ -425,6 +425,10 @@ void AProjectCharacter::Move(const FInputActionValue& Value)
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
+	if (PlayerAnimInstance->GetbIsTogether()) {
+
+	}
+
 	if (PlayerController->GetUseCablePouch()) {
 
 		SetMoveInput(MovementVector);
@@ -605,4 +609,9 @@ void AProjectCharacter::SetfGroundSpeedToAniminstance(float value)
 FName AProjectCharacter::GetPlayerRHandSocketName()
 {
 	return HandSocketName;
+}
+
+FVector AProjectCharacter::GetPlayerRightHandLocation()
+{
+	return PlayerRightHandLocation;
 }

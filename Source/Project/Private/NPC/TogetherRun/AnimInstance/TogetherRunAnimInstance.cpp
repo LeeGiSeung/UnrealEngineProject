@@ -2,6 +2,7 @@
 
 
 #include "NPC/TogetherRun/AnimInstance/TogetherRunAnimInstance.h"
+#include "NPC/TogetherRun/TogetherRunBase.h"
 
 void UTogetherRunAnimInstance::SetfTogetherAnimGroundSpeed(float value)
 {
@@ -12,3 +13,20 @@ void UTogetherRunAnimInstance::SetfTogetherAnimShouldMove(bool value)
 {
 	bShouldMove = value;
 }
+
+void UTogetherRunAnimInstance::SetNPCReference(ATogetherRunBase* value)
+{
+	check(value);
+	NPC = value;
+}
+
+void UTogetherRunAnimInstance::SetHandLocation(FVector Location)
+{
+	check(NPC);
+	LeftHandLocation = Location;
+	LocalFVector = NPC->GetMesh()->GetComponentTransform().InverseTransformPosition(LeftHandLocation);
+
+	JointTarget = NPC->GetActorRightVector() * 30 + NPC->GetActorForwardVector() * 20;
+}
+
+
