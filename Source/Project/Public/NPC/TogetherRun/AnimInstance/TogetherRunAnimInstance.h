@@ -17,6 +17,9 @@ class PROJECT_API UTogetherRunAnimInstance : public UAnimInstance
 	
 public:
 
+
+public:
+
 	void SetfTogetherAnimGroundSpeed(float value);
 	void SetfTogetherAnimShouldMove(bool value);
 
@@ -25,6 +28,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Essential Movement Data")
 	bool bShouldMove;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Essential Movement Data")
+	bool bTogetherChild;
 
 	UPROPERTY(BlueprintReadOnly, Category = "CoupleRun")
 	FVector LeftHandLocation;

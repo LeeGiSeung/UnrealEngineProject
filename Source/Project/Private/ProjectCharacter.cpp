@@ -67,6 +67,8 @@ AProjectCharacter::AProjectCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
+	GetCharacterMovement()->MaxAcceleration = 1.f;
+
 }
 
 void AProjectCharacter::BeginPlay()
