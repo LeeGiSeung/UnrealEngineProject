@@ -17,6 +17,7 @@
 #include "BaseAnimInstance.h"
 #include "DialogueWidget/MinimapWidget/MinimapWidget.h"
 #include "NPC/TogetherRun/TogetherRunBase.h"
+#include "Components/SphereComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -69,12 +70,34 @@ AProjectCharacter::AProjectCharacter()
 
 	GetCharacterMovement()->MaxAcceleration = 1.f;
 
+	DetectionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("DetectionSphere"));
+	DetectionSphere->SetupAttachment(RootComponent);
+	DetectionSphere->SetSphereRadius(300.f);
+
+	// 1. 구체를 감지용(QueryOnly)으로 확실히 켭니다. (이전 코드에서 빠졌던 부분)
+	DetectionSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+	// 2. 이 구체의 정체성(Object Type)을 'WorldDynamic'으로 선언합니다.
+	DetectionSphere->SetCollisionObjectType(ECC_WorldDynamic);
+
+	// 3. 기본적으로 다 무시하지만, NPC(Pawn)만 감지하겠다고 선언합니다.
+	DetectionSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
+	DetectionSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+
+	DetectionSphere->SetGenerateOverlapEvents(true);
+
+
 }
 
 void AProjectCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+
+	DetectionSphere->OnComponentBeginOverlap.AddDynamic(
+		this,
+		&AProjectCharacter::OnDetectNPC
+	);
 
 	//Add Input Mapping Context
 	if (APlayerController* Pc = Cast<APlayerController>(Controller))
@@ -114,7 +137,7 @@ void AProjectCharacter::BeginPlay()
 
 	GetGroundSpeedTo.AddUObject(this, &AProjectCharacter::SetfGroundSpeedToAniminstance);
 
-	FindTogetherRunActor();
+	
 
 	
 
@@ -131,17 +154,17 @@ void AProjectCharacter::FindTogetherRunActor()
 	{
 		float Distance = FVector::Dist(MyLocation, Actor->GetActorLocation());
 
-		if (Distance <= 500.f)
+		if (Distance <= 100.f)
 		{
 			if (ATogetherRunBase* TogetherRunBaseActor_Sub = Cast<ATogetherRunBase>(Actor)) {
 				TogetherRunBaseActor = TogetherRunBaseActor_Sub;
+				TogetherRunBaseActor->SetFrontActorReference(this);
 				break;
 			}
 		}
 	}
 
 	if (TogetherRunBaseActor) {
-		TogetherRunBaseActor->FReferenceProjectPlayer.Broadcast(this);
 		PlayerAnimInstance->SetbIsTogether(true);
 	}
 }
@@ -191,6 +214,11 @@ void AProjectCharacter::Tick(float DeltaTime)
 	}
 
 	CheckGroundWhileClimbing();
+
+
+	//FindTogetherRunActor();
+	
+	
 
 }
 
@@ -502,7 +530,7 @@ void AProjectCharacter::Look(const FInputActionValue& Value)
 
 void AProjectCharacter::Sit(const FInputActionValue& Value)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("DASF"));
+	
 }
 
 void AProjectCharacter::ClimbWallChange() {
@@ -605,7 +633,9 @@ void AProjectCharacter::SetfGroundSpeedToAniminstance(float value)
 	PlayerAnimInstance->SetPlayerRightHandLocation(PlayerRightHandLocation);
 	PlayerAnimInstance->SetPlayerRightHandRotation(GetMesh()->GetSocketRotation(HandSocketName));
 
-	TogetherRunBaseActor->OnfGroundSpeedFromPlayer.Broadcast(fGroundSpeed, PlayerRightHandLocation);
+	if (!TogetherRunBaseActor) return;
+
+	TogetherRunBaseActor->SetTogetherActorSpeed(this ,fGroundSpeed, PlayerRightHandLocation);
 }
 
 FName AProjectCharacter::GetPlayerRHandSocketName()
@@ -616,4 +646,29 @@ FName AProjectCharacter::GetPlayerRHandSocketName()
 FVector AProjectCharacter::GetPlayerRightHandLocation()
 {
 	return PlayerRightHandLocation;
+}
+
+void AProjectCharacter::OnDetectNPC(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (!OtherActor || OtherActor == this) return;
+
+	
+
+	ATogetherRunBase* NPC = Cast<ATogetherRunBase>(OtherActor);
+	if (!NPC) return;
+
+	RequestAddToChain(NPC);
+
+	UE_LOG(LogTemp, Error, TEXT("%s"), *OtherActor->GetName());
+
+	if (PlayerAnimInstance)
+	{
+		PlayerAnimInstance->SetbIsTogether(true);
+	}
+}
+
+void AProjectCharacter::RequestAddToChain(AActor* value)
+{
+	if (ChainActorArray.Contains(value)) return; //이미 있으면 return
+	ChainActorArray.Add(value);
 }

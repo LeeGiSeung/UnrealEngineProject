@@ -25,7 +25,7 @@ public:
 
 	FOnPlayerActorReference FReferenceProjectPlayer;
 
-	void SetProjectPlayerReference(AProjectCharacter* Player);
+	void SetFrontActorReference(AActor* Player);
 
 protected:
 	// Called when the game starts or when spawned
@@ -51,7 +51,7 @@ public:
 	bool bShouldMove;
 
 	UPROPERTY()
-	AProjectCharacter* PlayerCharacter;
+	AActor* Leader;
 
 	UPROPERTY()
 	UTogetherRunAnimInstance* TogetherRunAnimInstance;
@@ -59,13 +59,25 @@ public:
 	UPROPERTY()
 	FVector PlayerRightHandLocation;
 
-	void SetTogetherActorSpeed(float value, FVector HandLocation);
+	UPROPERTY()
+	ATogetherRunBase* ChainTogetherActor;
+
+	void SetTogetherActorSpeed(AActor* FrontActor ,float value, FVector HandLocation);
 
 	FName TogetherNPCLeftHandName = "hand_l_Socket";
+
+	FName TogetherNPCRIghtHandName = "hand_r_Socket";
+	
 
 	FVector NPCHaneSocketNameLocation;
 
 
-	AProjectCharacter* GetTogetherBaseProjectCharacter();
+	AActor* GetTogetherBaseLeaderObject();
+	
+	UPROPERTY()
+	int chainIndex;
+
+	void SetChainIndex(int value);
+	int GetChainIndex();
 
 };

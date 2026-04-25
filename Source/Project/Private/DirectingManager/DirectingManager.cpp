@@ -131,10 +131,6 @@ void ADirectingManager::RegisterSequenceActor(FName Tag, AActor* Actor)
     }
 
     SequenceTagMap.Add(Tag, Actor);
-
-    UE_LOG(LogTemp, Log, TEXT("Registered %s with tag %s"),
-        *Actor->GetName(),
-        *Tag.ToString());
 }
 
 

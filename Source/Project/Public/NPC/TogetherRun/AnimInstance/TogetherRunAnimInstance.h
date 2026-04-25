@@ -23,6 +23,8 @@ public:
 	void SetfTogetherAnimGroundSpeed(float value);
 	void SetfTogetherAnimShouldMove(bool value);
 
+	void SetbTogetherChild(bool value);
+
 	UPROPERTY(BlueprintReadWrite, Category = "Essential Movement Data")
 	float fGroundSpeed;
 

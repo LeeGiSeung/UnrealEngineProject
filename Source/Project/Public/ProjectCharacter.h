@@ -16,6 +16,7 @@ class AProjectPlayerController;
 class UBaseAnimInstance;
 class UMinimapWidget;
 class ATogetherRunBase;
+class USphereComponent;
 
 struct FInputActionValue;
 
@@ -223,13 +224,33 @@ public:
 
 	FGetFGroundSpeedTo GetGroundSpeedTo;
 
+	UPROPERTY()
 	FName HandSocketName = "hand_r_Socket";
 
 	FName GetPlayerRHandSocketName();
 
+	UPROPERTY()
 	FVector PlayerRightHandLocation;
 
 	FVector GetPlayerRightHandLocation();
+
+	UPROPERTY()
+	TArray<AActor*> ChainActorArray;
+
+	UPROPERTY()
+	USphereComponent* DetectionSphere;
+
+	UFUNCTION()
+	void OnDetectNPC(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
+
+	void RequestAddToChain(AActor* value);
 
 };
 

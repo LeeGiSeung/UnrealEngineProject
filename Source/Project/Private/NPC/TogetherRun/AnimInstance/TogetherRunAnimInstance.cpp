@@ -14,6 +14,11 @@ void UTogetherRunAnimInstance::SetfTogetherAnimShouldMove(bool value)
 	bShouldMove = value;
 }
 
+void UTogetherRunAnimInstance::SetbTogetherChild(bool value)
+{
+	bTogetherChild = value;
+}
+
 void UTogetherRunAnimInstance::SetNPCReference(ATogetherRunBase* value)
 {
 	check(value);
