@@ -652,8 +652,6 @@ void AProjectCharacter::OnDetectNPC(UPrimitiveComponent* OverlappedComponent, AA
 {
 	if (!OtherActor || OtherActor == this) return;
 
-	
-
 	ATogetherRunBase* NPC = Cast<ATogetherRunBase>(OtherActor);
 	if (!NPC) return;
 
