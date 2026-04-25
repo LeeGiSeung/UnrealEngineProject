@@ -18,6 +18,7 @@
 #include "DialogueWidget/MinimapWidget/MinimapWidget.h"
 #include "NPC/TogetherRun/TogetherRunBase.h"
 #include "Components/SphereComponent.h"
+#include "Manager/TogetherManager/TogetherManager.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -93,6 +94,8 @@ void AProjectCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+
+	TogetherManager = GetWorld()->GetSubsystem<UTogetherManager>();
 
 	DetectionSphere->OnComponentBeginOverlap.AddDynamic(
 		this,
@@ -657,7 +660,9 @@ void AProjectCharacter::OnDetectNPC(UPrimitiveComponent* OverlappedComponent, AA
 
 	RequestAddToChain(NPC);
 
-	UE_LOG(LogTemp, Error, TEXT("%s"), *OtherActor->GetName());
+	TogetherManager->AddChainArray(NPC);
+
+	UE_LOG(LogTemp, Error, TEXT("%d"), TogetherManager->GetChainArrayIndex());
 
 	if (PlayerAnimInstance)
 	{

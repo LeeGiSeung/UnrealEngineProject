@@ -17,6 +17,7 @@ class UBaseAnimInstance;
 class UMinimapWidget;
 class ATogetherRunBase;
 class USphereComponent;
+class UTogetherManager;
 
 struct FInputActionValue;
 
@@ -251,6 +252,8 @@ public:
 	);
 
 	void RequestAddToChain(AActor* value);
+
+	UTogetherManager* TogetherManager;
 
 };
 

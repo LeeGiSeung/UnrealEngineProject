@@ -2,7 +2,7 @@
 
 
 #include "Manager/TogetherManager/TogetherManager.h"
-
+#include "NPC/TogetherRun/TogetherRunBase.h"
 
 void UTogetherManager::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -14,12 +14,19 @@ void UTogetherManager::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void UTogetherManager::SetChainArray(TArray<AActor*> value)
+void UTogetherManager::AddChainArray(ATogetherRunBase* value)
 {
-	ChainArray = value;
+	if (ChainArray.Contains(value)) return;
+
+	ChainArray.Add(value);
 }
 
-TArray<AActor*> UTogetherManager::GetChainArray()
+int UTogetherManager::GetChainArrayIndex()
+{
+	return ChainArray.Num();
+}
+
+TArray<ATogetherRunBase*> UTogetherManager::GetChainArray()
 {
 	return ChainArray;
 }

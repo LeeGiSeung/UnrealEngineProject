@@ -6,7 +6,7 @@
 #include "Subsystems/WorldSubsystem.h"
 #include "TogetherManager.generated.h"
 
-
+class ATogetherRunBase;
 
 /**
  * 
@@ -28,9 +28,10 @@ public:
 
 //TogetherBase Array
 public:
-	TArray<AActor*> ChainArray;
+	TArray<ATogetherRunBase*> ChainArray;
 
-	void SetChainArray(TArray<AActor*> value);
-	TArray<AActor*> GetChainArray();
+	void AddChainArray(ATogetherRunBase* value);
+	int GetChainArrayIndex();
+	TArray<ATogetherRunBase*> GetChainArray();
 
 };
