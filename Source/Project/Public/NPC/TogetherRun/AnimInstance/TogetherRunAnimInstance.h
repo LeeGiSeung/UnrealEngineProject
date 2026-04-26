@@ -51,4 +51,7 @@ public:
 
 	void SetHandLocation(FVector Location);
 	void SetNPCReference(ATogetherRunBase* value);
+
+	void SetLocalFVector(FVector value);
+	void SetJointTarget(FVector value);
 };

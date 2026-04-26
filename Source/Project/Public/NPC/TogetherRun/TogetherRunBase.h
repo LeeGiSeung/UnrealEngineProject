@@ -25,7 +25,7 @@ public:
 
 	FOnPlayerActorReference FReferenceProjectPlayer;
 
-	void SetFrontActorReference(AActor* Player);
+	void SetFrontActorReference(AProjectCharacter* value);
 
 protected:
 	// Called when the game starts or when spawned
@@ -51,7 +51,7 @@ public:
 	bool bShouldMove;
 
 	UPROPERTY()
-	AActor* Leader;
+	AProjectCharacter* Player;
 
 	UPROPERTY()
 	UTogetherRunAnimInstance* TogetherRunAnimInstance;

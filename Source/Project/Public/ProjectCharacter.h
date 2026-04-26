@@ -236,7 +236,7 @@ public:
 	FVector GetPlayerRightHandLocation();
 
 	UPROPERTY()
-	TArray<AActor*> ChainActorArray;
+	TArray<ATogetherRunBase*> ChainActorArray;
 
 	UPROPERTY()
 	USphereComponent* DetectionSphere;
@@ -251,7 +251,7 @@ public:
 		const FHitResult& SweepResult
 	);
 
-	void RequestAddToChain(AActor* value);
+	void RequestAddToChain(ATogetherRunBase* value);
 
 	UTogetherManager* TogetherManager;
 

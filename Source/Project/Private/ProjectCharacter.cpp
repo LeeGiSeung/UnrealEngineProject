@@ -73,7 +73,7 @@ AProjectCharacter::AProjectCharacter()
 
 	DetectionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("DetectionSphere"));
 	DetectionSphere->SetupAttachment(RootComponent);
-	DetectionSphere->SetSphereRadius(300.f);
+	DetectionSphere->SetSphereRadius(100.f);
 
 	// 1. 구체를 감지용(QueryOnly)으로 확실히 켭니다. (이전 코드에서 빠졌던 부분)
 	DetectionSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -96,6 +96,7 @@ void AProjectCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	TogetherManager = GetWorld()->GetSubsystem<UTogetherManager>();
+	TogetherManager->RegisterPlayer(this); //TogetherManager한테 본인 넘겨줌
 
 	DetectionSphere->OnComponentBeginOverlap.AddDynamic(
 		this,
@@ -630,15 +631,18 @@ float AProjectCharacter::GetfGroundSpeed()
 
 void AProjectCharacter::SetfGroundSpeedToAniminstance(float value)
 {
+
+	//Animation에서 Animation 변경이 있을경우 여기서 호출이됨
+
 	fGroundSpeed = value;
 	PlayerRightHandLocation = GetMesh()->GetSocketTransform(HandSocketName).GetLocation();
 
 	PlayerAnimInstance->SetPlayerRightHandLocation(PlayerRightHandLocation);
 	PlayerAnimInstance->SetPlayerRightHandRotation(GetMesh()->GetSocketRotation(HandSocketName));
 
-	if (!TogetherRunBaseActor) return;
+	TogetherManager->PlaceChainArray(fGroundSpeed, PlayerRightHandLocation);
 
-	TogetherRunBaseActor->SetTogetherActorSpeed(this ,fGroundSpeed, PlayerRightHandLocation);
+	//TogetherRunBaseActor->SetTogetherActorSpeed(this ,fGroundSpeed, PlayerRightHandLocation);
 }
 
 FName AProjectCharacter::GetPlayerRHandSocketName()
@@ -657,12 +661,10 @@ void AProjectCharacter::OnDetectNPC(UPrimitiveComponent* OverlappedComponent, AA
 
 	ATogetherRunBase* NPC = Cast<ATogetherRunBase>(OtherActor);
 	if (!NPC) return;
-
-	RequestAddToChain(NPC);
+	NPC->SetFrontActorReference(this);
+	//RequestAddToChain(NPC); 더이상 Player에서 관리하지않음
 
 	TogetherManager->AddChainArray(NPC);
-
-	UE_LOG(LogTemp, Error, TEXT("%d"), TogetherManager->GetChainArrayIndex());
 
 	if (PlayerAnimInstance)
 	{
@@ -670,7 +672,7 @@ void AProjectCharacter::OnDetectNPC(UPrimitiveComponent* OverlappedComponent, AA
 	}
 }
 
-void AProjectCharacter::RequestAddToChain(AActor* value)
+void AProjectCharacter::RequestAddToChain(ATogetherRunBase* value)
 {
 	if (ChainActorArray.Contains(value)) return; //이미 있으면 return
 	ChainActorArray.Add(value);

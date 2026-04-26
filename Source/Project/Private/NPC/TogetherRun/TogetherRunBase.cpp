@@ -61,9 +61,9 @@ void ATogetherRunBase::BasicSetting()
 
 }
 
-void ATogetherRunBase::SetFrontActorReference(AActor* value)
+void ATogetherRunBase::SetFrontActorReference(AProjectCharacter* value)
 {
-	Leader = value;
+	Player = value;
 
 	GetCapsuleComponent()->IgnoreActorWhenMoving(value, true);
 }
@@ -73,7 +73,7 @@ void ATogetherRunBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!Leader) return; //PlayerCharacter가 없으면 검사 조차안됨
+	if (!Player) return; //PlayerCharacter가 없으면 검사 조차안됨
 
 	SetTogetherActorTurn();
 
@@ -140,7 +140,7 @@ void ATogetherRunBase::Tick(float DeltaTime)
 
 void ATogetherRunBase::SetTogetherActorTurn()
 {
-	FVector Direction = Leader->GetActorForwardVector();
+	FVector Direction = Player->GetActorForwardVector();
 
 	AddMovementInput(Direction, 1.0f);
 }
@@ -157,53 +157,48 @@ void ATogetherRunBase::SetTogetherActorSpeed(AActor* FrontActor, float value, FV
 
 	//Leader = FrontActor;
 
-	check(Leader);
-	fGroundSpeed = value;
-	GetCharacterMovement()->MaxWalkSpeed = fGroundSpeed;
+	//check(Leader);
+	//fGroundSpeed = value;
+	//GetCharacterMovement()->MaxWalkSpeed = fGroundSpeed;
 
-	PlayerRightHandLocation = HandLocation;
+	//PlayerRightHandLocation = HandLocation;
 
-	NPCHaneSocketNameLocation = GetMesh()->GetSocketLocation(TogetherNPCLeftHandName);
+	//NPCHaneSocketNameLocation = GetMesh()->GetSocketLocation(TogetherNPCLeftHandName);
 
-	// 차이 계산
-	FVector Offset = PlayerRightHandLocation - NPCHaneSocketNameLocation;
+	//// 차이 계산
+	//FVector Offset = PlayerRightHandLocation - NPCHaneSocketNameLocation;
 
-	FVector ExtraRightOffset = Leader->GetActorRightVector() * 10.0f;
-	FVector ExtraBackOffset = -Leader->GetActorForwardVector() * 40.0f;
+	//FVector ExtraRightOffset = Leader->GetActorRightVector() * 10.0f;
+	//FVector ExtraBackOffset = -Leader->GetActorForwardVector() * 40.0f;
 
-	float LocalX = GetActorLocation().X;
-	float LocalY = GetActorLocation().Y;
-	float LocalZ = GetActorLocation().Z;
+	//float LocalX = GetActorLocation().X;
+	//float LocalY = GetActorLocation().Y;
+	//float LocalZ = GetActorLocation().Z;
 
-	LocalX += Offset.X;
-	LocalY += Offset.Y;
-	// NPC 이동
-	
-	FVector ActorLocation = FVector(LocalX, LocalY, LocalZ) + ExtraRightOffset + ExtraBackOffset;
+	//LocalX += Offset.X;
+	//LocalY += Offset.Y;
+	//// NPC 이동
+	//
+	//FVector ActorLocation = FVector(LocalX, LocalY, LocalZ) + ExtraRightOffset + ExtraBackOffset;
 
-	SetActorLocation(ActorLocation);
+	//SetActorLocation(ActorLocation);
 
-	TogetherRunAnimInstance->SetfTogetherAnimGroundSpeed(fGroundSpeed);
-	TogetherRunAnimInstance->SetfTogetherAnimShouldMove(fGroundSpeed > 0);
+	//TogetherRunAnimInstance->SetfTogetherAnimGroundSpeed(fGroundSpeed);
+	//TogetherRunAnimInstance->SetfTogetherAnimShouldMove(fGroundSpeed > 0);
 
-	//여기서 Player의 HandR Location, Rotation 보내줘야함
+	////여기서 Player의 HandR Location, Rotation 보내줘야함
 
-	//이걸 PlayerCharacter로 하지않고 PlyaerCharcter, TargetActorBase로 아무거나 받게하고 아래 RightHandLocation 오버라이드로 손 위치 받아서 넘기게하면됨
+	////이걸 PlayerCharacter로 하지않고 PlyaerCharcter, TargetActorBase로 아무거나 받게하고 아래 RightHandLocation 오버라이드로 손 위치 받아서 넘기게하면됨
 
-	FVector PlayerHandLocation = HandLocation;
+	//FVector PlayerHandLocation = HandLocation;
 
-	TogetherRunAnimInstance->SetHandLocation(PlayerHandLocation);
-
-	if (!ChainTogetherActor) return;
-
-	//여기서 오른손 좌표 건내줘야함
-	ChainTogetherActor->SetTogetherActorSpeed(this, fGroundSpeed, GetMesh()->GetSocketLocation(TogetherNPCRIghtHandName));
+	//TogetherRunAnimInstance->SetHandLocation(PlayerHandLocation);
 
 }
 
 AActor* ATogetherRunBase::GetTogetherBaseLeaderObject()
 {
-	return Leader;
+	return Player;
 }
 
 void ATogetherRunBase::SetChainIndex(int value)

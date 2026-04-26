@@ -7,6 +7,7 @@
 #include "TogetherManager.generated.h"
 
 class ATogetherRunBase;
+class AProjectCharacter;
 
 /**
  * 
@@ -28,10 +29,22 @@ public:
 
 //TogetherBase Array
 public:
-	TArray<ATogetherRunBase*> ChainArray;
 
 	void AddChainArray(ATogetherRunBase* value);
-	int GetChainArrayIndex();
+	void RemoveChainArray(ATogetherRunBase* value);
+	void RegisterPlayer(AProjectCharacter* value);
+	void PlaceChainArray(const float speed, const FVector HandLocation);
+
+	int GetChainArrayNum();
+
+	
 	TArray<ATogetherRunBase*> GetChainArray();
+
+private:
+	TArray<ATogetherRunBase*> ChainArray;
+	AProjectCharacter* Player;
+
+	FName TogetherNPCLeftHandName = "hand_l_Socket";
+	FName TogetherNPCRIghtHandName = "hand_r_Socket";
 
 };
