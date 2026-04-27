@@ -49,61 +49,10 @@ void UTogetherManager::RegisterPlayer(AProjectCharacter* value)
 
 void UTogetherManager::PlaceChainArray(const float speed, const FVector HandLocation) //HandLocation : PlayerHandLocation
 {
-	int i = 1;
 	float fSpeed = speed; //현재 PlayerSpeed각 Actor들한테 이 Speeㅇ넘겨주면됨
-	//첫번째는 Player
-
-	//for (ATogetherRunBase* actor : ChainArray) {
-	//	FVector LocalFVector, JointTarget;
-	//	
-	//	actor->GetCharacterMovement()->MaxWalkSpeed = fSpeed;
-
-	//	FVector NPCHaneSocketNameLocation = actor->GetMesh()->GetSocketLocation(TogetherNPCLeftHandName);
-
-	//	// 차이 계산
-	//	FVector Offset = HandLocation - NPCHaneSocketNameLocation;
-
-	//	//FVector ExtraRightOffset = Player->GetActorRightVector() * 15.0f;
-	//	//FVector ExtraBackOffset = -Player->GetActorForwardVector() * 60.0f * i;
-	//	FVector ExtraRightOffset = Player->GetActorRightVector() * Offset.X;
-	//	FVector ExtraBackOffset = -Player->GetActorForwardVector() * Offset.Z * i;
-	//	// 
-	//	//FVector ExtraUpOffset = Player->GetActorUpVector() * Offset.Z;
-
-	//	UE_LOG(LogTemp, Error, TEXT("index : %d, OffsetZ : %f"), i, Offset.Z);
-
-	//	// NPC 이동
-	//	FVector ActorLocation = Player->GetActorLocation() + ExtraRightOffset + ExtraBackOffset;
-
-	//	actor->SetActorLocation(ActorLocation);
-
-	//	UTogetherRunAnimInstance* TogetherRunAnimInstance = Cast<UTogetherRunAnimInstance>(actor->GetMesh()->GetAnimInstance());
-
-	//	TogetherRunAnimInstance->SetfTogetherAnimGroundSpeed(fSpeed);
-	//	TogetherRunAnimInstance->SetfTogetherAnimShouldMove(fSpeed > 0);
-
-	//	FVector PlayerHandLocation = HandLocation;
-
-	//	TogetherRunAnimInstance->SetJointTarget(PlayerHandLocation);
-
-	//	if (i == 1) {
-	//		LocalFVector = Player->GetMesh()->GetSocketLocation(TogetherNPCRIghtHandName);
-	//		//LocalFVector.Y += Offset.Y;
-
-	//		TogetherRunAnimInstance->SetLocalFVector(LocalFVector);
-	//	}
-	//	else {
-	//		LocalFVector = ChainArray[i - 2]->GetMesh()->GetSocketLocation(TogetherNPCRIghtHandName);
-	//		//LocalFVector.Y += Offset.Y;
-
-	//		TogetherRunAnimInstance->SetLocalFVector(LocalFVector);
-	//	}
-
-	//	i++;
-	//}
 
 	int32 index = 0;
-	// NPC 사이의 물리적 간격 (캡슐 크기에 맞춰 조절)
+	//// NPC 사이의 물리적 간격 (캡슐 크기에 맞춰 조절)
 	float DistanceBetweenNPCs = 65.0f;
 
 	for (ATogetherRunBase* actor : ChainArray) {
@@ -121,8 +70,8 @@ void UTogetherManager::PlaceChainArray(const float speed, const FVector HandLoca
 
 		// Z값은 플레이어의 위치를 그대로 따라가게 하여 바닥 높이를 맞춥니다.
 		FVector NewLocation = Player->GetActorLocation() + ExtraRightOffset + ExtraBackOffset;
-		actor->SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
-		//actor->SetActorLocation(NewLocation);
+		//actor->SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
+		actor->SetActorLocation(NewLocation);
 
 		// 3. IK 타겟 설정 (손 위치)
 		FVector TargetHandLocation;
@@ -132,14 +81,34 @@ void UTogetherManager::PlaceChainArray(const float speed, const FVector HandLoca
 		}
 		else {
 			// 두 번째부터는 바로 앞 NPC(index - 1)의 오른쪽 손 소켓을 잡음
+			//TargetHandLocation = ChainArray[index - 1]->GetMesh()->GetSocketLocation(TogetherNPCRIghtHandName);
 			TargetHandLocation = ChainArray[index - 1]->GetMesh()->GetSocketLocation(TogetherNPCRIghtHandName);
 		}
 
 		AnimInst->SetLocalFVector(TargetHandLocation);
-		AnimInst->SetJointTarget(TargetHandLocation); // 관절 꺾임 방지
+
+		FVector MyShoulderLocation = actor->GetMesh()->GetSocketLocation(TogetherNPCLeftHandName);
+
+		// 내 어깨 위치에서 뒤로 30, 위로 20 지점을 팔꿈치가 바라보게 합니다.
+		FVector FinalJointTarget = MyShoulderLocation;
+
+		AnimInst->SetJointTarget(FinalJointTarget);
+
+		UE_LOG(LogTemp, Error, TEXT("index : %d, FinalJointTarget : %s"), index ,*FinalJointTarget.ToString());
 
 		index++;
 	}
+
+//JointTarget Error
+//LogTemp : Error: index: 0, FinalJointTarget : X = -593.248 Y = -2467.053 Z = 92.234
+//LogTemp : Error : index : 1, FinalJointTarget : X = -590.501 Y = -2399.742 Z = 95.193
+//LogTemp : Error : index : 2, FinalJointTarget : X = -575.107 Y = -2336.591 Z = 95.193
+//LogTemp : Error : index : 3, FinalJointTarget : X = -559.712 Y = -2273.441 Z = 95.193
+//LogTemp : Error : index : 4, FinalJointTarget : X = -544.318 Y = -2210.290 Z = 95.193
+//LogTemp : Error : index : 5, FinalJointTarget : X = -528.923 Y = -2147.139 Z = 95.193
+//LogTemp : Error : index : 6, FinalJointTarget : X = -513.529 Y = -2083.989 Z = 95.193
+//LogTemp : Error : index : 7, FinalJointTarget : X = -498.134 Y = -2020.838 Z = 95.193
+
 
 }
 
