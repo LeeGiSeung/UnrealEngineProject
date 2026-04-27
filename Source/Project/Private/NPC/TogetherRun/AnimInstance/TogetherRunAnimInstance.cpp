@@ -28,12 +28,8 @@ void UTogetherRunAnimInstance::SetNPCReference(ATogetherRunBase* value)
 void UTogetherRunAnimInstance::SetLocalFVector(FVector value)
 {
 	check(NPC);
-	UE_LOG(LogTemp, Error, TEXT("value %s"), *value.ToString());
-	UE_LOG(LogTemp, Error, TEXT("Mesh World Pos: %s"), *NPC->GetMesh()->GetComponentLocation().ToString());
 
 	LocalFVector = NPC->GetMesh()->GetComponentTransform().InverseTransformPosition(value);
-
-	UE_LOG(LogTemp, Error, TEXT("LocalFvector Target %s"), *LocalFVector.ToString());
 }
 
 void UTogetherRunAnimInstance::SetJointTarget(FVector value)
