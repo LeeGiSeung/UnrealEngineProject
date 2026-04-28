@@ -92,13 +92,13 @@ app.post('/api/relics/:playerId', async (req, res) => {
         
         // 언리얼에서 보낸 데이터 본문을 가져옵니다.
         // 언리얼에서 'InventoryRelics'라는 이름으로 배열을 보낸다고 가정합니다.
-        const { InventoryRelics } = req.body;
+        const { inventoryRelics } = req.body;
 
         console.log(req.body);
 
         const updated = await Player.findOneAndUpdate(
             { playerId: playerId },
-            { $set: { InventoryRelics: InventoryRelics } }, // 인벤토리 필드만 정밀 타격해서 수정
+            { $set: { InventoryRelics: inventoryRelics } }, // 인벤토리 필드만 정밀 타격해서 수정
             { new: true, upsert: true }
         );
 
