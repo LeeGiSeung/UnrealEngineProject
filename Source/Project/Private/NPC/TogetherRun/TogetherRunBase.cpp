@@ -77,65 +77,6 @@ void ATogetherRunBase::Tick(float DeltaTime)
 
 	SetTogetherActorTurn();
 
-	//if (ChainTogetherActor) {
-	//	ChainTogetherActor->SetTogetherActorSpeed(this, fGroundSpeed, GetMesh()->GetSocketLocation(TogetherNPCLeftHandName));
-	//	return;
-	//}
-
-	//float Radius = 100.0f;
-
-	//// 1. 검색할 물리 타입 지정 (이게 없으면 검색 효율이 떨어지거나 엉뚱한 게 잡힙니다)
-	//TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-	//ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldDynamic));
-	//ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
-
-	//// 2. 본인 클래스 지정
-	//TSubclassOf<ATogetherRunBase> TargetClass = ATogetherRunBase::StaticClass();
-
-	//TArray<AActor*> IgnoreActor;
-	//IgnoreActor.Add(this);
-
-	//TArray<AActor*> OutActors;
-
-	////DrawDebugSphere(GetWorld(), GetActorLocation(), Radius, 12, FColor::Red, false, 0.1f);
-
-	//bool bOverlap = UKismetSystemLibrary::SphereOverlapActors(
-	//	GetWorld(),
-	//	GetActorLocation(),
-	//	Radius,
-	//	ObjectTypes,
-	//	TargetClass,
-	//	IgnoreActor,
-	//	OutActors
-	//);
-
-	//float MinDistance = FMath::Square(100);
-	//ATogetherRunBase* NextTogetherActor = nullptr;
-
-	//if (bOverlap && OutActors.Num() > 0) {
-	//	for (AActor* Actor : OutActors) {
-	//		//Actor가 Player를 잡았는지부터 확인해야함
-	//		if (ATogetherRunBase* TestActor = Cast<ATogetherRunBase>(Actor)) { //손을 잡고있지 않는 애부터 잡아야함
-	//			if (TestActor->GetTogetherBaseLeaderObject() != nullptr || TestActor->ChainTogetherActor != nullptr) continue; //만약 주위 액터중에 플레이어를 이미 집고있으면 안됨
-	//			float Dist = FVector::DistSquared(Actor->GetActorLocation(), GetActorLocation());
-
-	//			if (MinDistance > Dist) {
-	//				MinDistance = Dist;
-	//				NextTogetherActor = TestActor;
-	//			}
-	//		}
-	//	}
-	//}
-
-	//if (NextTogetherActor == nullptr) return;
-
-	////여기서 나온게 최종적으로 가장 가까운 놈임
-	//ChainTogetherActor = NextTogetherActor;
-
-	//ChainTogetherActor->SetFrontActorReference(Leader); //플레이어 등록해주고
-
-	//TogetherRunAnimInstance->SetbTogetherChild(true);
-
 }
 
 void ATogetherRunBase::SetTogetherActorTurn()
@@ -155,45 +96,6 @@ void ATogetherRunBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 void ATogetherRunBase::SetTogetherActorSpeed(AActor* FrontActor, float value, FVector HandLocation)
 {
 
-	//Leader = FrontActor;
-
-	//check(Leader);
-	//fGroundSpeed = value;
-	//GetCharacterMovement()->MaxWalkSpeed = fGroundSpeed;
-
-	//PlayerRightHandLocation = HandLocation;
-
-	//NPCHaneSocketNameLocation = GetMesh()->GetSocketLocation(TogetherNPCLeftHandName);
-
-	//// 차이 계산
-	//FVector Offset = PlayerRightHandLocation - NPCHaneSocketNameLocation;
-
-	//FVector ExtraRightOffset = Leader->GetActorRightVector() * 10.0f;
-	//FVector ExtraBackOffset = -Leader->GetActorForwardVector() * 40.0f;
-
-	//float LocalX = GetActorLocation().X;
-	//float LocalY = GetActorLocation().Y;
-	//float LocalZ = GetActorLocation().Z;
-
-	//LocalX += Offset.X;
-	//LocalY += Offset.Y;
-	//// NPC 이동
-	//
-	//FVector ActorLocation = FVector(LocalX, LocalY, LocalZ) + ExtraRightOffset + ExtraBackOffset;
-
-	//SetActorLocation(ActorLocation);
-
-	//TogetherRunAnimInstance->SetfTogetherAnimGroundSpeed(fGroundSpeed);
-	//TogetherRunAnimInstance->SetfTogetherAnimShouldMove(fGroundSpeed > 0);
-
-	////여기서 Player의 HandR Location, Rotation 보내줘야함
-
-	////이걸 PlayerCharacter로 하지않고 PlyaerCharcter, TargetActorBase로 아무거나 받게하고 아래 RightHandLocation 오버라이드로 손 위치 받아서 넘기게하면됨
-
-	//FVector PlayerHandLocation = HandLocation;
-
-	//TogetherRunAnimInstance->SetHandLocation(PlayerHandLocation);
-
 }
 
 AActor* ATogetherRunBase::GetTogetherBaseLeaderObject()
@@ -210,4 +112,5 @@ int ATogetherRunBase::GetChainIndex()
 {
 	return chainIndex;
 }
+
 

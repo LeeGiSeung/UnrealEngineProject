@@ -81,7 +81,6 @@ void UTogetherManager::PlaceChainArray(const float speed, const FVector HandLoca
 		}
 		else {
 			// 두 번째부터는 바로 앞 NPC(index - 1)의 오른쪽 손 소켓을 잡음
-			//TargetHandLocation = ChainArray[index - 1]->GetMesh()->GetSocketLocation(TogetherNPCRIghtHandName);
 			TargetHandLocation = ChainArray[index - 1]->GetMesh()->GetSocketLocation(TogetherNPCRIghtHandName);
 		}
 
@@ -94,7 +93,7 @@ void UTogetherManager::PlaceChainArray(const float speed, const FVector HandLoca
 
 		AnimInst->SetJointTarget(FinalJointTarget);
 
-		UE_LOG(LogTemp, Error, TEXT("index : %d, FinalJointTarget : %s"), index ,*FinalJointTarget.ToString());
+		Cast<UTogetherRunAnimInstance>(actor->GetMesh()->GetAnimInstance())->SetAnimPlayRate(FMath::FRandRange(0.2, 1)); //애니메이션 속도 조정
 
 		index++;
 	}

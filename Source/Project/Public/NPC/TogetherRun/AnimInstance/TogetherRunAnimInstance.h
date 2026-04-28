@@ -54,4 +54,11 @@ public:
 
 	void SetLocalFVector(FVector value);
 	void SetJointTarget(FVector value);
+
+public:
+
+	void SetAnimPlayRate(float value);
+
+	UPROPERTY(BlueprintReadWrite, Category = "Settings")
+	float GlobalPlayRate = 1.0f;
 };

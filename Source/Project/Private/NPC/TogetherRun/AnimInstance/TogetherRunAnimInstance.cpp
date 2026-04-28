@@ -40,6 +40,12 @@ void UTogetherRunAnimInstance::SetJointTarget(FVector value)
 	//UE_LOG(LogTemp, Error, TEXT("Joint Target %s"), *JointTarget.ToString());
 }
 
+void UTogetherRunAnimInstance::SetAnimPlayRate(float value)
+{
+	GlobalPlayRate = value;
+	UE_LOG(LogTemp, Error, TEXT("%f"), GlobalPlayRate);
+}
+
 void UTogetherRunAnimInstance::SetHandLocation(FVector Location)
 {
 	check(NPC);
