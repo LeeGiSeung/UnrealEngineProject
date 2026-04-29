@@ -24,6 +24,17 @@ playerId: { type: String, required: true, unique: true },
 
 const Player = mongoose.model('Player', PlayerSchema);
 
+                // maininfo: {
+                //     Level: 60,
+                //     LevelEXP: 0.3,
+                //     HP: 1250.5,
+                //     Attack: 210,
+                //     Defence: 85.5,
+                //     Force: 150,
+                //     Critical: 15.5,
+                //     CriticalDamage: 50
+                // },
+
 /**
  * [초기화 함수] DB에 데이터가 없으면 요청하신 JSON 구조로 생성
  */
@@ -40,14 +51,14 @@ async function initializeDatabase() {
                 characterId: "CH_V_001",
                 characterName: "Aria",
                 maininfo: {
-                    Level: 60,
-                    LevelEXP: 0.3,
-                    HP: 1250.5,
-                    Attack: 210,
-                    Defence: 85.5,
-                    Force: 150,
-                    Critical: 15.5,
-                    CriticalDamage: 50
+                    Level: 51,
+                    LevelEXP: 0,
+                    HP: 0,
+                    Attack: 0,
+                    Defence: 0,
+                    Force: 0,
+                    Critical: 0,
+                    CriticalDamage: 0
                 },
                 relicinfo: {
                     Part_0: { RelicId: "Relic.Four.RedSkull", RelicImageId: "Relic.Four.RedSkull", Level: 3, HP: 150, Attack: 10, Defence: 25, Force: 5, Critical: 2.5, CriticalDamage: 10 },

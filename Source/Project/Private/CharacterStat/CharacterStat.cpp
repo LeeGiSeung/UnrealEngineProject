@@ -76,10 +76,12 @@ void ACharacterStat::FindWidgetClass(USkillWidget* Skill, UMainWidget* Main, URe
 {
     SkillWidget = Skill;
     MainWidget = Main;
+
     RelicWidget = Relic;
     StarWidget = Star;
 
     SetBeginServerData();
+
 }
 
 void ACharacterStat::SetMainStat(FMaininfo value)
@@ -330,7 +332,7 @@ void ACharacterStat::SendSkillUpgradeToServer()
         Request->ProcessRequest();
 
         // 로그로 전체 데이터 확인
-        UE_LOG(LogTemp, Log, TEXT("Sending Full Character Data: %s"), *JsonString);
+        //UE_LOG(LogTemp, Log, TEXT("Sending Full Character Data: %s"), *JsonString);
     }
     else
     {

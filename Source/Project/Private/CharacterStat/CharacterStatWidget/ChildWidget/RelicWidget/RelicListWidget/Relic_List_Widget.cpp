@@ -94,6 +94,8 @@ void URelic_List_Widget::CloseWidget()
 
 void URelic_List_Widget::SetWearRelicWidget(TArray<URelicButtonWidget*> value)
 {
+	RelicContent->ResetRelicStat();
+
 	for (int i = 0; i < WearRelicButton_Array.Num(); i++) {
 		WearRelicButton_Array[i]->RelicData = value[i]->RelicData;
 		WearRelicButton_Array[i]->RelicImage->SetBrushFromTexture(value[i]->GetRelicTexture2D());
@@ -101,6 +103,18 @@ void URelic_List_Widget::SetWearRelicWidget(TArray<URelicButtonWidget*> value)
 		
 		RelicContent->SetRelicStat(WearRelicButton_Array[i]->RelicData);
 	}
+
+	UMainWidget* mainwidget = CharacterStat->GetMainWidget();
+	mainwidget->ResetSubinfo();
+
+	FMaininfo maininfo;
+	maininfo.HP = RelicContent->ContentInfo.HP;
+	maininfo.Defence = RelicContent->ContentInfo.Defence;
+	maininfo.Attack = RelicContent->ContentInfo.Attack;
+	maininfo.Force = RelicContent->ContentInfo.Force;
+	maininfo.Critical = RelicContent->ContentInfo.Critical;
+	maininfo.CriticalDamage = RelicContent->ContentInfo.CriticalDamage;
+	mainwidget->UpdateWithServerData(maininfo);
 
 	RelicContent->SetRelicWidgetContentText();
 }
@@ -188,9 +202,9 @@ void URelic_List_Widget::HandleRelicDrop(URelicButtonWidget* StartWidget, URelic
 
 	//UE_LOG(LogTemp, Error, TEXT("StartWidget : %s, EndWidget : %s"), *StartWidget->GetName(), *EndWidget->GetName());
 
-	UE_LOG(LogTemp, Warning, TEXT("=== Before (Before Swap) ==="));
-	UE_LOG(LogTemp, Log, TEXT("StartWidget: ID=%s"), *StartWidget->RelicData.RelicImageId.ToString());
-	UE_LOG(LogTemp, Log, TEXT("EndWidget  : ID=%s"), *EndWidget->RelicData.RelicImageId.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("=== Before (Before Swap) ==="));
+	//UE_LOG(LogTemp, Log, TEXT("StartWidget: ID=%s"), *StartWidget->RelicData.RelicImageId.ToString());
+	//UE_LOG(LogTemp, Log, TEXT("EndWidget  : ID=%s"), *EndWidget->RelicData.RelicImageId.ToString());
 
 	FRelicData StartData = StartWidget->RelicData;
 	UTexture2D* StartTexture2D = StartWidget->GetRelicTexture2D();
@@ -204,9 +218,9 @@ void URelic_List_Widget::HandleRelicDrop(URelicButtonWidget* StartWidget, URelic
 	EndWidget->SetRelicImage(StartTexture2D);
 	EndWidget->RelicData = StartData;
 
-	UE_LOG(LogTemp, Warning, TEXT("=== After (After Swap) ==="));
-	UE_LOG(LogTemp, Log, TEXT("StartWidget: ID=%s"), *StartWidget->RelicData.RelicImageId.ToString());
-	UE_LOG(LogTemp, Log, TEXT("EndWidget  : ID=%s"), *EndWidget->RelicData.RelicImageId.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("=== After (After Swap) ==="));
+	//UE_LOG(LogTemp, Log, TEXT("StartWidget: ID=%s"), *StartWidget->RelicData.RelicImageId.ToString());
+	//UE_LOG(LogTemp, Log, TEXT("EndWidget  : ID=%s"), *EndWidget->RelicData.RelicImageId.ToString());
 
 	//InventoryRelics 여기에 접근해서 자체를 바꿔줘야함 InventoryRelics는 이전 RelicWidget의 포인터를 잡고있음
 	int32 StartIndex = RelicButton_Array.Find(StartWidget);
@@ -217,6 +231,20 @@ void URelic_List_Widget::HandleRelicDrop(URelicButtonWidget* StartWidget, URelic
 		InventoryRelics.Swap(StartIndex, EndIndex);
 	}
 
+	if (SelectRelicWidget == EndWidget || SelectRelicWidget == StartWidget)
+	{
+		SelectRelicContent->ResetRelicStat();
+		SelectRelicContent->SetRelicStat(SelectRelicWidget->RelicData);
+		SelectRelicContent->SetRelicWidgetContentText();
+	}
+
+	// 착용 중인 유물이 바뀐 경우 왼쪽의 고정 스탯창도 갱신해야 함
+	if (WearRelicButton_Array.Contains(StartWidget) || WearRelicButton_Array.Contains(EndWidget))
+	{
+		// WearRelicButton_Array의 데이터를 기반으로 고정 스탯창 갱신
+		SetWearRelicWidget(WearRelicButton_Array);
+	}
+
 	PostRelicInventory();
 	PostWearingRelic();
 }
@@ -224,7 +252,8 @@ void URelic_List_Widget::HandleRelicDrop(URelicButtonWidget* StartWidget, URelic
 void URelic_List_Widget::PostRelicInventory()
 {
 	TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest();
-
+	RelicContent->ResetRelicStat();
+	
 	FInventoryResponse InventoryResponse;
 
 	for (int i = 0; i < RelicButton_Array.Num(); i++) {
@@ -273,5 +302,4 @@ void URelic_List_Widget::PostWearingRelic()
 		UE_LOG(LogTemp, Error, TEXT("NO CHARACTERSTAT"));
 		return;
 	}
-
 }

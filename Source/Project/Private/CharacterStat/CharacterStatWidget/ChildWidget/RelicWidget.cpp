@@ -88,7 +88,8 @@ void URelicWidget::RelicToMainStat(FRelicData Data)
 	);
 
 	if (!CharacterStat->GetMainWidget()) return;
-	
+
+
 	CharacterStat->GetMainWidget()->UpdateWithServerData(LocalInfo);
 }
 

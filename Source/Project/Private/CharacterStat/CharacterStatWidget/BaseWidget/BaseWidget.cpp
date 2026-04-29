@@ -17,7 +17,6 @@ void UBaseWidget::NativeConstruct()
 
 void UBaseWidget::WidgetSetText(UTextBlock* Target, float Value)
 {
-
 	if (Target) Target->SetText(FText::AsNumber(Value));
 }
 

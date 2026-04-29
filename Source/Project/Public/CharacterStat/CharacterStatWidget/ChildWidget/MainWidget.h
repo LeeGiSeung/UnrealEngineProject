@@ -29,7 +29,11 @@ public:
 
 	FMaininfo MainInfo;
 
+	FMaininfo Subinfo;
+
 	FMaininfo GetMainInfo();
+
+	void ResetSubinfo();
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "MainLevelUp")

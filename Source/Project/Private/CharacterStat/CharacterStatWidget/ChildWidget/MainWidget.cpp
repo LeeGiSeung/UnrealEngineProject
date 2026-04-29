@@ -16,41 +16,62 @@ void UMainWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	MainInfo.Level = 1;
+
 }
 
 void UMainWidget::UpdateWithServerData(const FMaininfo& Data)
 {
-	
-	if (Data.Level <= 0 || Data.Level > 10000)
-	{
+
+	if (!CharacterStat) {
 		return;
 	}
 
-	if (!CharacterStat) return;
 
 	FMaininfo maininfo = CharacterStat->GetMainStat();
 
-	CharacterStat->SetMainStat(Data);
+	//CharacterStat->SetMainStat(Data);
 
-	maininfo = CharacterStat->GetMainStat();
+	//maininfo = CharacterStat->GetMainStat();
 
-	MainInfo = maininfo;
+	UE_LOG(LogTemp, Error, TEXT("Data.Level %f"), Data.Level);
 
-	WidgetSetText(HP_Content, maininfo.HP);
-	WidgetSetText(Attack_Content, maininfo.Attack);
-	WidgetSetText(Defence_Content, maininfo.Defence);
-	WidgetSetText(Force_Content, maininfo.Force, FString("%"));
-	WidgetSetText(Critical_Content, maininfo.Critical, FString("%"));
-	WidgetSetText(CriticalDamage_Content, maininfo.CriticalDamage, FString("%"));
-	WidgetSetText(LVTextBlock, Data.Level, FString(" .LV")); //오버라이드
+	Subinfo.HP += Data.HP;
+	Subinfo.Defence += Data.Defence;
+	Subinfo.Attack += Data.Attack;
+	Subinfo.Force += Data.Force;
+	Subinfo.Critical += Data.Critical;
+	Subinfo.CriticalDamage += Data.CriticalDamage;
 
-	EXPBar->SetPercent(Data.LevelEXP);
+	MainInfo.LevelEXP += Data.LevelEXP;
+	MainInfo.Level += Data.Level;
+
+	WidgetSetText(HP_Content, Subinfo.HP + maininfo.HP);
+	WidgetSetText(Attack_Content, Subinfo.Attack + maininfo.Attack);
+	WidgetSetText(Defence_Content, Subinfo.Defence + maininfo.Defence);
+	WidgetSetText(Force_Content, Subinfo.Force + maininfo.Force, FString("%"));
+	WidgetSetText(Critical_Content, Subinfo.Critical + maininfo.Critical, FString("%"));
+	WidgetSetText(CriticalDamage_Content, Subinfo.CriticalDamage + maininfo.CriticalDamage, FString("%"));
+	WidgetSetText(LVTextBlock, 1, FString(" .LV")); //오버라이드
+
+	EXPBar->SetPercent(maininfo.LevelEXP + Data.LevelEXP);
 	
 }
 
 FMaininfo UMainWidget::GetMainInfo()
 {
+	ResetSubinfo();
 	return MainInfo;
+}
+
+void UMainWidget::ResetSubinfo()
+{
+	Subinfo.HP = 0.f;
+	Subinfo.Defence = 0.f;
+	Subinfo.Attack = 0.f;
+	Subinfo.Force = 0.f;
+	Subinfo.Critical = 0.f;
+	Subinfo.CriticalDamage = 0.f;
 }
 
 void UMainWidget::LevelUp()
