@@ -53,19 +53,19 @@ async function initializeDatabase() {
                 maininfo: {
                     Level: 51,
                     LevelEXP: 0,
-                    HP: 0,
-                    Attack: 0,
-                    Defence: 0,
-                    Force: 0,
-                    Critical: 0,
-                    CriticalDamage: 0
+                    HP: 100,
+                    Attack: 10,
+                    Defence: 10,
+                    Force: 5,
+                    Critical: 5,
+                    CriticalDamage: 50
                 },
                 relicinfo: {
-                    Part_0: { RelicId: "Relic.Four.RedSkull", RelicImageId: "Relic.Four.RedSkull", Level: 3, HP: 150, Attack: 10, Defence: 25, Force: 5, Critical: 2.5, CriticalDamage: 10 },
-                    Part_1: { RelicId: "Relic.Three.RedSkull", RelicImageId: "Relic.Three.RedSkull", Level: 2, HP: 120, Attack: 5, Defence: 20, Force: 3, Critical: 1, CriticalDamage: 5 },
-                    Part_2: { RelicId: "Relic.Three.BlueSkull", RelicImageId: "Relic.Three.BlueSkull", Level: 4, HP: 80, Attack: 15, Defence: 10, Force: 6, Critical: 3, CriticalDamage: 8 },
-                    Part_3: { RelicId: "Relic.One.RedSkull", RelicImageId: "Relic.One.RedSkull", Level: 1, HP: 60, Attack: 2, Defence: 12, Force: 2, Critical: 0.5, CriticalDamage: 2 },
-                    Part_4: { RelicId: "Relic.One.BlueSkull", RelicImageId: "Relic.One.BlueSkull", Level: 5, HP: 200, Attack: 20, Defence: 15, Force: 10, Critical: 5, CriticalDamage: 20 }
+                    Part_0: { RelicUID : "relic_001", RelicId: "Relic.Four.RedSkull", RelicImageId: "Relic.Four.RedSkull", Level: 3, HP: 150, Attack: 10, Defence: 25, Force: 5, Critical: 2.5, CriticalDamage: 10 },
+                    Part_1: { RelicUID : "relic_004", RelicId: "Relic.Three.RedSkull", RelicImageId: "Relic.Three.RedSkull", Level: 2, HP: 120, Attack: 5, Defence: 20, Force: 3, Critical: 1, CriticalDamage: 5 },
+                    Part_2: { RelicUID : "relic_003", RelicId: "Relic.Three.BlueSkull", RelicImageId: "Relic.Three.BlueSkull", Level: 4, HP: 80, Attack: 15, Defence: 10, Force: 6, Critical: 3, CriticalDamage: 8 },
+                    Part_3: { RelicUID : "relic_005", RelicId: "Relic.One.RedSkull", RelicImageId: "Relic.One.RedSkull", Level: 1, HP: 60, Attack: 2, Defence: 12, Force: 2, Critical: 0.5, CriticalDamage: 2 },
+                    Part_4: { RelicUID : "relic_006", RelicId: "Relic.One.BlueSkull", RelicImageId: "Relic.One.BlueSkull", Level: 5, HP: 200, Attack: 20, Defence: 15, Force: 10, Critical: 5, CriticalDamage: 20 }
                 },
                 skillInfo: {
                     AutoAttackLevel: 5, AutoAttackNode_0: true, AutoAttackNode_1: true, AutoAttackNode_2: false,
@@ -79,9 +79,9 @@ async function initializeDatabase() {
                 },
                 // 실제 데이터가 들어있는 소문자 필드
                 InventoryRelics: [
-                    { RelicUID: "relic_001", RelicId: "Relic.Three.BlueSkull", RelicImageId: "Relic.Three.BlueSkull", Level: 4, HP: 80, Attack: 15, Defence: 10, Force: 6, Critical: 3, CriticalDamage: 8 },
-                    { RelicUID: "relic_002", RelicId: "Relic.Four.RedSkull", RelicImageId: "Relic.Four.RedSkull", Level: 5, HP: 200, Attack: 25, Defence: 20, Force: 10, Critical: 5, CriticalDamage: 15 },
-                    { RelicUID: "relic_003", RelicId: "Relic.Four.RedSkull", RelicImageId: "Relic.Four.RedSkull", Level: 5, HP: 200, Attack: 25, Defence: 20, Force: 10, Critical: 5, CriticalDamage: 15 }
+                    { RelicUID: "relic_003", RelicId: "Relic.Three.BlueSkull", RelicImageId: "Relic.Three.BlueSkull", Level: 4, HP: 80, Attack: 15, Defence: 10, Force: 6, Critical: 3, CriticalDamage: 8 },
+                    { RelicUID: "relic_001", RelicId: "Relic.Four.RedSkull", RelicImageId: "Relic.Four.RedSkull", Level: 5, HP: 200, Attack: 25, Defence: 20, Force: 10, Critical: 5, CriticalDamage: 15 },
+                    { RelicUID: "relic_001", RelicId: "Relic.Four.RedSkull", RelicImageId: "Relic.Four.RedSkull", Level: 5, HP: 200, Attack: 25, Defence: 20, Force: 10, Critical: 5, CriticalDamage: 15 }
 
                 ],
             };

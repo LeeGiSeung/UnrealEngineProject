@@ -16,8 +16,6 @@ void UMainWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	MainInfo.Level = 1;
-
 }
 
 void UMainWidget::UpdateWithServerData(const FMaininfo& Data)
@@ -28,13 +26,11 @@ void UMainWidget::UpdateWithServerData(const FMaininfo& Data)
 	}
 
 
-	FMaininfo maininfo = CharacterStat->GetMainStat();
-
-	//CharacterStat->SetMainStat(Data);
+	
 
 	//maininfo = CharacterStat->GetMainStat();
 
-	UE_LOG(LogTemp, Error, TEXT("Data.Level %f"), Data.Level);
+	//UE_LOG(LogTemp, Error, TEXT("Data.Level %f"), Data.Level);
 
 	Subinfo.HP += Data.HP;
 	Subinfo.Defence += Data.Defence;
@@ -46,12 +42,12 @@ void UMainWidget::UpdateWithServerData(const FMaininfo& Data)
 	MainInfo.LevelEXP += Data.LevelEXP;
 	MainInfo.Level += Data.Level;
 
-	WidgetSetText(HP_Content, Subinfo.HP + maininfo.HP);
-	WidgetSetText(Attack_Content, Subinfo.Attack + maininfo.Attack);
-	WidgetSetText(Defence_Content, Subinfo.Defence + maininfo.Defence);
-	WidgetSetText(Force_Content, Subinfo.Force + maininfo.Force, FString("%"));
-	WidgetSetText(Critical_Content, Subinfo.Critical + maininfo.Critical, FString("%"));
-	WidgetSetText(CriticalDamage_Content, Subinfo.CriticalDamage + maininfo.CriticalDamage, FString("%"));
+	WidgetSetText(HP_Content, Subinfo.HP + CharacterStat->GetMainStat().HP);
+	WidgetSetText(Attack_Content, Subinfo.Attack + CharacterStat->GetMainStat().Attack);
+	WidgetSetText(Defence_Content, Subinfo.Defence + CharacterStat->GetMainStat().Defence);
+	WidgetSetText(Force_Content, Subinfo.Force + CharacterStat->GetMainStat().Force, FString("%"));
+	WidgetSetText(Critical_Content, Subinfo.Critical + CharacterStat->GetMainStat().Critical, FString("%"));
+	WidgetSetText(CriticalDamage_Content, Subinfo.CriticalDamage + CharacterStat->GetMainStat().CriticalDamage, FString("%"));
 	WidgetSetText(LVTextBlock, 1, FString(" .LV")); //오버라이드
 
 	EXPBar->SetPercent(maininfo.LevelEXP + Data.LevelEXP);
@@ -61,7 +57,8 @@ void UMainWidget::UpdateWithServerData(const FMaininfo& Data)
 FMaininfo UMainWidget::GetMainInfo()
 {
 	ResetSubinfo();
-	return MainInfo;
+
+	return CharacterStat->GetMainStat();
 }
 
 void UMainWidget::ResetSubinfo()

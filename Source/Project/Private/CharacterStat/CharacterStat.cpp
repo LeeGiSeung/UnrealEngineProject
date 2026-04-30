@@ -56,6 +56,7 @@ void ACharacterStat::OnCharacterDataReceived(FHttpRequestPtr Request, FHttpRespo
             if (StarWidget)  StarWidget->UpdateWithServerData(RawData.StarInfo);
             if (RelicWidget) RelicWidget->UpdateWithServerData(RawData.Relicinfo);
             if (MainWidget)  MainWidget->UpdateWithServerData(RawData.Maininfo);
+            SetMainStat(RawData.Maininfo);
 
             //UE_LOG(LogTemp, Log, TEXT("Successfully updated data for: %s"), *RawData.CharacterName);
         }
@@ -96,6 +97,7 @@ void ACharacterStat::SetMainStat(FMaininfo value)
     MainStat.Level += value.Level;
     MainStat.LevelEXP += value.LevelEXP;
 
+    UE_LOG(LogTemp, Error, TEXT("SetMainStat : %s"), *this->GetName());
 }
 
 FMaininfo ACharacterStat::GetMainStat()
@@ -147,6 +149,8 @@ void ACharacterStat::BeginPlay()
     ViewCamera->SetActive(true);
 
     StatAnimInstance = Cast<UStatAnimInstance>(GetMesh()->GetAnimInstance());
+    UE_LOG(LogTemp, Error, TEXT("BeginPlay : %s"), *this->GetName());
+
 }
 
 // Called every frame
@@ -159,6 +163,9 @@ void ACharacterStat::Tick(float DeltaTime)
 
     ViewCamera->SetRelativeLocation(NewLoc);
     ViewCamera->SetRelativeRotation(NewRot);
+
+    //UE_LOG(LogTemp, Error, TEXT("HP : %f"), MainStat.HP);
+    
 
 }
 
@@ -316,6 +323,8 @@ void ACharacterStat::SendSkillUpgradeToServer()
     if (RelicWidget) TotalData.Relicinfo = RelicWidget->GetRelicInfo();
     if (StarWidget)  TotalData.StarInfo = StarWidget->GetStarInfo();
     if (MainWidget)  TotalData.Maininfo = MainWidget->GetMainInfo();
+
+    TotalData.Maininfo = GetMainStat();
 
     Request->SetURL(TEXT("http://localhost:3000/api/skills/player_01"));
     Request->SetVerb(TEXT("POST"));

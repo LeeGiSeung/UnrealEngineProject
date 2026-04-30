@@ -31,24 +31,24 @@ void URelic_List_Widget::NativeConstruct()
 
 void URelic_List_Widget::SettingRelicButton()
 {
-	RelicButton_Array.Add(RelicList_0);
-	RelicButton_Array.Add(RelicList_1);
-	RelicButton_Array.Add(RelicList_2);
-	RelicButton_Array.Add(RelicList_3);
-	RelicButton_Array.Add(RelicList_4);
-	RelicButton_Array.Add(RelicList_5);
-	RelicButton_Array.Add(RelicList_6);
-	RelicButton_Array.Add(RelicList_7);
-	RelicButton_Array.Add(RelicList_8);
-	RelicButton_Array.Add(RelicList_9);
-	RelicButton_Array.Add(RelicList_10);
-	RelicButton_Array.Add(RelicList_11);
+	if(RelicList_0) RelicButton_Array.Add(RelicList_0);
+	if (RelicList_1) RelicButton_Array.Add(RelicList_1);
+	if (RelicList_2) RelicButton_Array.Add(RelicList_2);
+	if (RelicList_3) RelicButton_Array.Add(RelicList_3);
+	if (RelicList_4) RelicButton_Array.Add(RelicList_4);
+	if (RelicList_5) RelicButton_Array.Add(RelicList_5);
+	if (RelicList_6) RelicButton_Array.Add(RelicList_6);
+	if (RelicList_7) RelicButton_Array.Add(RelicList_7);
+	if (RelicList_8) RelicButton_Array.Add(RelicList_8);
+	if (RelicList_9) RelicButton_Array.Add(RelicList_9);
+	if (RelicList_10) RelicButton_Array.Add(RelicList_10);
+	if (RelicList_11) RelicButton_Array.Add(RelicList_11);
 
-	WearRelicButton_Array.Add(Relic_0);
-	WearRelicButton_Array.Add(Relic_1);
-	WearRelicButton_Array.Add(Relic_2);
-	WearRelicButton_Array.Add(Relic_3);
-	WearRelicButton_Array.Add(Relic_4);
+	if(Relic_0) WearRelicButton_Array.Add(Relic_0);
+	if (Relic_1) WearRelicButton_Array.Add(Relic_1);
+	if (Relic_2) WearRelicButton_Array.Add(Relic_2);
+	if (Relic_3) WearRelicButton_Array.Add(Relic_3);
+	if (Relic_4) WearRelicButton_Array.Add(Relic_4);
 
 	for (URelicButtonWidget* widget : RelicButton_Array) {
 		if (widget) {
@@ -97,6 +97,7 @@ void URelic_List_Widget::SetWearRelicWidget(TArray<URelicButtonWidget*> value)
 	RelicContent->ResetRelicStat();
 
 	for (int i = 0; i < WearRelicButton_Array.Num(); i++) {
+		if (!WearRelicButton_Array[i]) continue;
 		WearRelicButton_Array[i]->RelicData = value[i]->RelicData;
 		WearRelicButton_Array[i]->RelicImage->SetBrushFromTexture(value[i]->GetRelicTexture2D());
 		WearRelicButton_Array[i]->SetRelicTexture2D(value[i]->GetRelicTexture2D());
@@ -257,6 +258,7 @@ void URelic_List_Widget::PostRelicInventory()
 	FInventoryResponse InventoryResponse;
 
 	for (int i = 0; i < RelicButton_Array.Num(); i++) {
+		if (!RelicButton_Array[i] || RelicButton_Array[i]->RelicData.RelicId.IsNone()) continue;
 		InventoryResponse.InventoryRelics.Add(
 			RelicButton_Array[i]->RelicData
 		);

@@ -31,6 +31,8 @@ public:
 
 	FMaininfo Subinfo;
 
+	FMaininfo maininfo;
+
 	FMaininfo GetMainInfo();
 
 	void ResetSubinfo();

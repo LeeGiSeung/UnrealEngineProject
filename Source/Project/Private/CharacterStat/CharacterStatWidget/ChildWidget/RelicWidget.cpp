@@ -19,11 +19,11 @@ void URelicWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	RelicArray.Add(Relic_0);
-	RelicArray.Add(Relic_1);
-	RelicArray.Add(Relic_2);
-	RelicArray.Add(Relic_3);
-	RelicArray.Add(Relic_4);
+	if(Relic_0) RelicArray.Add(Relic_0);
+	if (Relic_1) RelicArray.Add(Relic_1);
+	if (Relic_2) RelicArray.Add(Relic_2);
+	if (Relic_3) RelicArray.Add(Relic_3);
+	if (Relic_4) RelicArray.Add(Relic_4);
 
 	for (URelicButtonWidget* Widget : RelicArray)
 	{
@@ -37,7 +37,7 @@ void URelicWidget::NativeConstruct()
 
 void URelicWidget::UpdateWithServerData(const FRelicinfo& Data)
 {
-
+	
 	RelicInfo = Data;
 
 	SettingRelicButtonImage(Data.Part_0, 0);
