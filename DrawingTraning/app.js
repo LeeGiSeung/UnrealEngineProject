@@ -77,7 +77,7 @@ async function initializeDatabase() {
                     CharacterID: "BaseCharacter",
                     StarLevel: 3
                 },
-                // 실제 데이터가 들어있는 소문자 필드
+
                 InventoryRelics: [
                     { RelicUID: "relic_003", RelicId: "Relic.Three.BlueSkull", RelicImageId: "Relic.Three.BlueSkull", Level: 4, HP: 80, Attack: 15, Defence: 10, Force: 6, Critical: 3, CriticalDamage: 8 },
                     { RelicUID: "relic_001", RelicId: "Relic.Four.RedSkull", RelicImageId: "Relic.Four.RedSkull", Level: 5, HP: 200, Attack: 25, Defence: 20, Force: 10, Critical: 5, CriticalDamage: 15 },
@@ -177,6 +177,49 @@ console.log(" chracter data post 성공");
         res.json({ message: "Success", savedData: updated });
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+});
+
+const http = require('http');
+const WebSocket = require('ws'); // 표준 웹소켓 라이브러리 추가
+
+const server = http.createServer(app);
+
+// 1. 표준 WebSocket 서버 설정 (Socket.io 대신 또는 함께 사용)
+const wss = new WebSocket.Server({ server }); 
+
+// 연결된 모든 언리얼 클라이언트를 관리하기 위한 세트
+const ueClients = new Set();
+
+wss.on('connection', (ws) => {
+    console.log('ProjectV 언리얼 클라이언트 접속 성공!');
+    ueClients.add(ws);
+
+    ws.on('close', () => {
+        ueClients.delete(ws);
+        console.log('클라이언트 접속 종료');
+    });
+});
+
+app.use(express.json());
+
+// WPF가 호출하는 경로
+app.post('/update-player', async (req, res) => {
+    try {
+        // 1. MongoDB 데이터 수정 로직 (생략)
+        console.log("데이터 변경 감지! 모든 UE5 클라이언트에게 즉시 알림을 보냅니다.");
+
+        // 2. 표준 웹소켓으로 연결된 모든 언리얼에 신호 전송
+        const message = "REFRESH_STATS";
+        ueClients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(message);
+            }
+        });
+
+        res.status(200).send("Success");
+    } catch (error) {
+        res.status(500).send("Error");
     }
 });
 

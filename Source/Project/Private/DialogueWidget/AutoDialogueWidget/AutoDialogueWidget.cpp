@@ -9,10 +9,6 @@
 void UAutoDialogueWidget::NativeConstruct()
 {
     Super::NativeConstruct();
-
-    //SetAutoBaseSetting();
-
-    //UE_LOG(LogTemp, Warning, TEXT("%f"), TextTime);
 }
 
 void UAutoDialogueWidget::SetAutoBaseSetting()

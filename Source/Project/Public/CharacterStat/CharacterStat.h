@@ -20,8 +20,11 @@
 #include "FSkillInfo/FSkillInfo.h"
 
 
+
+
 #include "CharacterStat.generated.h"
 
+class IWebSocket;
 
 class UCameraComponent;
 class USpringArmComponent;
@@ -42,7 +45,11 @@ public:
 	UPROPERTY()
 	FCharacterDataWrapper CharacterDataWrapper;
 
+	UFUNCTION(BlueprintCallable)
 	void SetBeginServerData();
+
+	void ResetMainStat();
+
 	void OnCharacterDataReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
 	void SendSkillUpgradeToServer();
@@ -152,5 +159,14 @@ public:
 	UStatAnimInstance* StatAnimInstance;
 
 	ECharacterMenuState CurMenuState;
+
+//WebSocket
+public:
+		// Socket.IO 컴포넌트
+		//UPROPERTY(EditAnywhere ,BlueprintReadWrite, Category = "Web")
+		//class USocketIOClientComponent* SocketIOComponent;
+
+private:
+	TSharedPtr<IWebSocket> NativeSocket; // 내장 소켓 객체
 
 };

@@ -15,6 +15,8 @@ public class Project : ModuleRules
         "NNERuntimeORTCpu",
             "ImageWrapper",
     "RenderCore",
-        "ImageCore","HTTP", "Json", "JsonUtilities"});
+        "ImageCore","HTTP", "Json", "JsonUtilities",
+        "SocketIOClient", "SocketIOLib", "SIOJson", "WebSockets"
+        });
 	}
 }

@@ -25,13 +25,6 @@ void UMainWidget::UpdateWithServerData(const FMaininfo& Data)
 		return;
 	}
 
-
-	
-
-	//maininfo = CharacterStat->GetMainStat();
-
-	//UE_LOG(LogTemp, Error, TEXT("Data.Level %f"), Data.Level);
-
 	Subinfo.HP += Data.HP;
 	Subinfo.Defence += Data.Defence;
 	Subinfo.Attack += Data.Attack;
@@ -63,6 +56,7 @@ FMaininfo UMainWidget::GetMainInfo()
 
 void UMainWidget::ResetSubinfo()
 {
+	//UE_LOG(LogTemp, Error, TEXT("RESET SUB INFO"));
 	Subinfo.HP = 0.f;
 	Subinfo.Defence = 0.f;
 	Subinfo.Attack = 0.f;

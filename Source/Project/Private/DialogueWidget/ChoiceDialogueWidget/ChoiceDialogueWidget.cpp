@@ -8,7 +8,6 @@
 void UChoiceDialogueWidget::NativeConstruct()
 {
     Super::NativeConstruct();
-    //SetChoiceBaseSetting();
 
 }
 

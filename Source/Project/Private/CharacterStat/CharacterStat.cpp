@@ -18,10 +18,101 @@
 #include "CharacterStat/CharacterStatWidget/ChildWidget/StarWidget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
+//WebSocket
+#include "SocketIOClientComponent.h"
+#include "IWebSocket.h" // 모듈 헤더
+#include "WebSocketsModule.h"
+
+// Sets default values
+ACharacterStat::ACharacterStat()
+{
+    PrimaryActorTick.bCanEverTick = true;
+
+    // 2. 카메라 생성 및 카메라 붐 끝에 부착
+    ViewCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ViewCamera"));
+    ViewCamera->SetupAttachment(RootComponent);
+
+    RelicCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("RelicCamera"));
+    RelicCamera->SetupAttachment(RootComponent);
+
+    SkillCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("SkillCamera"));
+    SkillCamera->SetupAttachment(RootComponent);
+
+    StarCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("StarCamera"));
+    StarCamera->SetupAttachment(RootComponent);
+
+    MainCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("MainCamera"));
+    MainCamera->SetupAttachment(RootComponent);
+
+    //SocketIOComponent = CreateDefaultSubobject<USocketIOClientComponent>(TEXT("SocketIOComponent"));
+    ////SocketIOComponent->AddressAndPort = TEXT("http://localhost:3000"); 
+    //SocketIOComponent->bShouldAutoConnect = true; // 자동 연결 활성화
+
+}
+
+// Called when the game starts or when spawned
+void ACharacterStat::BeginPlay()
+{
+    Super::BeginPlay();
+
+    TargetCam = MainCamera;
+
+    // 시작 시점의 위치를 기본 카메라 위치로 초기화
+    if (ViewCamera)
+    {
+        TargetLocation = ViewCamera->GetRelativeLocation();
+        TargetRotation = ViewCamera->GetRelativeRotation();
+    }
+
+    RelicCamera->SetActive(false);
+    MainCamera->SetActive(false);
+    SkillCamera->SetActive(false);
+    StarCamera->SetActive(false);
+    ViewCamera->SetActive(true);
+
+    StatAnimInstance = Cast<UStatAnimInstance>(GetMesh()->GetAnimInstance());
+
+    //if (SocketIOComponent) {
+    //    SocketIOComponent->OnNativeEvent(TEXT("data_changed"), [](const FString& Event, const TSharedPtr<FJsonValue>& Message)
+    //    {
+    //        //Called when the event is received. We can e.g. log what we got
+    //        UE_LOG(LogTemp, Log, TEXT("Received: %s"), *USIOJConvert::ToJsonString(Message));
+    //    });
+    //}
+
+    //SocketIOComponent->EmitNative(TEXT("data_changed"), TEXT("hi"));
+
+    // 서버 주소 (Node.js의 ws 포트)
+    NativeSocket = FWebSocketsModule::Get().CreateWebSocket("ws://127.0.0.1:3000");
+
+    if (!NativeSocket) {
+        UE_LOG(LogTemp, Error, TEXT("no NativeSocket"));
+    }
+
+    // 메시지를 받았을 때의 처리
+    NativeSocket->OnMessage().AddLambda([this](const FString& Message) {
+        if (Message == "REFRESH_STATS")
+        {
+            UE_LOG(LogTemp, Error, TEXT("FAEFASDF"));
+            AsyncTask(ENamedThreads::GameThread, [this]() {
+                SetBeginServerData();
+                });
+
+        }
+        });
+
+    NativeSocket->Connect();
+
+}
+
 void ACharacterStat::SetBeginServerData()
 {
     FHttpModule* Http = &FHttpModule::Get();
 
+    if (MainWidget) {
+        MainWidget->ResetSubinfo();
+        //UE_LOG(LogTemp, Error, TEXT("ResetSubinfo"));
+    }
     if (Http)
     {
         TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
@@ -37,9 +128,21 @@ void ACharacterStat::SetBeginServerData()
     }
 }
 
+void ACharacterStat::ResetMainStat()
+{
+    MainStat.HP = 0.f;
+    MainStat.Defence = 0.f;
+    MainStat.Attack = 0.f;
+    MainStat.Force = 0.f;
+    MainStat.Critical = 0.f;
+    MainStat.CriticalDamage = 0.f;
+    MainStat.Level = 0.f;
+    MainStat.LevelEXP = 0.f;
+}
+
 void ACharacterStat::OnCharacterDataReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
- 
+    //Server로부터 데이터 업데이트
     if (!bWasSuccessful || !Response.IsValid()) return;
 
     FString JsonString = Response->GetContentAsString();
@@ -88,69 +191,19 @@ void ACharacterStat::FindWidgetClass(USkillWidget* Skill, UMainWidget* Main, URe
 void ACharacterStat::SetMainStat(FMaininfo value)
 {
 
-    MainStat.HP += value.HP;
-    MainStat.Defence += value.Defence;
-    MainStat.Attack += value.Attack;
-    MainStat.Force += value.Force;
-    MainStat.Critical += value.Critical;
-    MainStat.CriticalDamage += value.CriticalDamage;
-    MainStat.Level += value.Level;
-    MainStat.LevelEXP += value.LevelEXP;
-
-    UE_LOG(LogTemp, Error, TEXT("SetMainStat : %s"), *this->GetName());
+    //MainStat.HP += value.HP;
+    //MainStat.Defence += value.Defence;
+    //MainStat.Attack += value.Attack;
+    //MainStat.Force += value.Force;
+    //MainStat.Critical += value.Critical;
+    //MainStat.CriticalDamage += value.CriticalDamage;
+    //MainStat.Level += value.Level;
+    //MainStat.LevelEXP += value.LevelEXP;
 }
 
 FMaininfo ACharacterStat::GetMainStat()
 {
     return MainStat;
-}
-
-// Sets default values
-ACharacterStat::ACharacterStat()
-{
-	PrimaryActorTick.bCanEverTick = true;
-
-    // 2. 카메라 생성 및 카메라 붐 끝에 부착
-    ViewCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ViewCamera"));
-    ViewCamera->SetupAttachment(RootComponent);
-
-    RelicCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("RelicCamera"));
-    RelicCamera->SetupAttachment(RootComponent);
-
-    SkillCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("SkillCamera"));
-    SkillCamera->SetupAttachment(RootComponent);
-
-    StarCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("StarCamera"));
-    StarCamera->SetupAttachment(RootComponent);
-
-    MainCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("MainCamera"));
-    MainCamera->SetupAttachment(RootComponent);
-    
-}
-
-// Called when the game starts or when spawned
-void ACharacterStat::BeginPlay()
-{
-	Super::BeginPlay();
-	
-    TargetCam = MainCamera;
-
-    // 시작 시점의 위치를 기본 카메라 위치로 초기화
-    if (ViewCamera)
-    {
-        TargetLocation = ViewCamera->GetRelativeLocation();
-        TargetRotation = ViewCamera->GetRelativeRotation();
-    }
-
-    RelicCamera->SetActive(false);
-    MainCamera->SetActive(false);
-    SkillCamera->SetActive(false);
-    StarCamera->SetActive(false);
-    ViewCamera->SetActive(true);
-
-    StatAnimInstance = Cast<UStatAnimInstance>(GetMesh()->GetAnimInstance());
-    UE_LOG(LogTemp, Error, TEXT("BeginPlay : %s"), *this->GetName());
-
 }
 
 // Called every frame
