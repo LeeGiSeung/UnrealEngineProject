@@ -57,6 +57,7 @@ FMaininfo UMainWidget::GetMainInfo()
 void UMainWidget::ResetSubinfo()
 {
 	//UE_LOG(LogTemp, Error, TEXT("RESET SUB INFO"));
+	if (Subinfo.HP == 0) return;
 	Subinfo.HP = 0.f;
 	Subinfo.Defence = 0.f;
 	Subinfo.Attack = 0.f;

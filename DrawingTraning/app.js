@@ -191,6 +191,8 @@ const wss = new WebSocket.Server({ server });
 // 연결된 모든 언리얼 클라이언트를 관리하기 위한 세트
 const ueClients = new Set();
 
+let isChange = false;
+
 wss.on('connection', (ws) => {
     console.log('ProjectV 언리얼 클라이언트 접속 성공!');
     ueClients.add(ws);
@@ -200,16 +202,11 @@ wss.on('connection', (ws) => {
         console.log('클라이언트 접속 종료');
     });
 });
-
-app.use(express.json());
-
 // WPF가 호출하는 경로
 app.post('/update-player', async (req, res) => {
     try {
-        // 1. MongoDB 데이터 수정 로직 (생략)
-        console.log("데이터 변경 감지! 모든 UE5 클라이언트에게 즉시 알림을 보냅니다.");
+        
 
-        // 2. 표준 웹소켓으로 연결된 모든 언리얼에 신호 전송
         const message = "REFRESH_STATS";
         ueClients.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
@@ -223,6 +220,30 @@ app.post('/update-player', async (req, res) => {
     }
 });
 
-app.listen(port, () => {
+app.get('/check-update', async (req,res) =>{
+    try{
+        const updated = await Player.findOneAndUpdate(
+            { playerId: req.params.playerId },
+            { $set: req.body },
+            { new: true, upsert: true }
+        );
+
+    } catch(error){
+        res.status(500).send("Error");
+    }
+});
+
+// app.listen(port, () => {
+//     console.log(`🚀 서버 실행 중: http://localhost:${port}`);
+// });
+
+server.listen(port, () => {
     console.log(`🚀 서버 실행 중: http://localhost:${port}`);
 });
+
+        // isChange = true;
+        
+        // if (!isChange) {
+        //     return res.status(200).json({ success: true, isChange: false }); 
+        // }
+        // isChange = false;

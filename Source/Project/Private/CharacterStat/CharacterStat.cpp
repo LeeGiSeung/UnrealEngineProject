@@ -72,6 +72,8 @@ void ACharacterStat::BeginPlay()
 
     StatAnimInstance = Cast<UStatAnimInstance>(GetMesh()->GetAnimInstance());
 
+    
+
     //if (SocketIOComponent) {
     //    SocketIOComponent->OnNativeEvent(TEXT("data_changed"), [](const FString& Event, const TSharedPtr<FJsonValue>& Message)
     //    {
@@ -82,18 +84,17 @@ void ACharacterStat::BeginPlay()
 
     //SocketIOComponent->EmitNative(TEXT("data_changed"), TEXT("hi"));
 
-    // 서버 주소 (Node.js의 ws 포트)
     NativeSocket = FWebSocketsModule::Get().CreateWebSocket("ws://127.0.0.1:3000");
 
     if (!NativeSocket) {
         UE_LOG(LogTemp, Error, TEXT("no NativeSocket"));
+        return;
     }
 
     // 메시지를 받았을 때의 처리
     NativeSocket->OnMessage().AddLambda([this](const FString& Message) {
         if (Message == "REFRESH_STATS")
         {
-            UE_LOG(LogTemp, Error, TEXT("FAEFASDF"));
             AsyncTask(ENamedThreads::GameThread, [this]() {
                 SetBeginServerData();
                 });
@@ -111,7 +112,7 @@ void ACharacterStat::SetBeginServerData()
 
     if (MainWidget) {
         MainWidget->ResetSubinfo();
-        //UE_LOG(LogTemp, Error, TEXT("ResetSubinfo"));
+        UE_LOG(LogTemp, Error, TEXT("ResetSubinfo"));
     }
     if (Http)
     {
