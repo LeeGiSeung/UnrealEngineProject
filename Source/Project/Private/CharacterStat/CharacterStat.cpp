@@ -112,7 +112,6 @@ void ACharacterStat::SetBeginServerData()
 
     if (MainWidget) {
         MainWidget->ResetSubinfo();
-        UE_LOG(LogTemp, Error, TEXT("ResetSubinfo"));
     }
     if (Http)
     {
