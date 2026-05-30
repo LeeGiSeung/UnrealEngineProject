@@ -28,8 +28,7 @@ void AABuildingBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-    //SetActorScale3D(FVector(1.0f, 1.0f, 1.0f));
-    SetBuildingTransform(200,200,5);
+    Building();
 }
 
 void AABuildingBase::Tick(float DeltaTime)
@@ -38,24 +37,34 @@ void AABuildingBase::Tick(float DeltaTime)
 
 }
 
-void AABuildingBase::SetBuildingTransform(float WidthX, float WidthY, int floor)
+void AABuildingBase::SetBuildingTransform(float _WidthX, float _WidthY, int floor)
 {
     if (floor < 1) floor = 1;
     if (!BuildingMesh || !Collision) return;
 
+    iFloor = floor;
+    WidthX = _WidthX;
+    WidthY = _WidthY;
+}
+
+void AABuildingBase::Building()
+{
+    if (iFloor < 1) iFloor = 1;
+    if (!BuildingMesh || !Collision) return;
+
     for (UStaticMeshComponent* it : AdditionalLayers) {
-        if (it) it->DestroyComponent(); 
+        if (it) it->DestroyComponent();
     }
     AdditionalLayers.Empty();
 
     BuildingMesh->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.0f));
 
     const float DefalutSize = 100.f;
-    FVector CalculatedScale = FVector(WidthX / DefalutSize, WidthY / DefalutSize, 1.f);
+    FVector CalculatedScale = FVector(WidthX / DefalutSize, WidthY / DefalutSize, fDefaultFloorHeight / 100.f);
 
     BuildingMesh->SetRelativeScale3D(CalculatedScale);
 
-    for (int i = 0; i < floor; i++) {
+    for (int i = 0; i < iFloor; i++) {
         FString ComponentNameStr = FString::Printf(TEXT("BuildingMesh_%d"), i);
         FName ComponentName = FName(*ComponentNameStr);
         UStaticMeshComponent* NewFloor = NewObject<UStaticMeshComponent>(this, ComponentName);
@@ -69,11 +78,8 @@ void AABuildingBase::SetBuildingTransform(float WidthX, float WidthY, int floor)
             NewFloor->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.0f));
 
             // Z축 위치 정렬
-            NewFloor->SetRelativeLocation(FVector(0.0f, 0.0f, i * 100.0f));
+            NewFloor->SetRelativeLocation(FVector(0.0f, 0.0f, i * 100));
 
-            AdditionalLayers.Add(NewFloor);
-
-            // [수정] 정상적으로 생성되고 등록 완료된 메쉬만 안전하게 배열에 추가합니다!
             AdditionalLayers.Add(NewFloor);
         }
     }

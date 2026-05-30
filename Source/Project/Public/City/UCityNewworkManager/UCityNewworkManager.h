@@ -8,6 +8,8 @@
 
 class AABuildingBase;
 
+
+
 /**
  * 
  */
@@ -23,6 +25,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Spawning")
 	TSubclassOf<AABuildingBase> BuildingBase;
+
+	UPROPERTY()
+	float BuildingBetweenDistance;
 
 private:
 

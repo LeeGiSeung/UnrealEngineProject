@@ -19,4 +19,7 @@ class PROJECT_API UBuildingDataAsset : public UPrimaryDataAsset
 public:
 	UPROPERTY(EditAnywhere, Category = "BuildingBase")
 	TSubclassOf<AABuildingBase> BuildingBase;
+
+	UPROPERTY(EditAnywhere, Category = "BuildingBase")
+	float BuildingBetweenDistance = 100.f;
 };

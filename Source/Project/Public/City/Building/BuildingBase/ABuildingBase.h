@@ -38,12 +38,22 @@ public:
 
 	void SetBuildingTransform(float widthx, float widthy, int floor);
 
+	void Building();
+
 	UPROPERTY()
 	TArray<UStaticMeshComponent*> AdditionalLayers;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Floor")
+	int iFloor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Floor")
+	float fDefaultFloorHeight;
 
 private:
 	float fX;
 	float fY;
-	int iFloor;
+	float WidthX;
+	float WidthY;
+	
 
 };
