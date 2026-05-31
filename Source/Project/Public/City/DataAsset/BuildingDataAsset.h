@@ -7,6 +7,7 @@
 #include "BuildingDataAsset.generated.h"
 
 class AABuildingBase;
+class ARoadActor;
 
 /**
  * 
@@ -19,6 +20,9 @@ class PROJECT_API UBuildingDataAsset : public UPrimaryDataAsset
 public:
 	UPROPERTY(EditAnywhere, Category = "BuildingBase")
 	TSubclassOf<AABuildingBase> BuildingBase;
+
+	UPROPERTY(EditAnywhere, Category = "RoadActor")
+	TSubclassOf<ARoadActor> RoadActor;
 
 	UPROPERTY(EditAnywhere, Category = "BuildingBase")
 	float BuildingBetweenDistance = 100.f;

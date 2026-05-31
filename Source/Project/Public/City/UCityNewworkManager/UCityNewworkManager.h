@@ -7,7 +7,7 @@
 #include "UCityNewworkManager.generated.h"
 
 class AABuildingBase;
-
+class ARoadActor;
 
 
 /**
@@ -26,12 +26,19 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Spawning")
 	TSubclassOf<AABuildingBase> BuildingBase;
 
+	UPROPERTY(EditAnywhere, Category = "Spawning")
+	TSubclassOf<ARoadActor> RoadActorClass;
+
 	UPROPERTY()
 	float BuildingBetweenDistance;
 
 private:
 
 	void LoadQGIS();
+
+	void LoadRoad(bool& retFlag);
+
+	void RoadBuilding(bool& retFlag);
 
 	float standX = -1400.f;
 	float standY = -500.f;

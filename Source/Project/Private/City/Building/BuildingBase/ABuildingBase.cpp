@@ -75,7 +75,7 @@ void AABuildingBase::Building()
             NewFloor->RegisterComponent();
 
             NewFloor->SetStaticMesh(BuildingMesh->GetStaticMesh());
-            NewFloor->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.0f));
+            NewFloor->SetRelativeScale3D(FVector(0.45f, 0.45f, 1.f));
 
             // Z축 위치 정렬
             NewFloor->SetRelativeLocation(FVector(0.0f, 0.0f, i * 100));
