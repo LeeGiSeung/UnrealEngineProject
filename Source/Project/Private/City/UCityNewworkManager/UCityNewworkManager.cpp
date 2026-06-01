@@ -6,8 +6,11 @@
 #include "City/DataAsset/BuildingDataAsset.h"
 #include "City/RoadActor/RoadActor.h"
 #include <algorithm>
+#include "Kismet/GameplayStatics.h"
 
 using namespace std;
+
+
 
 struct FBuildingData {
 	int32 FloorCount;
@@ -74,20 +77,20 @@ void UUCityNewworkManager::LoadBuildingDataAsset(bool& retFlag)
 void UUCityNewworkManager::LoadQGIS()
 {
 	//################################################
-	//도로 데이터 Load
+	//빌딩 데이터 Load
 	//################################################
 	bool BuildingFlag;
-	RoadBuilding(BuildingFlag);
+	LoadBuilding(BuildingFlag);
 	if (BuildingFlag) return;
 
 	//################################################
 	//도로 데이터 Load
 	//################################################
-
 	bool RoadFlag;
 	LoadRoad(RoadFlag);
 	if (RoadFlag) return;
 
+	
 }
 
 
@@ -123,7 +126,6 @@ void UUCityNewworkManager::LoadRoad(bool& retFlag)
 	double minx = TNumericLimits<double>::Max();
 	double miny = TNumericLimits<double>::Max();
 
-	// === 1. 최소 X, Y 좌표 구하기 (안전성 조건 추가) ===
 	for (const auto& FeatureValue : *FeaturesArray) {
 		TSharedPtr<FJsonObject> FeatureObj = FeatureValue->AsObject();
 		if (!FeatureObj.IsValid()) continue;
@@ -131,7 +133,6 @@ void UUCityNewworkManager::LoadRoad(bool& retFlag)
 		TSharedPtr<FJsonObject> GeometryObj = FeatureObj->GetObjectField(TEXT("geometry"));
 		if (!GeometryObj.IsValid()) continue;
 
-		// [수정] 첫 번째 루프에서도 반드시 MultiLineString 데이터만 골라내야 크래시가 안 납니다!
 		FString GeoType;
 		if (!GeometryObj->TryGetStringField(TEXT("type"), GeoType) || GeoType != TEXT("MultiLineString")) continue;
 
@@ -204,40 +205,41 @@ void UUCityNewworkManager::LoadRoad(bool& retFlag)
 		}
 	}
 
-	// [수정] .Num()을 출력할 때는 %d 대신 %e나 안전하게 자료형을 맞추거나 언리얼 표준 포맷인 %d 툴 대신 다음과 같이 씁니다.
-	UE_LOG(LogTemp, Log, TEXT("Total Roads Parsed: %d"), RoadDataList.Num());
-
-	// 정렬 함수 (구현해 두신 sortroad 함수 기준)
 	RoadDataList.Sort(sortroad);
 
-	// === 3. 스폰 (상대 좌표 변환 적용 버전) ===
 	for (int i = 0; i < RoadDataList.Num(); i++) {
 		const FRoadData& RoadData = RoadDataList[i];
 
-		// 1. 스폰 위치 결정 (이 위치가 기즈모의 위치가 됩니다)
 		FVector RoadSpawnLocation = RoadData.Points[0];
 		FRotator Roadrotator = FRotator::ZeroRotator;
 
 		if (RoadActorClass) {
 			ARoadActor* roadactor = world->SpawnActor<ARoadActor>(RoadActorClass, RoadSpawnLocation, Roadrotator);
 			if (roadactor) {
-				// 2. [핵심 수정] 모든 점을 '액터의 위치(Points[0])' 기준으로 상대 좌표화합니다.
+
 				TArray<FVector> LocalPoints;
 				for (const FVector& GlobalPt : RoadData.Points) {
-					// 첫 번째 점을 빼줌으로써 첫 번째 점은 (0,0,0)이 되고 나머지는 상대 거리가 됩니다.
+
 					LocalPoints.Add(GlobalPt - RoadSpawnLocation);
 				}
 
-				// 이제 로컬 좌표가 된 배열을 전달합니다.
 				roadactor->SpawnRoadActor(LocalPoints, RoadData.RoadWidth);
+
+				roadactor->SetWorldPoints(RoadData.Points);
 			}
+
+			OutRoadVector.Add(roadactor);
 		}
+
+		
 	}
+
+	BuildNavigationNetwork();
 
 	retFlag = false;
 }
 
-void UUCityNewworkManager::RoadBuilding(bool& retFlag)
+void UUCityNewworkManager::LoadBuilding(bool& retFlag)
 {
 	retFlag = true;
 	UWorld* world = GetWorld();
@@ -402,5 +404,87 @@ void UUCityNewworkManager::RoadBuilding(bool& retFlag)
 		}
 	}
 	retFlag = false;
+}
+
+void UUCityNewworkManager::BuildNavigationNetwork()
+{
+
+	TSet<FVector> NodePositionSet;
+	int NodeId = 0;
+	for (int RoadIndex = 0; RoadIndex < OutRoadVector.Num(); RoadIndex++) {
+		ARoadActor* RoadActor = OutRoadVector[RoadIndex];
+		for (int i = 0; i < RoadActor->WorldPoints.Num(); i++) {
+			int64 intX = FMath::RoundToInt(RoadActor->WorldPoints[i].X);
+			int64 intY = FMath::RoundToInt(RoadActor->WorldPoints[i].Y);
+			int64 intZ = FMath::RoundToInt(RoadActor->WorldPoints[i].Z);
+
+			FVector FV(intX, intY, intZ);
+
+			NodePositionSet.Add(FV);
+		}
+	}
+
+	TMap<FVector, int32> NodeMap;
+
+	int32 NodeID = 0;
+	for (const FVector&Position : NodePositionSet) {
+		FRoadNode newNode;
+		newNode.Location = Position;
+		newNode.NodeID = NodeID;
+
+		NodeMap.Add({ Position, NodeID });
+		NodeID++;
+	}
+
+	int EdgeID = 0;
+
+	Nodes.SetNum(NodePositionSet.Num());
+
+	for (int RoadIndex = 0; RoadIndex < OutRoadVector.Num(); RoadIndex++) {
+		ARoadActor* RoadActor = OutRoadVector[RoadIndex];
+		if (!RoadActor || RoadActor->WorldPoints.Num() < 2) continue;
+
+		for (int i = 0; i < RoadActor->WorldPoints.Num() - 1; i++) {
+
+			FRoadEdge NewEdge;
+
+			FVector StartPos = 
+				FVector(
+					FMath::RoundToInt(RoadActor->WorldPoints[i].X), 
+					FMath::RoundToInt(RoadActor->WorldPoints[i].Y), 
+					FMath::RoundToInt(RoadActor->WorldPoints[i].Z));
+
+			FVector EndPos = 
+				FVector(
+					FMath::RoundToInt(RoadActor->WorldPoints[i + 1].X), 
+					FMath::RoundToInt(RoadActor->WorldPoints[i + 1].Y), 
+					FMath::RoundToInt(RoadActor->WorldPoints[i + 1].Z));
+
+			int32* StartNodePTR = NodeMap.Find(StartPos);
+			int32* EndNodePTR = NodeMap.Find(EndPos);
+
+			if (!StartNodePTR || !EndNodePTR) continue;
+			if (StartNodePTR == EndNodePTR) continue;
+
+			int32 StartNodeID = *StartNodePTR;
+			int32 EndNodeID = *EndNodePTR;
+
+			NewEdge.StartNodeID = NodeMap[StartPos];
+			NewEdge.EndNodeID = NodeMap[EndPos];
+			NewEdge.Distance = FVector::Distance(StartPos, EndPos);
+			NewEdge.EdgeID = EdgeID;
+			NewEdge.OwnerRoadActor = RoadActor;
+			NewEdge.SegmentIndex = i;
+
+			Edges.Add(NewEdge);
+
+			Nodes[StartNodeID].ConnectingEdgeID.Add(EdgeID);
+			Nodes[EndNodeID].ConnectingEdgeID.Add(EdgeID);
+
+			EdgeID++;
+		}
+
+	}
+	UE_LOG(LogTemp, Log, TEXT("NodeCount : %d, EdgeCount: %d"), Nodes.Num(), Edges.Num());
 }
 

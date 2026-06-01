@@ -31,4 +31,10 @@ public:
 
 	void SpawnRoadActor(TArray<FVector> a, double b);
 
+	void SetWorldPoints(TArray<FVector> value);
+
+	TArray<FVector> WorldPoints;
+private:
+	
+
 };
