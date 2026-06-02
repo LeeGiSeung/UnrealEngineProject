@@ -8,6 +8,7 @@
 #include "RoadActor.generated.h"
 
 class USplineComponent;
+class USplineMeshComponent;
 
 UCLASS()
 class PROJECT_API ARoadActor : public AActor
@@ -23,17 +24,34 @@ protected:
 public:	
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(VisibleAnywhere, Category = "SplineMesh")
+	UPROPERTY(BlueprintReadOnly,VisibleAnywhere, Category = "SplineComponent")
 	USplineComponent* RoadSpline;
+
+	UPROPERTY(BlueprintReadOnly,VisibleAnywhere, Category = "SplineMesh")
+	USplineMeshComponent* SplineMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Road")
 	UStaticMesh* RoadMesh;
 
-	void SpawnRoadActor(TArray<FVector> a, double b);
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Road")
+	double RoadWidth;
+
+	void SpawnRoadActor(TArray<FVector> a, int32 RoadCount ,double b);
 
 	void SetWorldPoints(TArray<FVector> value);
 
 	TArray<FVector> WorldPoints;
+
+	virtual void OnConstruction(const FTransform& Transform) override;
+
+	UPROPERTY()
+	TArray<class USplineMeshComponent*> SpawnedMeshes;
+
+	
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Road")
+	void BuildRoadMesh();
+
 private:
 	
 

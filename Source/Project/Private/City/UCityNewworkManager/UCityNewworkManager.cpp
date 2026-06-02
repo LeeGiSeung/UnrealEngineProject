@@ -7,7 +7,7 @@
 #include "City/RoadActor/RoadActor.h"
 #include <algorithm>
 #include "Kismet/GameplayStatics.h"
-
+#pragma execution_character_set("utf-8")
 using namespace std;
 
 
@@ -21,7 +21,7 @@ struct FBuildingData {
 struct FRoadData {
 	FString RoadName;       // 명칭
 	double RoadWidth;       // 도로폭
-	int32 LaneCount;        // 차로수
+	int32 RoadCount;        // 차로수
 	TArray<FVector> Points; // 도로를 구성하는 정점들 (Line)
 };
 
@@ -79,9 +79,9 @@ void UUCityNewworkManager::LoadQGIS()
 	//################################################
 	//빌딩 데이터 Load
 	//################################################
-	bool BuildingFlag;
-	LoadBuilding(BuildingFlag);
-	if (BuildingFlag) return;
+	//bool BuildingFlag;
+	//LoadBuilding(BuildingFlag);
+	//if (BuildingFlag) return;
 
 	//################################################
 	//도로 데이터 Load
@@ -175,67 +175,74 @@ void UUCityNewworkManager::LoadRoad(bool& retFlag)
 		FRoadData rData;
 
 		TSharedPtr<FJsonObject> PropertiesObj = FeatureObj->GetObjectField(TEXT("properties"));
+
 		if (PropertiesObj.IsValid()) {
-			PropertiesObj->TryGetStringField(TEXT("RoadName"), rData.RoadName);
-			PropertiesObj->TryGetNumberField(TEXT("RoadWidth"), rData.RoadWidth);
-			PropertiesObj->TryGetNumberField(TEXT("RoadCount"), rData.LaneCount);
+
+			// 한글 키값 적용 ("차로수")
+			rData.RoadCount = PropertiesObj->HasField(TEXT("RoadCount")) ? PropertiesObj->GetIntegerField(TEXT("RoadCount")) : 1;
+
+			// 한글 키값 적용 ("도로폭" - 소수점이므로 GetNumberField 사용)
+			rData.RoadWidth = PropertiesObj->HasField(TEXT("RoadWidth")) ? PropertiesObj->GetNumberField(TEXT("RoadWidth")) : 1.0f;
+
+			UE_LOG(LogTemp, Error, TEXT("%d, %f"), rData.RoadCount, rData.RoadWidth);
 		}
 
-		const TArray<TSharedPtr<FJsonValue>>* Coordinates = nullptr;
-		if (GeometryObj->TryGetArrayField(TEXT("coordinates"), Coordinates) && Coordinates->Num() > 0) {
+			const TArray<TSharedPtr<FJsonValue>>* Coordinates = nullptr;
+			if (GeometryObj->TryGetArrayField(TEXT("coordinates"), Coordinates) && Coordinates->Num() > 0) {
 
-			const TArray<TSharedPtr<FJsonValue>>& PointsArray = (*Coordinates)[0]->AsArray();
+				const TArray<TSharedPtr<FJsonValue>>& PointsArray = (*Coordinates)[0]->AsArray();
 
-			for (const auto& PointValue : PointsArray) {
-				const TArray<TSharedPtr<FJsonValue>>& Pt = PointValue->AsArray();
-				if (Pt.Num() >= 2) {
-					double RawX = Pt[0]->AsNumber();
-					double RawY = Pt[1]->AsNumber();
+				for (const auto& PointValue : PointsArray) {
+					const TArray<TSharedPtr<FJsonValue>>& Pt = PointValue->AsArray();
+					if (Pt.Num() >= 2) {
+						double RawX = Pt[0]->AsNumber();
+						double RawY = Pt[1]->AsNumber();
 
-					float LocalX = (RawX - minx) * BuildingBetweenDistance;
-					float LocalY = -((RawY - miny) * BuildingBetweenDistance);
+						float LocalX = (RawX - minx) * BuildingBetweenDistance;
+						float LocalY = -((RawY - miny) * BuildingBetweenDistance);
 
-					rData.Points.Add(FVector(LocalX, LocalY, 0.0f));
-				}
-			}
-
-			if (rData.Points.Num() > 1) {
-				RoadDataList.Add(rData);
-			}
-		}
-	}
-
-	RoadDataList.Sort(sortroad);
-
-	for (int i = 0; i < RoadDataList.Num(); i++) {
-		const FRoadData& RoadData = RoadDataList[i];
-
-		FVector RoadSpawnLocation = RoadData.Points[0];
-		FRotator Roadrotator = FRotator::ZeroRotator;
-
-		if (RoadActorClass) {
-			ARoadActor* roadactor = world->SpawnActor<ARoadActor>(RoadActorClass, RoadSpawnLocation, Roadrotator);
-			if (roadactor) {
-
-				TArray<FVector> LocalPoints;
-				for (const FVector& GlobalPt : RoadData.Points) {
-
-					LocalPoints.Add(GlobalPt - RoadSpawnLocation);
+						rData.Points.Add(FVector(LocalX, LocalY, 0.0f));
+					}
 				}
 
-				roadactor->SpawnRoadActor(LocalPoints, RoadData.RoadWidth);
-
-				roadactor->SetWorldPoints(RoadData.Points);
+				if (rData.Points.Num() > 1) {
+					RoadDataList.Add(rData);
+				}
 			}
-
-			OutRoadVector.Add(roadactor);
 		}
 
-		
-	}
+		RoadDataList.Sort(sortroad);
+
+		for (int i = 0; i < RoadDataList.Num(); i++) { //테스트
+			const FRoadData& RoadData = RoadDataList[i];
+
+			FVector RoadSpawnLocation = RoadData.Points[0];
+			FRotator Roadrotator = FRotator::ZeroRotator;
+
+			if (RoadActorClass) {
+				ARoadActor* roadactor = world->SpawnActor<ARoadActor>(RoadActorClass, RoadSpawnLocation, Roadrotator);
+				if (roadactor) {
+
+					TArray<FVector> LocalPoints;
+					for (const FVector& GlobalPt : RoadData.Points) {
+
+						LocalPoints.Add(GlobalPt - RoadSpawnLocation);
+					}
+					//RoadCount, RoadWidth
+					//UE_LOG(LogTemp, Error, TEXT("RoadWidth : %f, LaneCount : %f"), RoadData.RoadWidth, RoadData.LaneCount);
+					roadactor->SpawnRoadActor(LocalPoints, RoadData.RoadCount, RoadData.RoadWidth);
+
+					roadactor->SetWorldPoints(RoadData.Points);
+				}
+
+				OutRoadVector.Add(roadactor);
+			}
+
+	
+		}
 
 	BuildNavigationNetwork();
-
+	
 	retFlag = false;
 }
 
@@ -440,9 +447,9 @@ void UUCityNewworkManager::BuildNavigationNetwork()
 
 	Nodes.SetNum(NodePositionSet.Num());
 
-	for (int RoadIndex = 0; RoadIndex < OutRoadVector.Num(); RoadIndex++) {
+	for (int RoadIndex = 0; RoadIndex < OutRoadVector.Num(); RoadIndex++) { //테스트용
 		ARoadActor* RoadActor = OutRoadVector[RoadIndex];
-		if (!RoadActor || RoadActor->WorldPoints.Num() < 2) continue;
+		if (!RoadActor) continue;
 
 		for (int i = 0; i < RoadActor->WorldPoints.Num() - 1; i++) {
 
@@ -452,13 +459,13 @@ void UUCityNewworkManager::BuildNavigationNetwork()
 				FVector(
 					FMath::RoundToInt(RoadActor->WorldPoints[i].X), 
 					FMath::RoundToInt(RoadActor->WorldPoints[i].Y), 
-					FMath::RoundToInt(RoadActor->WorldPoints[i].Z));
+					FMath::RoundToInt(RoadActor->WorldPoints[i].Z + 50.f));
 
 			FVector EndPos = 
 				FVector(
 					FMath::RoundToInt(RoadActor->WorldPoints[i + 1].X), 
 					FMath::RoundToInt(RoadActor->WorldPoints[i + 1].Y), 
-					FMath::RoundToInt(RoadActor->WorldPoints[i + 1].Z));
+					FMath::RoundToInt(RoadActor->WorldPoints[i + 1].Z + 50.f));
 
 			int32* StartNodePTR = NodeMap.Find(StartPos);
 			int32* EndNodePTR = NodeMap.Find(EndPos);
@@ -485,6 +492,6 @@ void UUCityNewworkManager::BuildNavigationNetwork()
 		}
 
 	}
-	UE_LOG(LogTemp, Log, TEXT("NodeCount : %d, EdgeCount: %d"), Nodes.Num(), Edges.Num());
+	//UE_LOG(LogTemp, Log, TEXT("NodeCount : %d, EdgeCount: %d"), Nodes.Num(), Edges.Num());
 }
 
