@@ -19,6 +19,7 @@
 #include "NPC/TogetherRun/TogetherRunBase.h"
 #include "Components/SphereComponent.h"
 #include "Manager/TogetherManager/TogetherManager.h"
+#include "City/UCityNewworkManager/UCityNewworkManager.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -676,4 +677,22 @@ void AProjectCharacter::RequestAddToChain(ATogetherRunBase* value)
 {
 	if (ChainActorArray.Contains(value)) return; //이미 있으면 return
 	ChainActorArray.Add(value);
+}
+
+void AProjectCharacter::OpenMap()
+{
+	UWorld* world = GetWorld();
+	CityManager = Cast<UUCityNewworkManager>(GetWorld()->GetGameInstance()->GetSubsystemBase(UUCityNewworkManager::StaticClass()));
+
+	if (!CityManager) return;
+	CityManager->Navigation(this,GetActorLocation());
+	
+}
+
+void AProjectCharacter::NavigationTest(int32 value)
+{
+	UWorld* world = GetWorld();
+
+	if (!CityManager) return;
+	CityManager->TestNavigation(value);
 }

@@ -32,12 +32,13 @@
 
     }
 
-    void ARoadActor::SpawnRoadActor(TArray<FVector> Points, int32 RoadCount, double _RoadWidth)
+    void ARoadActor::SpawnRoadActor(TArray<FVector> Points, int32 _RoadCount, double _RoadWidth)
     {
 	    if (!RoadSpline || Points.Num() < 2) return;
 
+        RoadCount = _RoadCount;
         RoadWidth = _RoadWidth;
-        //UE_LOG(LogTemp, Error, TEXT("%f"), _RoadWidth);
+
         RoadSpline->ClearSplinePoints(true);
 
         for (const FVector& Point : Points)
@@ -50,12 +51,7 @@
             RoadSpline->SetSplinePointType(i, ESplinePointType::Linear, false);
         }
 
- /*       UE_LOG(LogTemp, Log, TEXT("Calling BuildRoadMesh Event. Points: %d"), Points.Num());
-        UE_LOG(LogTemp, Error, TEXT("%d, %d"), Points.Num(), RoadSpline->GetNumberOfSplineSegments());*/
-
         RoadSpline->UpdateSpline();
-
-        BuildRoadMesh();
 
     }
 
@@ -67,6 +63,42 @@
     void ARoadActor::OnConstruction(const FTransform& Transform)
     {
         Super::OnConstruction(Transform);
+    }
+
+    void ARoadActor::ChangeRoadColor(int SegIdx ,FColor Color)
+    {
+
+        // 안전 장치: 인덱스가 범위를 벗어나지 않았는지 확인
+        if (!WorldPoints.IsValidIndex(SegIdx) || !WorldPoints.IsValidIndex(SegIdx + 1))
+        {
+            return;
+        }
+
+        // [선택 1] 세그먼트의 시작점에 생성하고 싶다면:
+        FVector SpawnLocation = WorldPoints[SegIdx];
+
+        // [선택 2] 만약 두 포인트의 딱 '중간'에 생성하고 싶다면 아래 주석을 해제하세요:
+        // FVector SpawnLocation = (WorldPoints[SegIdx] + WorldPoints[SegIdx + 1]) * 0.5f;
+
+        FActorSpawnParameters playerSpawnParameters;
+
+        // 이름 충돌 방지: 액터 이름 뒤에 도로 고유 번호(또는 이름)와 세그먼트 인덱스를 붙여 완벽한 고유 이름을 만듭니다.
+        // 예: AnswerPin_RoadActorName_Seg3
+        FString UniqueNameStr = FString::Printf(TEXT("AnswerPin_%s_Seg%d"), *GetName(), SegIdx);
+        playerSpawnParameters.Name = FName(*UniqueNameStr);
+        playerSpawnParameters.NameMode = FActorSpawnParameters::ESpawnActorNameMode::Requested;
+
+        // 지정된 위치에 딱 하나만 스폰
+        AActor* SpawnedDebugBlock = GetWorld()->SpawnActor<AActor>(DebugBlockClass, SpawnLocation, FRotator::ZeroRotator, playerSpawnParameters);
+
+        // (참고) 만약 DebugBlockClass 액터 내부에 색상을 바꿀 수 있는 함수나 컴포넌트가 있다면 
+        // 여기서 Color 인자를 넘겨주어 실제로 색을 바꿀 수도 있습니다.
+        /*
+        if (SpawnedDebugBlock)
+        {
+            // 예: SpawnedDebugBlock->SetMyColor(Color);
+        }
+        */
     }
 
 

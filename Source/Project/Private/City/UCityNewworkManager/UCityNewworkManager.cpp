@@ -7,6 +7,9 @@
 #include "City/RoadActor/RoadActor.h"
 #include <algorithm>
 #include "Kismet/GameplayStatics.h"
+#include "ProjectCharacter.h"
+#include "Containers/Queue.h"
+
 #pragma execution_character_set("utf-8")
 using namespace std;
 
@@ -67,6 +70,7 @@ void UUCityNewworkManager::LoadBuildingDataAsset(bool& retFlag)
 		BuildingBase = LoadedConfig->BuildingBase;
 		BuildingBetweenDistance = LoadedConfig->BuildingBetweenDistance;
 		RoadActorClass = LoadedConfig->RoadActor;
+		DebugBlockClass = LoadedConfig->DebugBlockClass;
 	}
 	else {
 		UE_LOG(LogTemp, Error, TEXT("NO ASSETCLASS"));
@@ -183,8 +187,6 @@ void UUCityNewworkManager::LoadRoad(bool& retFlag)
 
 			// 한글 키값 적용 ("도로폭" - 소수점이므로 GetNumberField 사용)
 			rData.RoadWidth = PropertiesObj->HasField(TEXT("RoadWidth")) ? PropertiesObj->GetNumberField(TEXT("RoadWidth")) : 1.0f;
-
-			UE_LOG(LogTemp, Error, TEXT("%d, %f"), rData.RoadCount, rData.RoadWidth);
 		}
 
 			const TArray<TSharedPtr<FJsonValue>>* Coordinates = nullptr;
@@ -228,8 +230,7 @@ void UUCityNewworkManager::LoadRoad(bool& retFlag)
 
 						LocalPoints.Add(GlobalPt - RoadSpawnLocation);
 					}
-					//RoadCount, RoadWidth
-					//UE_LOG(LogTemp, Error, TEXT("RoadWidth : %f, LaneCount : %f"), RoadData.RoadWidth, RoadData.LaneCount);
+
 					roadactor->SpawnRoadActor(LocalPoints, RoadData.RoadCount, RoadData.RoadWidth);
 
 					roadactor->SetWorldPoints(RoadData.Points);
@@ -432,6 +433,7 @@ void UUCityNewworkManager::BuildNavigationNetwork()
 	}
 
 	TMap<FVector, int32> NodeMap;
+	Nodes.SetNum(NodePositionSet.Num());
 
 	int32 NodeID = 0;
 	for (const FVector&Position : NodePositionSet) {
@@ -440,58 +442,226 @@ void UUCityNewworkManager::BuildNavigationNetwork()
 		newNode.NodeID = NodeID;
 
 		NodeMap.Add({ Position, NodeID });
+		Nodes[NodeID] = newNode;
+
 		NodeID++;
 	}
 
-	int EdgeID = 0;
+	int32 EdgeID = 0;
+	Edges.Empty(); // 에지 배열 초기화
 
-	Nodes.SetNum(NodePositionSet.Num());
-
-	for (int RoadIndex = 0; RoadIndex < OutRoadVector.Num(); RoadIndex++) { //테스트용
+	for (int RoadIndex = 0; RoadIndex < OutRoadVector.Num(); RoadIndex++) {
 		ARoadActor* RoadActor = OutRoadVector[RoadIndex];
 		if (!RoadActor) continue;
 
 		for (int i = 0; i < RoadActor->WorldPoints.Num() - 1; i++) {
+			FVector PosA = FVector(
+				FMath::RoundToInt(RoadActor->WorldPoints[i].X),
+				FMath::RoundToInt(RoadActor->WorldPoints[i].Y),
+				FMath::RoundToInt(RoadActor->WorldPoints[i].Z));
 
+			FVector PosB = FVector(
+				FMath::RoundToInt(RoadActor->WorldPoints[i + 1].X),
+				FMath::RoundToInt(RoadActor->WorldPoints[i + 1].Y),
+				FMath::RoundToInt(RoadActor->WorldPoints[i + 1].Z));
+
+			int32* NodeAPTR = NodeMap.Find(PosA);
+			int32* NodeBPTR = NodeMap.Find(PosB);
+
+			if (!NodeAPTR || !NodeBPTR) continue;
+			if (*NodeAPTR == *NodeBPTR) continue; // 같은 위치면 패스
+
+			int32 NodeAID = *NodeAPTR;
+			int32 NodeBID = *NodeBPTR;
+
+			// 무방향 에지 생성
 			FRoadEdge NewEdge;
-
-			FVector StartPos = 
-				FVector(
-					FMath::RoundToInt(RoadActor->WorldPoints[i].X), 
-					FMath::RoundToInt(RoadActor->WorldPoints[i].Y), 
-					FMath::RoundToInt(RoadActor->WorldPoints[i].Z + 50.f));
-
-			FVector EndPos = 
-				FVector(
-					FMath::RoundToInt(RoadActor->WorldPoints[i + 1].X), 
-					FMath::RoundToInt(RoadActor->WorldPoints[i + 1].Y), 
-					FMath::RoundToInt(RoadActor->WorldPoints[i + 1].Z + 50.f));
-
-			int32* StartNodePTR = NodeMap.Find(StartPos);
-			int32* EndNodePTR = NodeMap.Find(EndPos);
-
-			if (!StartNodePTR || !EndNodePTR) continue;
-			if (StartNodePTR == EndNodePTR) continue;
-
-			int32 StartNodeID = *StartNodePTR;
-			int32 EndNodeID = *EndNodePTR;
-
-			NewEdge.StartNodeID = NodeMap[StartPos];
-			NewEdge.EndNodeID = NodeMap[EndPos];
-			NewEdge.Distance = FVector::Distance(StartPos, EndPos);
 			NewEdge.EdgeID = EdgeID;
+			NewEdge.NodeA = NodeAID;
+			NewEdge.NodeB = NodeBID;
+			NewEdge.Distance = FVector::Distance(PosA, PosB);
 			NewEdge.OwnerRoadActor = RoadActor;
-			NewEdge.SegmentIndex = i;
+			NewEdge.SegmentIndex = i; // 필요 시 맵 매핑용
 
 			Edges.Add(NewEdge);
 
-			Nodes[StartNodeID].ConnectingEdgeID.Add(EdgeID);
-			Nodes[EndNodeID].ConnectingEdgeID.Add(EdgeID);
+			// [핵심] 두 노드 모두에게 이 에지 ID를 등록 (무방향 연결)
+			Nodes[NodeAID].ConnectingEdgeIDs.Add(EdgeID);
+			Nodes[NodeBID].ConnectingEdgeIDs.Add(EdgeID);
 
 			EdgeID++;
 		}
-
 	}
 	//UE_LOG(LogTemp, Log, TEXT("NodeCount : %d, EdgeCount: %d"), Nodes.Num(), Edges.Num());
 }
+
+void UUCityNewworkManager::Navigation(AProjectCharacter* player, const FVector PlayerLocation)
+{
+	SelectNode = nullptr;
+	maxNodeCount = 1e9;
+	double mindist = 1e9;
+	
+	//이분 탐색으로 변경
+	for (FRoadNode &Node : Nodes) {
+		if (Node.Location.X == 0.f && Node.Location.Y == 0.f && Node.Location.Z == 0.f) {
+			continue;
+		}
+		FVector NodeLocation = Node.Location;
+
+		double dist = FVector::Dist(PlayerLocation, NodeLocation);
+
+		if (dist < mindist) {
+			mindist = dist;
+			SelectNode = &Node;
+		}
+	}
+
+	if (!SelectNode || !player) return;
+
+	player->SetActorLocation(SelectNode->Location);
+
+	TArray<bool> visit;
+	visit.Init(false, Nodes.Num()); // 지난번 이야기한 올바른 초기화법
+
+	TArray<FRoadNode>* FinalCourse;
+	int GoalNodeID = 50;
+
+	FVector GoalLocation = Nodes[GoalNodeID].Location;
+	FActorSpawnParameters ActorSpawnParameters;
+	ActorSpawnParameters.Name = "TestPinActor";
+	
+	FActorSpawnParameters playerSpawnParameters;
+	playerSpawnParameters.Name = "TestPinPlayer";
+
+	GetWorld()->SpawnActor<AActor>(DebugBlockClass, GoalLocation, FRotator::ZeroRotator, ActorSpawnParameters);
+
+	GetWorld()->SpawnActor<AActor>(DebugBlockClass, PlayerLocation, FRotator::ZeroRotator, playerSpawnParameters);
+
+	FinalCourse = DfsNavigation(SelectNode->NodeID, 1, GoalNodeID);
+
+	if (FinalCourse->Num() == 0) {
+		UE_LOG(LogTemp, Error, TEXT("FinalCourse Size = 0"));
+		return;
+	}
+}
+
+struct Data {
+	TArray<FRoadNode> FinalCourse;
+	int Node;
+	double distance;
+};
+
+struct FDataPredicate
+{
+	FORCEINLINE bool operator()(const Data& A, const Data& B) const
+	{
+		return A.distance < B.distance; // 최소 힙 (거리가 짧은 게 위로)
+	}
+};
+
+TArray<FRoadNode>* UUCityNewworkManager::DfsNavigation(int CurrentNodeID, int NodeCount, int GoalNodeID)
+{
+	TArray<FRoadNode>* FinalCourse = new TArray<FRoadNode>();
+
+	TArray<Data> NodeHeap;
+	TArray<bool> visit;
+	visit.Init(false, Nodes.Num());
+
+	// 시작 노드 방문 처리 및 초기 데이터 설정
+	visit[CurrentNodeID] = true;
+
+	Data StartData;
+	StartData.Node = CurrentNodeID;
+	StartData.FinalCourse.Add(Nodes[CurrentNodeID]); // 시작 노드 추가
+
+	NodeHeap.HeapPush(StartData, FDataPredicate());
+
+	int IntMax = 1e9;
+	TArray<int32> MinDistance;
+	MinDistance.Init(IntMax, Nodes.Num()); // IntMax는 매우 큰 값
+
+	// 시작 노드의 거리는 0으로 설정
+	MinDistance[CurrentNodeID] = 0;
+
+	//다익스트라 알고리즘으로 수정해야함
+
+	while (NodeHeap.Num() > 0) {
+		Data qd;
+		NodeHeap.HeapPop(qd, FDataPredicate());
+
+		//Distance랑 비교해서 짧으면 return
+		if (qd.Node == GoalNodeID) {
+			*FinalCourse = qd.FinalCourse; // 배열 내용물 복사
+			break;
+		}
+
+		for (int i = 0; i < Nodes[qd.Node].ConnectingEdgeIDs.Num(); i++) {
+			int32 EdgeID = Nodes[qd.Node].ConnectingEdgeIDs[i];
+			FRoadEdge Edge = Edges[EdgeID];
+
+			// 무방향 판별: 현재 노드가 NodeA면 다음은 NodeB, 반대면 NodeA
+			int32 NextNodeID = (Edge.NodeA == qd.Node) ? Edge.NodeB : Edge.NodeA;
+
+			// 이미 더 짧은 경로로 방문했다면 패스
+			int32 NewDistance = qd.distance + Edge.Distance;
+			if (NewDistance >= MinDistance[NextNodeID]) continue;
+
+			// 최단 거리 기록 갱신
+			MinDistance[NextNodeID] = NewDistance;
+
+			// 다음 탐색 데이터 생성
+			Data NextData;
+			NextData.Node = NextNodeID;
+			NextData.FinalCourse = qd.FinalCourse;
+			NextData.FinalCourse.Add(Nodes[NextNodeID]); // 경로에 추가
+			NextData.distance = NewDistance;
+
+			// 우선순위 큐(또는 힙)에 푸시
+			NodeHeap.HeapPush(NextData, FDataPredicate());
+		}
+	}
+
+	UE_LOG(LogTemp, Error, TEXT("Final Course Num : %d"), FinalCourse->Num());
+
+	// 안전하게 경로 검사 (최소 2개 이상의 노드가 있어야 선을 이을 수 있음)
+	if (FinalCourse && FinalCourse->Num() >= 2)
+	{
+		for (int32 CourseIdx = 0; CourseIdx < FinalCourse->Num() - 1; CourseIdx++)
+		{
+			FRoadNode& CurrentNode = (*FinalCourse)[CourseIdx];
+			FRoadNode& NextNode = (*FinalCourse)[CourseIdx + 1];
+
+			ARoadActor* FoundRoadActor = nullptr;
+			int32 FoundSegmentIndex = -1; // [해결책] 세그먼트 인덱스를 저장할 외부 변수 선언
+
+			// 현재 노드에 연결된 에지들을 순회
+			for (int32 EdgeID : CurrentNode.ConnectingEdgeIDs)
+			{
+				FRoadEdge& Edge = Edges[EdgeID];
+
+				// 두 노드를 연결하는 무방향 에지인지 검사
+				if ((Edge.NodeA == CurrentNode.NodeID && Edge.NodeB == NextNode.NodeID) ||
+					(Edge.NodeB == CurrentNode.NodeID && Edge.NodeA == NextNode.NodeID))
+				{
+					if (Edge.OwnerRoadActor)
+					{
+						FoundRoadActor = Edge.OwnerRoadActor;
+						FoundSegmentIndex = Edge.SegmentIndex; // [해결책] 스택에서 사라지기 전에 값을 복사!
+					}
+					break;
+				}
+			} // 여기서 Edge 변수는 스택에서 사라집니다.
+
+			// [안전 구역] 외부 변수에 복사해 뒀으므로 에러 없이 안전하게 호출 가능!
+			if (FoundRoadActor && FoundSegmentIndex != -1)
+			{
+				FoundRoadActor->ChangeRoadColor(FoundSegmentIndex, FColor::Green);
+			}
+		}
+	}
+
+	return FinalCourse;
+}
+
+
 

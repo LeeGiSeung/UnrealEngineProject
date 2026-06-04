@@ -26,4 +26,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "BuildingBase")
 	float BuildingBetweenDistance = 100.f;
+
+	UPROPERTY(EditAnywhere, Category = "Navigation")
+	TSubclassOf<AActor> DebugBlockClass;
 };

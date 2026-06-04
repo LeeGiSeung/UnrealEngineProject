@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "DirectingManager/DirectingManager.h"
+
+
 #include "ProjectCharacter.generated.h"
 
 class USpringArmComponent;
@@ -18,7 +20,7 @@ class UMinimapWidget;
 class ATogetherRunBase;
 class USphereComponent;
 class UTogetherManager;
-
+class UUCityNewworkManager;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -254,6 +256,17 @@ public:
 	void RequestAddToChain(ATogetherRunBase* value);
 
 	UTogetherManager* TogetherManager;
+
+//Map
+public:
+	UFUNCTION(BlueprintCallable, Category = "Map")
+	void OpenMap();
+
+	UFUNCTION(BlueprintCallable)
+	void NavigationTest(int32 value);
+
+	UPROPERTY()
+	UUCityNewworkManager* CityManager;
 
 };
 

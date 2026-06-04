@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Components/SplineMeshComponent.h"
 
 #include "RoadActor.generated.h"
 
@@ -36,6 +37,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Road")
 	double RoadWidth;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Road")
+	int32 RoadCount;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Navigation")
+	TArray<USplineMeshComponent*> SplineMeshArray;
+
 	void SpawnRoadActor(TArray<FVector> a, int32 RoadCount ,double b);
 
 	void SetWorldPoints(TArray<FVector> value);
@@ -47,10 +54,11 @@ public:
 	UPROPERTY()
 	TArray<class USplineMeshComponent*> SpawnedMeshes;
 
-	
+	UFUNCTION()
+	void ChangeRoadColor(int SegIdx, FColor Color);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Road")
-	void BuildRoadMesh();
+	UPROPERTY(BlueprintReadWrite, Category = "Navigation")
+	TSubclassOf<AActor> DebugBlockClass;
 
 private:
 	
