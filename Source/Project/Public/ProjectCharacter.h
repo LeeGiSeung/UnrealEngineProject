@@ -6,7 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "DirectingManager/DirectingManager.h"
-
+#include "City/CitySystemStruct/CitySystemStruct.h"
 
 #include "ProjectCharacter.generated.h"
 
@@ -28,6 +28,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 DECLARE_MULTICAST_DELEGATE_OneParam(FGetFGroundSpeedTo, float);
 
 UCLASS(config=Game)
+
 class AProjectCharacter : public ACharacter
 {
 	GENERATED_BODY()
@@ -267,6 +268,9 @@ public:
 
 	UPROPERTY()
 	UUCityNewworkManager* CityManager;
+
+	UPROPERTY()
+	TArray<FRoadNode> NavigationMap;
 
 };
 

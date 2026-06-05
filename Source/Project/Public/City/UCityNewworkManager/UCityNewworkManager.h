@@ -4,35 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "City/CitySystemStruct/CitySystemStruct.h"
 
 #include "UCityNewworkManager.generated.h"
 
 class AABuildingBase;
 class ARoadActor;
 class AProjectCharacter;
-
-struct FRoadNode {
-	int32 NodeID;
-	FVector Location;
-
-	// 이 노드에 연결된 무방향 에지들의 ID 목록
-	TArray<int32> ConnectingEdgeIDs;
-};
-
-struct FRoadEdge {
-	int32 EdgeID;
-
-	// Start/End 대신 무방향을 뜻하는 NodeA, NodeB 사용
-	int32 NodeA;
-	int32 NodeB;
-
-	float Distance;
-
-	// 이 에지가 어떤 도로의 몇 번째 세그먼트인지 저장
-	class ARoadActor* OwnerRoadActor;
-	int32 SegmentIndex;
-};
-
 
 /**
  * 
@@ -59,19 +37,14 @@ public:
 	void BuildNavigationNetwork();
 	
 	UFUNCTION()
-	void Navigation(AProjectCharacter* player ,const FVector PlayerLocation);
-
-	UFUNCTION(BlueprintCallable)
-	void TestNavigation(int32 value);
+	TArray<FRoadNode> Navigation(AProjectCharacter* player ,const FVector PlayerLocation);
 
 	UPROPERTY()
 	int32 maxNodeCount = 1e9;
 
-	FRoadNode* SelectNode;
+	FRoadNode SelectNode;
 
-	TArray<FRoadNode>* DfsNavigation(int NodeID, int NodeCount, int GoalNodeID);
-
-	void ChangeNodeColor(FRoadNode& Node, FLinearColor color);
+	TArray<FRoadNode> DfsNavigation(int NodeID, int NodeCount, int GoalNodeID);
 
 	UPROPERTY(EditAnywhere, Category = "Navigation")
 	TSubclassOf<AActor> DebugBlockClass;

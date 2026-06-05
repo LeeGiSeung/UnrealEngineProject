@@ -685,7 +685,8 @@ void AProjectCharacter::OpenMap()
 	CityManager = Cast<UUCityNewworkManager>(GetWorld()->GetGameInstance()->GetSubsystemBase(UUCityNewworkManager::StaticClass()));
 
 	if (!CityManager) return;
-	CityManager->Navigation(this,GetActorLocation());
+	NavigationMap.Empty();
+	NavigationMap = CityManager->Navigation(this,GetActorLocation());
 	
 }
 
@@ -694,5 +695,6 @@ void AProjectCharacter::NavigationTest(int32 value)
 	UWorld* world = GetWorld();
 
 	if (!CityManager) return;
-	CityManager->TestNavigation(value);
+
+
 }

@@ -15,18 +15,7 @@ using namespace std;
 
 
 
-struct FBuildingData {
-	int32 FloorCount;
-	FVector CenterLocation;
-	TArray<FVector> Vertices; // 정렬된 최종 로컬 좌표들
-};
 
-struct FRoadData {
-	FString RoadName;       // 명칭
-	double RoadWidth;       // 도로폭
-	int32 RoadCount;        // 차로수
-	TArray<FVector> Points; // 도로를 구성하는 정점들 (Line)
-};
 
 bool sortBuildingData(const FBuildingData& A, const FBuildingData& B) {
 	double DistA = (A.CenterLocation.X * A.CenterLocation.X) + (A.CenterLocation.Y * A.CenterLocation.Y);
@@ -495,13 +484,13 @@ void UUCityNewworkManager::BuildNavigationNetwork()
 	//UE_LOG(LogTemp, Log, TEXT("NodeCount : %d, EdgeCount: %d"), Nodes.Num(), Edges.Num());
 }
 
-void UUCityNewworkManager::Navigation(AProjectCharacter* player, const FVector PlayerLocation)
+TArray<FRoadNode> UUCityNewworkManager::Navigation(AProjectCharacter* player, const FVector PlayerLocation)
 {
-	SelectNode = nullptr;
+	SelectNode; //이거 초기화 해야함
 	maxNodeCount = 1e9;
 	double mindist = 1e9;
-	
-	//이분 탐색으로 변경
+	TArray<FRoadNode> FinalCourse;
+	//이분 탐색으로 변경해야함
 	for (FRoadNode &Node : Nodes) {
 		if (Node.Location.X == 0.f && Node.Location.Y == 0.f && Node.Location.Z == 0.f) {
 			continue;
@@ -512,18 +501,18 @@ void UUCityNewworkManager::Navigation(AProjectCharacter* player, const FVector P
 
 		if (dist < mindist) {
 			mindist = dist;
-			SelectNode = &Node;
+			SelectNode = Node;
 		}
 	}
 
-	if (!SelectNode || !player) return;
+	if (!player) return FinalCourse;
 
-	player->SetActorLocation(SelectNode->Location);
+	player->SetActorLocation(SelectNode.Location);
 
 	TArray<bool> visit;
 	visit.Init(false, Nodes.Num()); // 지난번 이야기한 올바른 초기화법
 
-	TArray<FRoadNode>* FinalCourse;
+	
 	int GoalNodeID = 50;
 
 	FVector GoalLocation = Nodes[GoalNodeID].Location;
@@ -537,12 +526,12 @@ void UUCityNewworkManager::Navigation(AProjectCharacter* player, const FVector P
 
 	GetWorld()->SpawnActor<AActor>(DebugBlockClass, PlayerLocation, FRotator::ZeroRotator, playerSpawnParameters);
 
-	FinalCourse = DfsNavigation(SelectNode->NodeID, 1, GoalNodeID);
+	FinalCourse = DfsNavigation(SelectNode.NodeID, 1, GoalNodeID);
 
-	if (FinalCourse->Num() == 0) {
+	if (FinalCourse.Num() == 0) {
 		UE_LOG(LogTemp, Error, TEXT("FinalCourse Size = 0"));
-		return;
 	}
+	return FinalCourse;
 }
 
 struct Data {
@@ -559,9 +548,9 @@ struct FDataPredicate
 	}
 };
 
-TArray<FRoadNode>* UUCityNewworkManager::DfsNavigation(int CurrentNodeID, int NodeCount, int GoalNodeID)
+TArray<FRoadNode> UUCityNewworkManager::DfsNavigation(int CurrentNodeID, int NodeCount, int GoalNodeID)
 {
-	TArray<FRoadNode>* FinalCourse = new TArray<FRoadNode>();
+	TArray<FRoadNode> FinalCourse;
 
 	TArray<Data> NodeHeap;
 	TArray<bool> visit;
@@ -583,15 +572,13 @@ TArray<FRoadNode>* UUCityNewworkManager::DfsNavigation(int CurrentNodeID, int No
 	// 시작 노드의 거리는 0으로 설정
 	MinDistance[CurrentNodeID] = 0;
 
-	//다익스트라 알고리즘으로 수정해야함
-
 	while (NodeHeap.Num() > 0) {
 		Data qd;
 		NodeHeap.HeapPop(qd, FDataPredicate());
 
 		//Distance랑 비교해서 짧으면 return
 		if (qd.Node == GoalNodeID) {
-			*FinalCourse = qd.FinalCourse; // 배열 내용물 복사
+			FinalCourse = qd.FinalCourse; // 배열 내용물 복사
 			break;
 		}
 
@@ -621,15 +608,15 @@ TArray<FRoadNode>* UUCityNewworkManager::DfsNavigation(int CurrentNodeID, int No
 		}
 	}
 
-	UE_LOG(LogTemp, Error, TEXT("Final Course Num : %d"), FinalCourse->Num());
+	UE_LOG(LogTemp, Error, TEXT("Final Course Num : %d"), FinalCourse.Num());
 
 	// 안전하게 경로 검사 (최소 2개 이상의 노드가 있어야 선을 이을 수 있음)
-	if (FinalCourse && FinalCourse->Num() >= 2)
+	if (FinalCourse.Num() >= 2)
 	{
-		for (int32 CourseIdx = 0; CourseIdx < FinalCourse->Num() - 1; CourseIdx++)
+		for (int32 CourseIdx = 0; CourseIdx < FinalCourse.Num() - 1; CourseIdx++)
 		{
-			FRoadNode& CurrentNode = (*FinalCourse)[CourseIdx];
-			FRoadNode& NextNode = (*FinalCourse)[CourseIdx + 1];
+			FRoadNode& CurrentNode = (FinalCourse)[CourseIdx];
+			FRoadNode& NextNode = (FinalCourse)[CourseIdx + 1];
 
 			ARoadActor* FoundRoadActor = nullptr;
 			int32 FoundSegmentIndex = -1; // [해결책] 세그먼트 인덱스를 저장할 외부 변수 선언
@@ -662,6 +649,7 @@ TArray<FRoadNode>* UUCityNewworkManager::DfsNavigation(int CurrentNodeID, int No
 
 	return FinalCourse;
 }
+
 
 
 
