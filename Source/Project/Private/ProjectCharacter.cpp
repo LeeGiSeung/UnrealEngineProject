@@ -19,7 +19,10 @@
 #include "NPC/TogetherRun/TogetherRunBase.h"
 #include "Components/SphereComponent.h"
 #include "Manager/TogetherManager/TogetherManager.h"
+
+//Map
 #include "City/UCityNewworkManager/UCityNewworkManager.h"
+#include "City/MapWidget/CityMapWidget.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -220,8 +223,10 @@ void AProjectCharacter::Tick(float DeltaTime)
 
 	CheckGroundWhileClimbing();
 
-
-	//FindTogetherRunActor();
+	//Navigation이 활성화 돼있으면
+	if (bIsMovingAlongPath) { 
+		MovingNavigation(DeltaTime);
+	}
 	
 	
 
@@ -679,7 +684,7 @@ void AProjectCharacter::RequestAddToChain(ATogetherRunBase* value)
 	ChainActorArray.Add(value);
 }
 
-void AProjectCharacter::OpenMap()
+void AProjectCharacter::FollowNavigation()
 {
 	UWorld* world = GetWorld();
 	CityManager = Cast<UUCityNewworkManager>(GetWorld()->GetGameInstance()->GetSubsystemBase(UUCityNewworkManager::StaticClass()));
@@ -687,7 +692,17 @@ void AProjectCharacter::OpenMap()
 	if (!CityManager) return;
 	NavigationMap.Empty();
 	NavigationMap = CityManager->Navigation(this,GetActorLocation());
+
+	CurrentTargetNodeIndex = 0;
 	
+	if (NavigationMap.Num() > 0) {
+		bIsMovingAlongPath = true;
+		UE_LOG(LogTemp, Error, TEXT("NavigationStart"));
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("Navigation Num == 0"));
+		bIsMovingAlongPath = false;
+	}
 }
 
 void AProjectCharacter::NavigationTest(int32 value)
@@ -697,4 +712,61 @@ void AProjectCharacter::NavigationTest(int32 value)
 	if (!CityManager) return;
 
 
+}
+
+void AProjectCharacter::MovingNavigation(float DeltaTime)
+{
+	if (CurrentTargetNodeIndex < 0 || CurrentTargetNodeIndex >= NavigationMap.Num())
+	{
+		bIsMovingAlongPath = false;
+		return;
+	}
+
+	FVector CurrentLocation = GetActorLocation();
+	FVector TargetLocation = NavigationMap[CurrentTargetNodeIndex].Location;
+
+	// 2. 높이(Z축) 차이 때문에 도착 판정이 씹히는 걸 방지하기 위해 평면(X, Y) 거리 계산
+	float DistanceToTarget = FVector::DistXY(CurrentLocation, TargetLocation);
+
+	// 3. 노드 도착 판정
+	if (DistanceToTarget <= MovementAcceptanceRadius)
+	{
+		UE_LOG(LogTemp, Error, TEXT("is goal"));
+		// 다음 노드로 인덱스 증가
+		CurrentTargetNodeIndex++;
+
+		// 최종 목적지에 도달했는지 확인
+		if (CurrentTargetNodeIndex >= NavigationMap.Num())
+		{
+			bIsMovingAlongPath = false;
+			UE_LOG(LogTemp, Warning, TEXT("Goal"));
+			return;
+		}
+	}
+
+	//// 4. 현재 타겟 노드를 향한 방향 벡터 구하기
+	FVector MoveDirection = (TargetLocation - CurrentLocation).GetSafeNormal2D(); // 평면 방향만 추출
+
+	//// 5. 캐릭터 무브먼트 컴포넌트에 이동 입력 주기
+	if (GetCharacterMovement() != nullptr)
+	{
+		//PlayerController->GetCharacter()->GetCharacterMovement()->AddMovementInput(MoveDirection, 1.0f);
+		AddMovementInput(MoveDirection, 10.f);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("is null"));
+
+		// 임시방편: 무브먼트가 없으면 좌표를 직접 강제로 이동시킴 (테스트용)
+		// SetActorLocation(GetActorLocation() + (MoveDirection * 300.0f * DeltaTime));
+	}
+
+	if (!MoveDirection.IsNearlyZero())
+	{
+		FRotator TargetRotation = MoveDirection.Rotation();
+
+		FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), FRotator(0.0f, TargetRotation.Yaw, 0.0f), DeltaTime, 6.0f);
+
+		SetActorRotation(NewRotation);
+	}
 }

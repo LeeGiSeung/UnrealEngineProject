@@ -507,7 +507,7 @@ TArray<FRoadNode> UUCityNewworkManager::Navigation(AProjectCharacter* player, co
 
 	if (!player) return FinalCourse;
 
-	player->SetActorLocation(SelectNode.Location);
+	//player->SetActorLocation(SelectNode.Location);
 
 	TArray<bool> visit;
 	visit.Init(false, Nodes.Num()); // 지난번 이야기한 올바른 초기화법
@@ -516,15 +516,6 @@ TArray<FRoadNode> UUCityNewworkManager::Navigation(AProjectCharacter* player, co
 	int GoalNodeID = 50;
 
 	FVector GoalLocation = Nodes[GoalNodeID].Location;
-	FActorSpawnParameters ActorSpawnParameters;
-	ActorSpawnParameters.Name = "TestPinActor";
-	
-	FActorSpawnParameters playerSpawnParameters;
-	playerSpawnParameters.Name = "TestPinPlayer";
-
-	GetWorld()->SpawnActor<AActor>(DebugBlockClass, GoalLocation, FRotator::ZeroRotator, ActorSpawnParameters);
-
-	GetWorld()->SpawnActor<AActor>(DebugBlockClass, PlayerLocation, FRotator::ZeroRotator, playerSpawnParameters);
 
 	FinalCourse = DfsNavigation(SelectNode.NodeID, 1, GoalNodeID);
 

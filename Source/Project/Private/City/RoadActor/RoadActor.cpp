@@ -74,23 +74,6 @@
             return;
         }
 
-        // [선택 1] 세그먼트의 시작점에 생성하고 싶다면:
-        FVector SpawnLocation = WorldPoints[SegIdx];
-
-        // [선택 2] 만약 두 포인트의 딱 '중간'에 생성하고 싶다면 아래 주석을 해제하세요:
-        // FVector SpawnLocation = (WorldPoints[SegIdx] + WorldPoints[SegIdx + 1]) * 0.5f;
-
-        FActorSpawnParameters playerSpawnParameters;
-
-        // 이름 충돌 방지: 액터 이름 뒤에 도로 고유 번호(또는 이름)와 세그먼트 인덱스를 붙여 완벽한 고유 이름을 만듭니다.
-        // 예: AnswerPin_RoadActorName_Seg3
-        FString UniqueNameStr = FString::Printf(TEXT("AnswerPin_%s_Seg%d"), *GetName(), SegIdx);
-        playerSpawnParameters.Name = FName(*UniqueNameStr);
-        playerSpawnParameters.NameMode = FActorSpawnParameters::ESpawnActorNameMode::Requested;
-
-        // 지정된 위치에 딱 하나만 스폰
-        AActor* SpawnedDebugBlock = GetWorld()->SpawnActor<AActor>(DebugBlockClass, SpawnLocation, FRotator::ZeroRotator, playerSpawnParameters);
-
         // (참고) 만약 DebugBlockClass 액터 내부에 색상을 바꿀 수 있는 함수나 컴포넌트가 있다면 
         // 여기서 Color 인자를 넘겨주어 실제로 색을 바꿀 수도 있습니다.
         /*

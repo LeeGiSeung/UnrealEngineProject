@@ -21,6 +21,8 @@ class ATogetherRunBase;
 class USphereComponent;
 class UTogetherManager;
 class UUCityNewworkManager;
+class UCityMapWidget;
+
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -261,7 +263,7 @@ public:
 //Map
 public:
 	UFUNCTION(BlueprintCallable, Category = "Map")
-	void OpenMap();
+	void FollowNavigation();
 
 	UFUNCTION(BlueprintCallable)
 	void NavigationTest(int32 value);
@@ -271,6 +273,17 @@ public:
 
 	UPROPERTY()
 	TArray<FRoadNode> NavigationMap;
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Map")
+	UCityMapWidget* CityMapWidget;
+
+	int32 CurrentTargetNodeIndex = 0;
+
+	const float MovementAcceptanceRadius = 150.0f;
+
+	bool bIsMovingAlongPath = false;
+
+	void MovingNavigation(float DeltaTime);
 
 };
 
