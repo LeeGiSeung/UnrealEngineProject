@@ -79,3 +79,19 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Data")
 	int32 SegmentIndex = 0;
 };
+
+USTRUCT(BlueprintType)
+struct FMapMarkerData
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString MarkerID;          
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector2D GISCoordinate;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* MarkerTexture;
+};

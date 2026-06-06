@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "City/MapWidget/CityMapWidget.h"
 #include "City/UCityNewworkManager/UCityNewworkManager.h"
 #include "ProjectCharacter.h"
