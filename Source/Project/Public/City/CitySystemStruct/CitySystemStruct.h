@@ -80,12 +80,23 @@ public:
 	int32 SegmentIndex = 0;
 };
 
+UENUM(BlueprintType)
+enum class EMarkerType : uint8 {
+	Toliet,
+	Market,
+	End
+};
+
 USTRUCT(BlueprintType)
 struct FMapMarkerData
 {
 	GENERATED_BODY()
 
 public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EMarkerType MarkerType;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString MarkerID;          
 

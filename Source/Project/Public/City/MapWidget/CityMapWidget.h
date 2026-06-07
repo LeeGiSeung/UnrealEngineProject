@@ -7,6 +7,8 @@
 #include "CityMapWidget.generated.h"
 
 class UUCityNewworkManager;
+class UMapContent;
+class UMapViewer;
 
 UCLASS()
 class PROJECT_API UCityMapWidget : public UUserWidget
@@ -22,6 +24,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Navigation")
 	UUCityNewworkManager* CityNewworkManager;
+
+	UPROPERTY(BlueprintReadWrite, Category = "HUDSpawnWidget")
+	TSubclassOf<UMapViewer> MapViewer;
+
+	UPROPERTY(BlueprintReadWrite, Category = "HUDSpawnWidget")
+	TSubclassOf<UMapContent> MapContent;
 
 private:
 
