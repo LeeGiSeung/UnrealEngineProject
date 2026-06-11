@@ -3,9 +3,12 @@
 
 #include "City/MapWidget/Marker/MapMarkerBase.h"
 
+
 void UMapMarkerBase::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	
 }
 
 void UMapMarkerBase::MarkerClick()

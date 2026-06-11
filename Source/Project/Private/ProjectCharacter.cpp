@@ -182,6 +182,8 @@ void AProjectCharacter::Tick(float DeltaTime)
 
 	Super::Tick(DeltaTime);
 
+	if (!bMapWidget) return;
+
 	bool bHitWall = false;
 
 	FHitResult HitResult;
@@ -769,4 +771,25 @@ void AProjectCharacter::MovingNavigation(float DeltaTime)
 
 		SetActorRotation(NewRotation);
 	}
+}
+
+void AProjectCharacter::OffMapWidget()
+{
+	CityMapWidget->RemoveFromParent();
+	bMapWidget = false;
+}
+
+void AProjectCharacter::OnMapWidget()
+{
+	bMapWidget = true;
+	if (APlayerController* PC = Cast<APlayerController>(GetController())) {
+		CityMapWidget = Cast<UCityMapWidget>(CreateWidget(PC, CityMapWidgetClass));
+
+		if (CityMapWidget) {
+			CityMapWidget->AddToViewport();
+		}
+
+		
+	}
+
 }

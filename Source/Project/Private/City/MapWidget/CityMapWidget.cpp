@@ -34,3 +34,16 @@ void UCityMapWidget::NavigationFunction()
 		UE_LOG(LogTemp, Error, TEXT("None CityNewworkManager"));
 	}
 }
+
+void UCityMapWidget::MapMarkerIndexUp()
+{
+	if (!WBP_MapViewer) return;
+	WBP_MapViewer->UpMapMarkerMaxCount();
+}
+
+void UCityMapWidget::MapMarkerIndexDown()
+{
+	if (!WBP_MapViewer) return;
+
+	WBP_MapViewer->DownMapMarkerMaxCount();
+}

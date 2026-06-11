@@ -22,6 +22,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Navigation")
 	void NavigationFunction();
 
+	UFUNCTION(BlueprintCallable, Category = "Mapviewer")
+	void MapMarkerIndexUp();
+
+	UFUNCTION(BlueprintCallable, Category = "Mapviewer")
+	void MapMarkerIndexDown();
+
+public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Navigation")
 	UUCityNewworkManager* CityNewworkManager;
 
@@ -30,6 +37,12 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "HUDSpawnWidget")
 	TSubclassOf<UMapContent> MapContent;
+
+	UPROPERTY(meta = (BindWidget))
+	UMapViewer* WBP_MapViewer;
+
+	UPROPERTY(meta = (BindWidget))
+	UMapContent* WBP_MapContent;
 
 private:
 

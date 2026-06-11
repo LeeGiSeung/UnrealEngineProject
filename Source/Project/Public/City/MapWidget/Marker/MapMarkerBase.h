@@ -4,7 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "City/CitySystemStruct/CitySystemStruct.h"
+
 #include "MapMarkerBase.generated.h"
+
+struct FMapMarkerData;
 
 UCLASS()
 class PROJECT_API UMapMarkerBase : public UUserWidget
@@ -13,6 +17,11 @@ class PROJECT_API UMapMarkerBase : public UUserWidget
 
 public:
 	virtual void NativeConstruct() override;
-
 	virtual void MarkerClick();
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite ,Category = "MapMarkerData")
+	FMapMarkerData MapMarkerData;
+	
+
 };

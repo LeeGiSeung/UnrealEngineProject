@@ -6,9 +6,6 @@
 #include "City/MapWidget/Marker/MapMarkerBase.h"
 #include "MapMarker_Toliet.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class PROJECT_API UMapMarker_Toliet : public UMapMarkerBase
 {
@@ -17,5 +14,6 @@ class PROJECT_API UMapMarker_Toliet : public UMapMarkerBase
 public:
 	virtual void NativeConstruct() override;
 	virtual void MarkerClick() override;
+
 
 };

@@ -4,11 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "City/CitySystemStruct/CitySystemStruct.h"
+
 #include "MapContent.generated.h"
 
-/**
- * 
- */
+struct FMapMarkerData;
+
 UCLASS()
 class PROJECT_API UMapContent : public UUserWidget
 {
@@ -16,4 +17,7 @@ class PROJECT_API UMapContent : public UUserWidget
 
 public:
 	virtual void NativeConstruct() override;
+
+	TArray<FMapMarkerData> MarkerDataArray;
+
 };

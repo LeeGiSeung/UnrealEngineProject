@@ -285,5 +285,17 @@ public:
 
 	void MovingNavigation(float DeltaTime);
 
+	UPROPERTY(BlueprintReadWrite, Category = "Map")
+	bool bMapWidget = false;
+
+	UFUNCTION(BlueprintCallable, Category = "Map")
+	void OffMapWidget();
+
+	UFUNCTION(BlueprintCallable, Category = "Map")
+	void OnMapWidget();
+
+	UPROPERTY(BlueprintReadWrite, Category = "Map")
+	TSubclassOf<UCityMapWidget> CityMapWidgetClass;
+
 };
 

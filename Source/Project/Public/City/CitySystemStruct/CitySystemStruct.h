@@ -84,6 +84,8 @@ UENUM(BlueprintType)
 enum class EMarkerType : uint8 {
 	Toliet,
 	Market,
+	Bed,
+	MapMarker,
 	End
 };
 

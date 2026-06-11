@@ -10,4 +10,7 @@
 void UMapContent::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	//MarkerDataArray에 현재 지도에서 Marker가져와서 넣음
+
 }
