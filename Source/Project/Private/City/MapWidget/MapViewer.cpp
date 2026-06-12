@@ -172,11 +172,10 @@ void UMapViewer::DownMapMarkerMaxCount()
 
 void UMapViewer::SetOnPaintMarkerArray(TArray<FRoadNode> value)
 {
-    OnPaintMarkerArray.Empty();
+    DFSNavigationLocationArray.Empty();
 
-    OnPaintMarkerArray = value;
+    DFSNavigationLocationArray = value;
 
-    //MapViewer Image에 NavigationCourse대로 OnPaint 해주는 코드
     OnPaintNavigationCourse();
 }
 
@@ -189,7 +188,38 @@ void UMapViewer::SetWBPMainHUD(UCityMapWidget* value)
 
 void UMapViewer::OnPaintNavigationCourse()
 {
-    UE_LOG(LogTemp, Error, TEXT("OnPaintNavigationCourse In %d"), OnPaintMarkerArray.Num());
+    UE_LOG(LogTemp, Error, TEXT("OnPaintNavigationCourse In %d"), DFSNavigationLocationArray.Num());
+
+    WidgetLocationArray.Empty();
+    WidgetLocationArray = ComputeOnPaintLocationArray();
+}
+
+int32 UMapViewer::NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
+{
+    int32 ResultLayerId = Super::NativePaint(Args, AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
+
+    if (WidgetLocationArray.Num() >= 2)
+    {
+        FSlateDrawElement::MakeLines(
+            OutDrawElements,
+            ResultLayerId,
+            AllottedGeometry.ToPaintGeometry(),
+            WidgetLocationArray, // <--- 반복문 없이 여기서 한 번에 처리
+            ESlateDrawEffect::None,
+            FLinearColor::Yellow,
+            true,
+            3.0f
+        );
+    }
+
+    return int32();
+}
+
+TArray<FVector2D> UMapViewer::ComputeOnPaintLocationArray()
+{
+    TArray<FVector2D> returnArray;
+
+    return returnArray;
 }
 
 

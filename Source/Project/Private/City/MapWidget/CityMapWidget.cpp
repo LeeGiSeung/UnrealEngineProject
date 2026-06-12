@@ -66,7 +66,6 @@ void UCityMapWidget::SetMapContentToMainHUD()
 		return;
 	}
 
-	//WBP_MapContent¿¡ 
 	WBP_MapContent->SetMainHUD(this);
 }
 

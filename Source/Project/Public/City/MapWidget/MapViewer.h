@@ -63,6 +63,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "MapViewer")
 	void OnPaintNavigationCourse();
 
+	virtual int32 NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
+
+	UFUNCTION()
+	TArray<FVector2D> ComputeOnPaintLocationArray();
+
 public:
 	//########################
 	UPROPERTY(BlueprintReadWrite, Category = "MapViewer")
@@ -75,7 +80,10 @@ public:
 	TArray<UPointMarker*> PointMarkerArray;
 
 	UPROPERTY(BlueprintReadWrite, Category = "OnPaint")
-	TArray<FRoadNode> OnPaintMarkerArray;
+	TArray<FRoadNode> DFSNavigationLocationArray;
+
+	UPROPERTY(BlueprintReadWrite, Category = "OnPaint")
+	TArray<FVector2D> WidgetLocationArray;
 	//########################
 
 	UPROPERTY(meta = (BindWidget))
