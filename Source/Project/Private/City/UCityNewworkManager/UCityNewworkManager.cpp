@@ -14,9 +14,6 @@
 using namespace std;
 
 
-
-
-
 bool sortBuildingData(const FBuildingData& A, const FBuildingData& B) {
 	double DistA = (A.CenterLocation.X * A.CenterLocation.X) + (A.CenterLocation.Y * A.CenterLocation.Y);
 
@@ -65,6 +62,11 @@ void UUCityNewworkManager::LoadBuildingDataAsset(bool& retFlag)
 		UE_LOG(LogTemp, Error, TEXT("NO ASSETCLASS"));
 	}
 	retFlag = false;
+}
+
+TArray<FRoadNode> UUCityNewworkManager::GetNavigationCourse()
+{
+	return NavigationCourse;
 }
 
 void UUCityNewworkManager::LoadQGIS()
@@ -489,7 +491,7 @@ TArray<FRoadNode> UUCityNewworkManager::Navigation(AProjectCharacter* player, co
 	SelectNode; //이거 초기화 해야함
 	maxNodeCount = 1e9;
 	double mindist = 1e9;
-	TArray<FRoadNode> FinalCourse;
+	NavigationCourse.Empty();
 	//이분 탐색으로 변경해야함
 	for (FRoadNode &Node : Nodes) {
 		if (Node.Location.X == 0.f && Node.Location.Y == 0.f && Node.Location.Z == 0.f) {
@@ -505,9 +507,7 @@ TArray<FRoadNode> UUCityNewworkManager::Navigation(AProjectCharacter* player, co
 		}
 	}
 
-	if (!player) return FinalCourse;
-
-	//player->SetActorLocation(SelectNode.Location);
+	if (!player) return NavigationCourse;
 
 	TArray<bool> visit;
 	visit.Init(false, Nodes.Num()); // 지난번 이야기한 올바른 초기화법
@@ -517,12 +517,12 @@ TArray<FRoadNode> UUCityNewworkManager::Navigation(AProjectCharacter* player, co
 
 	FVector GoalLocation = Nodes[GoalNodeID].Location;
 
-	FinalCourse = DfsNavigation(SelectNode.NodeID, 1, GoalNodeID);
+	NavigationCourse = DfsNavigation(SelectNode.NodeID, 1, GoalNodeID);
 
-	if (FinalCourse.Num() == 0) {
+	if (NavigationCourse.Num() == 0) {
 		UE_LOG(LogTemp, Error, TEXT("FinalCourse Size = 0"));
 	}
-	return FinalCourse;
+	return NavigationCourse;
 }
 
 struct Data {

@@ -1,6 +1,7 @@
 #include "City/MapWidget/MapContent.h"
 #include "City/UCityNewworkManager/UCityNewworkManager.h"
 #include "ProjectCharacter.h"
+#include "City/MapWidget/CityMapWidget.h"
 
 //지도 데이터 : 현재 오픈된 구역(FOW, 안개 지역), 탐험 완료된 지역 정보.핀 / 
 //마커 데이터 : 월드에 존재하는 퀘스트 위치, 상점 위치, 포탈(순간이동) 
@@ -13,4 +14,10 @@ void UMapContent::NativeConstruct()
 
 	//MarkerDataArray에 현재 지도에서 Marker가져와서 넣음
 
+}
+
+void UMapContent::SetMainHUD(UCityMapWidget* value)
+{
+	if (!value) return;
+	CityMapWidget = value;
 }

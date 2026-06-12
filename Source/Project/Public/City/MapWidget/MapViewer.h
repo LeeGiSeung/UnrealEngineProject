@@ -1,14 +1,15 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "City/CitySystemStruct/CitySystemStruct.h"
+
 #include "MapViewer.generated.h"
 
 class UImage;
 class UPointMarker;
 class UCanvasPanel;
+class UUCityMapWidget;
 
 UCLASS()
 class PROJECT_API UMapViewer : public UUserWidget
@@ -19,6 +20,7 @@ class PROJECT_API UMapViewer : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 
+public:
 	UFUNCTION(BlueprintCallable, Category = "MapViewFunction")
 	void ScroolUp();
 
@@ -52,15 +54,32 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DownMapMarkerMaxCount();
 
-public:
-	UPROPERTY(meta = (BindWidget))
-	UCanvasPanel* MapViewerCanvasPanel;
+	UFUNCTION(BlueprintCallable)
+	void SetOnPaintMarkerArray(TArray<FRoadNode> value);
 
+	UFUNCTION(BlueprintCallable, Category = "MapViewer")
+	void SetWBPMainHUD(UCityMapWidget* value);
+	
+	UFUNCTION(BlueprintCallable, Category = "MapViewer")
+	void OnPaintNavigationCourse();
+
+public:
+	//########################
 	UPROPERTY(BlueprintReadWrite, Category = "MapViewer")
 	TSubclassOf<UPointMarker> PointMarkerClass;
 
 	UPROPERTY(BlueprintReadWrite, Category = "MapViewer")
 	TArray<UTexture2D*> MapImageArray;
+
+	UPROPERTY()
+	TArray<UPointMarker*> PointMarkerArray;
+
+	UPROPERTY(BlueprintReadWrite, Category = "OnPaint")
+	TArray<FRoadNode> OnPaintMarkerArray;
+	//########################
+
+	UPROPERTY(meta = (BindWidget))
+	UCanvasPanel* MapViewerCanvasPanel;
 
 	UPROPERTY(BlueprintReadWrite, Category = "MapViewer")
 	int32 NowScollLevel = 16; //스크롤 레벨
@@ -83,10 +102,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "MapViewer")
 	int32 iMapMarkerMaxCount = 2;
 
-	UPROPERTY()
-	TArray<UPointMarker*> PointMarkerArray;
-
-	UFUNCTION()
-	void TestiMapMarkerMaxCount();
+	UPROPERTY(BlueprintReadWrite, Category = "MapViewer")
+	UCityMapWidget* CityMapWidget;
 
 };

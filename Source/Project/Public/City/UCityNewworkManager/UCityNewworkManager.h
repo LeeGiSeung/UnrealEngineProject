@@ -49,6 +49,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Navigation")
 	TSubclassOf<AActor> DebugBlockClass;
 
+	UFUNCTION(BlueprintCallable)
+	TArray<FRoadNode> GetNavigationCourse();
+
 private:
 
 	void LoadQGIS();
@@ -65,4 +68,5 @@ private:
 
 	TArray<ARoadActor*> OutRoadVector;
 	
+	TArray<FRoadNode> NavigationCourse;
 };

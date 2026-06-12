@@ -10,6 +10,8 @@
 
 struct FMapMarkerData;
 
+class UCityMapWidget;
+
 UCLASS()
 class PROJECT_API UMapContent : public UUserWidget
 {
@@ -18,6 +20,13 @@ class PROJECT_API UMapContent : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 
+public:
+	UFUNCTION(BlueprintCallable, Category = "MapContent")
+	void SetMainHUD(UCityMapWidget* value);
+
 	TArray<FMapMarkerData> MarkerDataArray;
+
+	UPROPERTY(BlueprintReadWrite, Category = "MapContent")
+	UCityMapWidget* CityMapWidget;
 
 };

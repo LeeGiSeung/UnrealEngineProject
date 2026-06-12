@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "City/CitySystemStruct/CitySystemStruct.h"
+
 #include "CityMapWidget.generated.h"
 
 class UUCityNewworkManager;
@@ -27,6 +29,15 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Mapviewer")
 	void MapMarkerIndexDown();
+
+	UFUNCTION(BlueprintCallable, Category = "MapViewer")
+	void SetMapViewerToMainHUD();
+
+	UFUNCTION(BlueprintCallable, Category = "MapViewer")
+	void SetMapContentToMainHUD();
+
+	UFUNCTION(BlueprintCallable, Category = "MapViewer")
+	void OnPaintMapViewer();
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Navigation")

@@ -8,6 +8,7 @@
 #include <cmath>
 #include "Components/CanvasPanel.h"
 #include "ProjectPlayerController.h"
+#include "City/MapWidget/CityMapWidget.h"
 
 //화면 렌더링 : 지도 이미지(Texture)를 보여주고, 줌인 / 줌아웃(Zoom), 드래그로 지도 이동(Pan)하는 기능.
 //마커 표시 : MapContent에서 마커 데이터를 받아와 화면에 아이콘 위젯들을 생성하고 배치하는 기능.
@@ -169,9 +170,26 @@ void UMapViewer::DownMapMarkerMaxCount()
 
 }
 
-void UMapViewer::TestiMapMarkerMaxCount()
+void UMapViewer::SetOnPaintMarkerArray(TArray<FRoadNode> value)
 {
-    UE_LOG(LogTemp, Error, TEXT("%d"), iMapMarkerMaxCount);
+    OnPaintMarkerArray.Empty();
+
+    OnPaintMarkerArray = value;
+
+    //MapViewer Image에 NavigationCourse대로 OnPaint 해주는 코드
+    OnPaintNavigationCourse();
+}
+
+void UMapViewer::SetWBPMainHUD(UCityMapWidget* value)
+{
+    if (!value) return;
+
+    CityMapWidget = value;
+}
+
+void UMapViewer::OnPaintNavigationCourse()
+{
+    UE_LOG(LogTemp, Error, TEXT("OnPaintNavigationCourse In %d"), OnPaintMarkerArray.Num());
 }
 
 

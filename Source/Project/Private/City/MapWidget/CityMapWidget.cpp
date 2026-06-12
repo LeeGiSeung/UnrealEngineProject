@@ -47,3 +47,39 @@ void UCityMapWidget::MapMarkerIndexDown()
 
 	WBP_MapViewer->DownMapMarkerMaxCount();
 }
+
+void UCityMapWidget::SetMapViewerToMainHUD()
+{
+	if (!WBP_MapViewer) {
+		UE_LOG(LogTemp, Error, TEXT("WBP_MapViewer IS NONE"));
+		return;
+	}
+
+	WBP_MapViewer->SetWBPMainHUD(this);
+
+}
+
+void UCityMapWidget::SetMapContentToMainHUD()
+{
+	if (!WBP_MapContent) {
+		UE_LOG(LogTemp, Error, TEXT("WBP_MapContent IS NONE"));
+		return;
+	}
+
+	//WBP_MapContent¿¡ 
+	WBP_MapContent->SetMainHUD(this);
+}
+
+void UCityMapWidget::OnPaintMapViewer()
+{
+	if (!WBP_MapViewer) {
+		UE_LOG(LogTemp, Error, TEXT("WBP_MapViewer IS NONE"));
+		return;
+	}
+	
+	TArray<FRoadNode>NavigationPointArray = CityNewworkManager->GetNavigationCourse();
+
+	WBP_MapViewer->SetOnPaintMarkerArray(NavigationPointArray);
+
+}
+
