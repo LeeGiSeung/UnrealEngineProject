@@ -23,8 +23,6 @@ class PROJECT_API UUCityNewworkManager : public UGameInstanceSubsystem
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
-	void LoadBuildingDataAsset(bool& retFlag);
-
 	UPROPERTY(EditAnywhere, Category = "Spawning")
 	TSubclassOf<AABuildingBase> BuildingBase;
 
@@ -55,10 +53,39 @@ public:
 private:
 
 	void LoadQGIS();
-
+	
+	void LoadBuildingDataAsset(bool& retFlag);
+	
 	void LoadRoad(bool& retFlag);
-
 	void LoadBuilding(bool& retFlag);
+
+	void ConstructBuilding();
+	void ConstructRoad();
+
+	UPROPERTY()
+	TArray<FRuntimeRoadData> TotalRoadData;
+
+	UPROPERTY()
+	TArray<FRuntimeBuildingData> TotalBuildingData;
+
+	UPROPERTY()
+	TSet<int32> CurrentNavigationEdges;
+
+	UFUNCTION()
+	void UpdateBuildingVisibility(FVector PlayerLocation);
+
+	UFUNCTION()
+	void UpdateRoadVisibility(FVector PlayerLocation);
+
+	FTimerHandle VisibilityTimerHandle;
+
+	void CheckCityVisibility();
+
+	void DebugingBuildingCheck(FVector PlayerLocation);
+
+	// 도로를 보여줄 반경 (빌딩보다 조금 더 길게 잡는 것을 추천합니다. 약 250미터 = 25000.f)
+	const float RoadSpawnRadius = 25000.f;
+
 
 	float standX = -1400.f;
 	float standY = -500.f;

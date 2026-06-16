@@ -28,7 +28,7 @@ void AABuildingBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-    Building();
+    //Building; BeginPlay() 에서 시작하는거임
 }
 
 void AABuildingBase::Tick(float DeltaTime)
@@ -39,12 +39,27 @@ void AABuildingBase::Tick(float DeltaTime)
 
 void AABuildingBase::SetBuildingTransform(float _WidthX, float _WidthY, int floor)
 {
-    if (floor < 1) floor = 1;
+    if (floor < 1) iFloor = 1;
     if (!BuildingMesh || !Collision) return;
+
 
     iFloor = floor;
     WidthX = _WidthX;
     WidthY = _WidthY;
+
+    FVector NewExtent = FVector(_WidthX * 0.5f, _WidthY * 0.5f, (floor * 100) * 0.5f);
+    Collision->SetBoxExtent(NewExtent);
+
+    // 콜리전의 중심을 액터 루트(0,0,0)에 맞춥니다.
+    Collision->SetRelativeLocation(FVector(0.f, 0.f, NewExtent.Z));
+
+    FVector MeshRelativeLocation = FVector(-_WidthX * 0.5f, -_WidthY * 0.5f, 0.f);
+    BuildingMesh->SetRelativeLocation(MeshRelativeLocation);
+
+    FVector NewScale = FVector(_WidthX / 100.f, _WidthY / 100.f, (floor * 100) / 100.f);
+    BuildingMesh->SetRelativeScale3D(NewScale);
+
+    Building(); //이후 BeginPlay() 에서 옮겨옴
 }
 
 void AABuildingBase::Building()

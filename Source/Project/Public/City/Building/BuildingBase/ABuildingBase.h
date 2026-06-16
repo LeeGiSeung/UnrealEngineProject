@@ -44,7 +44,7 @@ public:
 	TArray<UStaticMeshComponent*> AdditionalLayers;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Floor")
-	int iFloor;
+	int iFloor = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Floor")
 	float fDefaultFloorHeight;

@@ -84,6 +84,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "OnPaint")
 	TArray<FVector2D> WidgetLocationArray;
+
+	UPROPERTY(BlueprintReadWrite, Category = "MapViewer")
+	TArray<UImage*> MapGridPanelImage;
 	//########################
 
 	UPROPERTY(meta = (BindWidget))
@@ -96,7 +99,7 @@ public:
 	int32 minScollLevel = 13;
 
 	UPROPERTY(BlueprintReadWrite, Category = "MapViewer")
-	int32 maxScollLevel = 18;
+	int32 maxScollLevel = 17;
 
 	UPROPERTY(BlueprintReadWrite, Category = "WheelDownClick")
 	bool bMouseWheelDownClick = false;

@@ -68,28 +68,23 @@ void UMapViewer::MapLeftButtonClick()
 
 void UMapViewer::MousePositionToImagePath(const FVector2D& _MousePosition)
 {
-	//폴더 이름(7030, 7031...) = 바둑판의 가로(X축) 열 번호
-	//이미지 이름(3236.png, 3237.png...) = 바둑판의 세로(Y축) 행 번호
-
-	//레벨이 1씩 오를수록 이전 레벨의 폴더이름 ,이미지이름이 *2 씩 오름
-
-	//12945
-
     const double TileSize = 256.0;
 
-    // 우리가 확실히 검증한 레벨 13의 원점 데이터
+    // 1. 요구사항에 맞춘 레벨 13 기준 원점 데이터 설정
     const int32 BaseZoom = 13;
-    const int32 BaseStartX = 7030;
-    const int32 BaseStartY = 3236;
+    const int32 BaseStartX = 6922; // 시작 폴더 번호 변경
+    const int32 BaseStartY = 3130; // 시작 PNG 이름 변경
 
-    // 줌 레벨 차이 계산 (예: 현재 14레벨이면 14 - 13 = 1)
-    int32 ZoomDiff = NowScollLevel - BaseZoom;
+    // 2. NowScollLevel 변수를 기반으로 현재 레벨 판단 및 13~17 레벨 범위 제한 (안전장치)
+    int32 ClampedScrollLevel = FMath::Clamp(NowScollLevel, 13, 17);
 
-    // 2의 거듭제곱 배수 구하기 (1단계 차이나면 2배, 2단계 차이나면 4배)
+    // 줌 레벨 차이 계산
+    int32 ZoomDiff = ClampedScrollLevel - BaseZoom;
+
+    // 2의 거듭제곱 배수 구하기 (레벨이 1 오를 때마다 2배씩 증가)
     int32 ScaleMultiplier = FMath::RoundToInt(FMath::Pow(2.0, ZoomDiff));
 
     // 현재 줌 레벨에 맞는 진짜 시작 타일 번호 자동 계산
-    // 현재 레벨이 14라면 자동으로 7030*2 = 14060 / 3236*2 = 6472 가 됩니다!
     int32 CurrentStartX = BaseStartX * ScaleMultiplier;
     int32 CurrentStartY = BaseStartY * ScaleMultiplier;
 
@@ -97,17 +92,18 @@ void UMapViewer::MousePositionToImagePath(const FVector2D& _MousePosition)
     int32 TileOffsetX = FMath::FloorToInt(_MousePosition.X / TileSize);
     int32 TileOffsetY = FMath::FloorToInt(_MousePosition.Y / TileSize);
 
-    // 최종 하드디스크에 매핑될 가로줄(X), 세로줄(Y) 인덱스
+    // 최종 매핑될 가로줄(X, 폴더명), 세로줄(Y, 파일명) 인덱스
     int32 FinalTileX = CurrentStartX + TileOffsetX;
     int32 FinalTileY = CurrentStartY + TileOffsetY;
 
     // 결과물 디버그 로그
     UE_LOG(LogTemp, Error, TEXT("[MapViewer] Zoom: %d | X(Folder): %d | Y(FileName): %d.png"),
-        NowScollLevel, FinalTileX, FinalTileY);
+        ClampedScrollLevel, FinalTileX, FinalTileY);
 
-    // 경로 조립
-    FString TargetPath = FPaths::ProjectContentDir() + FString::Printf(TEXT("Movies/%d/%d/%d.png"),
-        NowScollLevel, FinalTileX, FinalTileY);
+    FString WindowsUserDocDir = FPlatformProcess::UserDir();
+    FString TargetPath = FPaths::Combine(*WindowsUserDocDir, TEXT("KoreaLoadPng"),
+        *FString::Printf(TEXT("%d/%d/%d.png"), ClampedScrollLevel, FinalTileX, FinalTileY));
+
 
 }
 
@@ -172,6 +168,11 @@ void UMapViewer::DownMapMarkerMaxCount()
 
 void UMapViewer::SetOnPaintMarkerArray(TArray<FRoadNode> value)
 {
+    if (value.Num() == 0) {
+        UE_LOG(LogTemp, Error, TEXT("TArray<FRoadNode> IS NoNE"));
+        return;
+    }
+
     DFSNavigationLocationArray.Empty();
 
     DFSNavigationLocationArray = value;
@@ -191,7 +192,7 @@ void UMapViewer::OnPaintNavigationCourse()
     UE_LOG(LogTemp, Error, TEXT("OnPaintNavigationCourse In %d"), DFSNavigationLocationArray.Num());
 
     WidgetLocationArray.Empty();
-    WidgetLocationArray = ComputeOnPaintLocationArray();
+    WidgetLocationArray = ComputeOnPaintLocationArray(); //구현해야함
 }
 
 int32 UMapViewer::NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const

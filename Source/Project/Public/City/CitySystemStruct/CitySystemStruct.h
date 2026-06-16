@@ -108,3 +108,35 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* MarkerTexture;
 };
+
+USTRUCT(BlueprintType)
+struct FRuntimeRoadData
+{
+	GENERATED_BODY()
+
+	TArray<FVector> Points;
+	int32 RoadCount = 1;
+	float RoadWidth = 1.0f;
+	FVector SpawnLocation = FVector::ZeroVector;
+
+	// 현재 월드에 스폰된 도로 액터 포인터 (없으면 nullptr)
+	UPROPERTY()
+	class ARoadActor* SpawnedActor = nullptr;
+};
+
+USTRUCT(BlueprintType)
+struct FRuntimeBuildingData
+{
+	GENERATED_BODY()
+
+	FVector CenterLocation = FVector::ZeroVector;
+	FVector SpawnLocation = FVector::ZeroVector;
+	FRotator Rotation = FRotator::ZeroRotator;
+	float WidthX = 0.f;
+	float LengthY = 0.f;
+	int32 FloorCount = 1;
+
+	// 현재 월드에 스폰된 액터의 포인터 (스폰되지 않았다면 nullptr)
+	UPROPERTY()
+	class AABuildingBase* SpawnedActor = nullptr;
+};
