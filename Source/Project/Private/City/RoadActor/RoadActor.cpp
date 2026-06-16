@@ -53,6 +53,7 @@
 
         RoadSpline->UpdateSpline();
 
+        BP_SplineMesh();
     }
 
     void ARoadActor::SetWorldPoints(TArray<FVector> value)

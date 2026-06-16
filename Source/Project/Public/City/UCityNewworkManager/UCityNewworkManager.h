@@ -63,6 +63,9 @@ private:
 	void ConstructRoad();
 
 	UPROPERTY()
+	TArray<FRoadData> RoadDataList;
+
+	UPROPERTY()
 	TArray<FRuntimeRoadData> TotalRoadData;
 
 	UPROPERTY()
@@ -78,6 +81,9 @@ private:
 	void UpdateRoadVisibility(FVector PlayerLocation);
 
 	FTimerHandle VisibilityTimerHandle;
+
+	UPROPERTY()
+	double MinComputeDistance = 100000;
 
 	void CheckCityVisibility();
 

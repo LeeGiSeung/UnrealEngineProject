@@ -40,7 +40,7 @@ void UUCityNewworkManager::Initialize(FSubsystemCollectionBase& Collection)
 
 	LoadQGIS();
 
-	//GetWorld()->GetTimerManager().SetTimer(VisibilityTimerHandle, this, &UUCityNewworkManager::CheckCityVisibility, 0.5f, false);
+	GetWorld()->GetTimerManager().SetTimer(VisibilityTimerHandle, this, &UUCityNewworkManager::CheckCityVisibility, 3.f, true);
 }
 
 void UUCityNewworkManager::LoadBuildingDataAsset(bool& retFlag)
@@ -78,9 +78,9 @@ void UUCityNewworkManager::LoadQGIS()
 	LoadBuilding(BuildingFlag);
 	if (BuildingFlag) return;
 	
-	//bool RoadFlag;
-	//LoadRoad(RoadFlag);
-	//if (RoadFlag) return;
+	bool RoadFlag;
+	LoadRoad(RoadFlag);
+	if (RoadFlag) return;
 
 	//UE_LOG(LogTemp, Error, TEXT("TotalBuildingData %d"), TotalBuildingData.Num());
 	//UE_LOG(LogTemp, Error, TEXT("TotalRoadData %d"), TotalRoadData.Num());
@@ -400,12 +400,13 @@ void UUCityNewworkManager::LoadQGIS()
 void UUCityNewworkManager::LoadRoad(bool& retFlag)
 {
 	retFlag = true;
+	
 	UWorld* world = GetWorld();
 	if (!world) {
 		UE_LOG(LogTemp, Error, TEXT("NO WORLD OR BASE"));
 		return;
 	}
-
+	RoadDataList.Empty();
 	FString RelativePath = FPaths::Combine(FPaths::ProjectDir(), TEXT("IncheonLandFile/IncheonData/Inchecon_Michuholgu_Road_All.geojson"));
 	FString DataPath = FPaths::ConvertRelativePathToFull(RelativePath);
 
@@ -462,7 +463,7 @@ void UUCityNewworkManager::LoadRoad(bool& retFlag)
 		return;
 	}
 
-	TArray<FRoadData> RoadDataList;
+	
 
 	// === 2. 실제 데이터 파싱 ===
 	for (const auto& FeatureValue : *FeaturesArray) {
@@ -488,61 +489,42 @@ void UUCityNewworkManager::LoadRoad(bool& retFlag)
 			rData.RoadWidth = PropertiesObj->HasField(TEXT("RoadWidth")) ? PropertiesObj->GetNumberField(TEXT("RoadWidth")) : 1.0f;
 		}
 
-			const TArray<TSharedPtr<FJsonValue>>* Coordinates = nullptr;
-			if (GeometryObj->TryGetArrayField(TEXT("coordinates"), Coordinates) && Coordinates->Num() > 0) {
+		const TArray<TSharedPtr<FJsonValue>>* Coordinates = nullptr;
+		if (GeometryObj->TryGetArrayField(TEXT("coordinates"), Coordinates) && Coordinates->Num() > 0) {
 
-				const TArray<TSharedPtr<FJsonValue>>& PointsArray = (*Coordinates)[0]->AsArray();
+			const TArray<TSharedPtr<FJsonValue>>& PointsArray = (*Coordinates)[0]->AsArray();
 
-				for (const auto& PointValue : PointsArray) {
-					const TArray<TSharedPtr<FJsonValue>>& Pt = PointValue->AsArray();
-					if (Pt.Num() >= 2) {
-						double RawX = Pt[0]->AsNumber();
-						double RawY = Pt[1]->AsNumber();
+			for (const auto& PointValue : PointsArray) {
+				const TArray<TSharedPtr<FJsonValue>>& Pt = PointValue->AsArray();
+				if (Pt.Num() >= 2) {
+					double RawX = Pt[0]->AsNumber();
+					double RawY = Pt[1]->AsNumber();
 
-						float LocalX = (RawX - minx) * BuildingBetweenDistance;
-						float LocalY = -((RawY - miny) * BuildingBetweenDistance);
+					float LocalX = (RawX - minx) * BuildingBetweenDistance;
+					float LocalY = -((RawY - miny) * BuildingBetweenDistance);
 
-						rData.Points.Add(FVector(LocalX, LocalY, 0.0f));
-					}
-				}
-
-				if (rData.Points.Num() > 1) {
-					RoadDataList.Add(rData);
+					rData.Points.Add(FVector(LocalX, LocalY, 0.0f));
 				}
 			}
-		}
 
-		RoadDataList.Sort(sortroad);
-
-		for (int i = 0; i < RoadDataList.Num(); i++) { 
-			const FRoadData& RoadData = RoadDataList[i];
-
-			FVector RoadSpawnLocation = RoadData.Points[0];
-			FRotator Roadrotator = FRotator::ZeroRotator;
-
-			if (RoadActorClass) {
-				ARoadActor* roadactor = world->SpawnActor<ARoadActor>(RoadActorClass, RoadSpawnLocation, Roadrotator);
-				if (roadactor) {
-
-					TArray<FVector> LocalPoints;
-					for (const FVector& GlobalPt : RoadData.Points) {
-
-						LocalPoints.Add(GlobalPt - RoadSpawnLocation);
-					}
-
-					roadactor->SpawnRoadActor(LocalPoints, RoadData.RoadCount, RoadData.RoadWidth);
-
-					roadactor->SetWorldPoints(RoadData.Points);
-				}
-
-				OutRoadVector.Add(roadactor);
+			if (rData.Points.Num() > 1) {
+				RoadDataList.Add(rData);
 			}
-
-	
 		}
+	}
 
-	BuildNavigationNetwork();
-	
+	RoadDataList.Sort(sortroad);
+
+	for (FRoadData& Data : RoadDataList) {
+		FRuntimeRoadData RoadData;
+
+		RoadData.Points = Data.Points;
+		RoadData.RoadCount = Data.RoadCount;
+		RoadData.RoadWidth = Data.RoadWidth;
+
+		TotalRoadData.Add(RoadData);
+	}
+
 	retFlag = false;
 }
 
@@ -664,7 +646,6 @@ void UUCityNewworkManager::LoadBuilding(bool& retFlag)
 
 	FVector TargetCenter = FVector(0.f, 0.f, 0.f);
 
-	//for (int i = 0; i < 10; i++) {
 	for (int i = 0; i < BuildingData.Num(); i++) {
 		const TArray<FVector>& Vertices = BuildingData[i].Vertices;
 		if (Vertices.Num() == 0) continue;
@@ -701,14 +682,15 @@ void UUCityNewworkManager::LoadBuilding(bool& retFlag)
 
 		FVector SpawnLocation = BuildingData[i].CenterLocation - FVector(WidthX * 0.5f, LengthY * 0.5f, 0.f);
 
-		FRotator rotator = FRotator::ZeroRotator;
+		FRuntimeBuildingData BuildData;
 
-		AABuildingBase* Actor = world->SpawnActor<AABuildingBase>(BuildingBase, SpawnLocation, BuildingRotator);
+		BuildData.SpawnLocation = SpawnLocation;
+		BuildData.FloorCount = floor;
+		BuildData.WidthX = WidthX;
+		BuildData.LengthY = LengthY;
+		BuildData.Rotation = BuildingRotator;
 
-		if (Actor)
-		{
-			Actor->SetBuildingTransform(WidthX, LengthY, floor);
-		}
+		TotalBuildingData.Add(BuildData);
 	}
 	retFlag = false;
 }
@@ -723,48 +705,37 @@ void UUCityNewworkManager::ConstructRoad()
 
 void UUCityNewworkManager::UpdateBuildingVisibility(FVector PlayerLocation)
 {
-	UWorld* World = GetWorld();
-	if (!World || !BuildingBase || TotalBuildingData.Num() == 0) return;
 
-	// 생성 반경 설정: 200미터(20000cm)의 제곱값
-	float TargetRadiusSq = FMath::Square(250000.f);
+	UWorld* world = GetWorld();
 
-	for (FRuntimeBuildingData& Building : TotalBuildingData)
-	{
-		// 플레이어와 건물 중심점 사이의 거리 제곱 계산
-		float DistanceSq = FVector::DistSquared(PlayerLocation, Building.SpawnLocation);
+	if (!world || TotalBuildingData.Num() == 0) return;
 
-		if (DistanceSq <= TargetRadiusSq)
-		{
-			// 반경 이내인데 아직 스폰되지 않은 경우
-			if (Building.SpawnedActor == nullptr)
-			{
-				Building.SpawnedActor = World->SpawnActor<AABuildingBase>(
-					BuildingBase,
-					Building.SpawnLocation,
-					Building.Rotation
-				);
+	for (FRuntimeBuildingData& Data : TotalBuildingData) {
+		if (Data.FloorCount == 0) continue;
+		if (Data.SpawnedActor) continue;
+		FVector SpawnLocation = Data.SpawnLocation;
+		FRotator BuildingRotator = Data.Rotation;
 
-				if (Building.SpawnedActor)
-				{
-					Building.SpawnedActor->SetBuildingTransform(
-						Building.WidthX,
-						Building.LengthY,
-						Building.FloorCount
-					);
-				}
+		double distance = FVector::Distance(PlayerLocation, Data.SpawnLocation);
+
+		if (distance < MinComputeDistance) {
+
+			//소환함
+			AABuildingBase* Actor = world->SpawnActor<AABuildingBase>(BuildingBase, SpawnLocation, BuildingRotator);
+
+			if (Actor) {
+				Actor->SetBuildingTransform(Data.WidthX, Data.LengthY, Data.FloorCount);
 			}
 		}
-		else
-		{
-			// 반경 밖인데 액터가 월드에 존재하는 경우 제거
-			if (Building.SpawnedActor != nullptr)
-			{
-				Building.SpawnedActor->Destroy();
-				Building.SpawnedActor = nullptr; // 포인터 초기화
+		else {
+			//없앰
+			if (Data.SpawnedActor != nullptr) {
+				Data.SpawnedActor->Destroy();
+				Data.SpawnedActor = nullptr;
 			}
 		}
 	}
+
 }
 
 void UUCityNewworkManager::UpdateRoadVisibility(FVector PlayerLocation)
@@ -772,50 +743,50 @@ void UUCityNewworkManager::UpdateRoadVisibility(FVector PlayerLocation)
 	UWorld* World = GetWorld();
 	if (!World || !RoadActorClass || TotalRoadData.Num() == 0) return;
 
-	// 도로 생성 반경 설정: 건물보다 조금 더 넓게 설정하는 것이 시각적으로 안정적입니다 (예: 250미터)
-	float TargetRadiusSq = FMath::Square(25000.f);
+	OutRoadVector.Empty();
 
-	for (FRuntimeRoadData& Road : TotalRoadData)
-	{
-		// 플레이어와 도로 시작점(SpawnLocation) 사이의 거리 제곱 계산
-		float DistanceSq = FVector::DistSquared(PlayerLocation, Road.SpawnLocation);
+	for (FRuntimeRoadData& RoadData : TotalRoadData) {
 
-		if (DistanceSq <= TargetRadiusSq)
-		{
-			// 반경 이내인데 아직 스폰되지 않은 경우
-			if (Road.SpawnedActor == nullptr)
-			{
-				FRotator RoadRotator = FRotator::ZeroRotator;
-				Road.SpawnedActor = World->SpawnActor<ARoadActor>(
-					RoadActorClass,
-					Road.SpawnLocation,
-					RoadRotator
-				);
+		FVector RoadSpawnLocation = RoadData.Points[0];
+		FRotator Roadrotator = FRotator::ZeroRotator;
 
-				if (Road.SpawnedActor)
-				{
-					// 기존 원본 코드의 로컬 좌표 변환 및 에셋 생성 로직을 처리합니다.
+		double distance = FVector::Distance(RoadSpawnLocation, PlayerLocation);
+
+		if (distance < MinComputeDistance) {
+
+			if (RoadData.SpawnedActor) continue; //이미 소환돼있으면 넘김
+
+			if (RoadActorClass) {
+				ARoadActor* roadactor = World->SpawnActor<ARoadActor>(RoadActorClass, RoadSpawnLocation, Roadrotator);
+				if (roadactor) {
+
 					TArray<FVector> LocalPoints;
-					for (const FVector& GlobalPt : Road.Points)
-					{
-						LocalPoints.Add(GlobalPt - Road.SpawnLocation);
+					for (const FVector& GlobalPt : RoadData.Points) {
+						LocalPoints.Add(GlobalPt - RoadSpawnLocation);
 					}
 
-					Road.SpawnedActor->SpawnRoadActor(LocalPoints, Road.RoadCount, Road.RoadWidth);
-					Road.SpawnedActor->SetWorldPoints(Road.Points);
+					roadactor->SpawnRoadActor(LocalPoints, RoadData.RoadCount, RoadData.RoadWidth);
+
+					roadactor->SetWorldPoints(RoadData.Points);
+
+					RoadData.SpawnedActor = roadactor;
 				}
+
+				OutRoadVector.Add(roadactor);
 			}
 		}
-		else
-		{
-			// 반경 밖인데 액터가 월드에 존재하는 경우 제거
-			if (Road.SpawnedActor != nullptr)
-			{
-				Road.SpawnedActor->Destroy();
-				Road.SpawnedActor = nullptr; // 포인터 초기화
+		else {
+			if (RoadData.SpawnedActor) {
+				RoadData.SpawnedActor->Destroy();
+				RoadData.SpawnedActor = nullptr;
 			}
 		}
+
+		
 	}
+
+	BuildNavigationNetwork();
+
 }
 
 void UUCityNewworkManager::CheckCityVisibility()

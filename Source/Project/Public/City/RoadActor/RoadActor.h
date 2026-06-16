@@ -60,6 +60,10 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Navigation")
 	TSubclassOf<AActor> DebugBlockClass;
 
+public:
+	UFUNCTION(BlueprintImplementableEvent, Category = "BP_SplineMesh")
+	void BP_SplineMesh();
+
 private:
 	
 
