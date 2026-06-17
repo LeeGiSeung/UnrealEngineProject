@@ -136,6 +136,8 @@ struct FRuntimeBuildingData
 	float LengthY = 0.f;
 	int32 FloorCount = 1;
 
+	bool bOverlapRoad = false;
+
 	// 현재 월드에 스폰된 액터의 포인터 (스폰되지 않았다면 nullptr)
 	UPROPERTY()
 	class AABuildingBase* SpawnedActor = nullptr;

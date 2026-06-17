@@ -6,6 +6,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "City/CitySystemStruct/CitySystemStruct.h"
 
+
 #include "UCityNewworkManager.generated.h"
 
 class AABuildingBase;
@@ -68,8 +69,10 @@ private:
 	UPROPERTY()
 	TArray<FRuntimeRoadData> TotalRoadData;
 
-	UPROPERTY()
-	TArray<FRuntimeBuildingData> TotalBuildingData;
+	//UPROPERTY()
+	//TArray<FRuntimeBuildingData> TotalBuildingData;
+
+	TArray<TSharedPtr<FRuntimeBuildingData>> TotalBuildingData;
 
 	UPROPERTY()
 	TSet<int32> CurrentNavigationEdges;

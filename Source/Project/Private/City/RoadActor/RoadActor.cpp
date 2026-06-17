@@ -5,6 +5,7 @@
 #include "Components/SplineMeshComponent.h"
 #include "Components/SplineComponent.h"
 #include "City/Building/BuildingBase/ABuildingBase.h"
+#include "City/UCityNewworkManager/UCityNewworkManager.h"
 
 // Sets default values
 ARoadActor::ARoadActor()
@@ -14,8 +15,6 @@ ARoadActor::ARoadActor()
 
 	RoadSpline = CreateDefaultSubobject<USplineComponent>(TEXT("SplineComponent"));
 	SetRootComponent(RoadSpline);
-
-    //RoadSpline->SetMobility(EComponentMobility::Movable);
 	
 }
 
@@ -23,6 +22,8 @@ ARoadActor::ARoadActor()
 void ARoadActor::BeginPlay()
 {
 	Super::BeginPlay();
+
+    CityNewworkManager = Cast<UUCityNewworkManager>(GetWorld()->GetGameInstance()->GetSubsystemBase(UUCityNewworkManager::StaticClass()));
 
 }
 
@@ -111,17 +112,20 @@ void ARoadActor::SpawnRoadActor(TArray<FVector> Points, int32 _RoadCount, double
                 }
             }
         }
-
-        // (선택 사항) 디버그용 박스를 그려서 충돌 영역 확인하고 싶을 때 사용
-        // DrawDebugBox(World, BoxCenter, BoxHalfExtent, BoxRotation.Quaternion(), FColor::Red, false, 5.0f, 0, 5.0f);
     }
 
-    // 6. 수집된 빌딩 액터들을 안전하게 파괴
     for (AActor* Building : BuildingsToRemove)
     {
-        if (IsValid(Building))
+        if (AABuildingBase* BuildingBase = Cast<AABuildingBase>(Building))
         {
-            Building->Destroy();
+            // 맵이고 인덱스고 뭐고 주소 타고 들어가서 즉시 변경
+            if (BuildingBase->MyRuntimeData.IsValid())
+            {
+                BuildingBase->MyRuntimeData->bOverlapRoad = true;
+                BuildingBase->MyRuntimeData->SpawnedActor = nullptr;
+            }
+
+            BuildingBase->Destroy();
         }
     }
 }

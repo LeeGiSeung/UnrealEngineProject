@@ -41,7 +41,7 @@ void UUCityNewworkManager::Initialize(FSubsystemCollectionBase& Collection)
 
 	LoadQGIS();
 
-	GetWorld()->GetTimerManager().SetTimer(VisibilityTimerHandle, this, &UUCityNewworkManager::CheckCityVisibility, 0.5f, false);
+	GetWorld()->GetTimerManager().SetTimer(VisibilityTimerHandle, this, &UUCityNewworkManager::CheckCityVisibility, 5.f, true);
 }
 
 void UUCityNewworkManager::LoadBuildingDataAsset(bool& retFlag)
@@ -83,8 +83,8 @@ void UUCityNewworkManager::LoadQGIS()
 	LoadRoad(RoadFlag);
 	if (RoadFlag) return;
 
-	UE_LOG(LogTemp, Error, TEXT("TotalBuildingData %d"), TotalBuildingData.Num());
-	UE_LOG(LogTemp, Error, TEXT("TotalRoadData %d"), TotalRoadData.Num());
+	//UE_LOG(LogTemp, Error, TEXT("TotalBuildingData %d"), TotalBuildingData.Num());
+	//UE_LOG(LogTemp, Error, TEXT("TotalRoadData %d"), TotalRoadData.Num());
 	
 
 }
@@ -686,14 +686,14 @@ void UUCityNewworkManager::LoadBuilding(bool& retFlag)
 
 		FVector SpawnLocation = BuildingData[i].CenterLocation - FVector(WidthX * 0.5f, LengthY * 0.5f, 0.f);
 
-		FRuntimeBuildingData BuildData;
+		TSharedPtr<FRuntimeBuildingData> BuildData = MakeShared<FRuntimeBuildingData>();
 
-		BuildData.SpawnLocation = SpawnLocation;
-		BuildData.FloorCount = floor;
-		BuildData.WidthX = WidthX;
-		BuildData.LengthY = LengthY;
-		BuildData.Rotation = BuildingRotator;
-		BuildData.SpawnedActor = nullptr;
+		BuildData->SpawnLocation = SpawnLocation;
+		BuildData->FloorCount = floor;
+		BuildData->WidthX = WidthX;
+		BuildData->LengthY = LengthY;
+		BuildData->Rotation = BuildingRotator;
+		BuildData->SpawnedActor = nullptr;
 
 		TotalBuildingData.Add(BuildData);
 	}
@@ -719,46 +719,60 @@ void UUCityNewworkManager::UpdateBuildingVisibility(FVector PlayerLocation)
 
 	if (!world || TotalBuildingData.Num() == 0) return;
 
-	int forcount = 0;
-	for (FRuntimeBuildingData& Data : TotalBuildingData) {
-		if (Data.FloorCount == 0) {
-			forcount++;
-			continue;
-		}
-		if (Data.SpawnedActor) continue;
-		FVector SpawnLocation = Data.SpawnLocation;
-		FRotator BuildingRotator = Data.Rotation;
+	int32 DataCount = 0; // long 대신 int32 추천
 
-		double distance = FVector::Distance(PlayerLocation, Data.SpawnLocation);
+	for (const TSharedPtr<FRuntimeBuildingData>& DataPtr : TotalBuildingData)
+	{
+		// 1. 스마트 포인터 자체가 유효한지 널 체크
+		if (!DataPtr.IsValid()) { DataCount++; continue; }
 
-		if (distance < MinComputeDistance) {
+		// 2. 데이터 접근을 전부 '.'에서 '->'로 변경
+		if (DataPtr->FloorCount == 0) { DataCount++; continue; }
+		if (DataPtr->bOverlapRoad) { DataCount++; continue; }
 
-			//소환함
+		FVector SpawnLocation = DataPtr->SpawnLocation;
+		FRotator BuildingRotator = DataPtr->Rotation;
+
+		double distance = FVector::Distance(PlayerLocation, SpawnLocation);
+
+		// [Case A] 플레이어가 스폰 거리 안으로 들어옴
+		if (distance < MinComputeDistance)
+		{
+			// 3. 이미 스폰된 액터가 있다면 중복 스폰하지 않고 패스
+			if (DataPtr->SpawnedActor != nullptr)
+			{
+				DataCount++;
+				continue;
+			}
+
 			AABuildingBase* Actor = world->SpawnActor<AABuildingBase>(BuildingBase, SpawnLocation, BuildingRotator);
 
-			if (Actor) {
-				asdfCheck.Add(distance);
-				Actor->SetBuildingTransform(Data.WidthX, Data.LengthY, Data.FloorCount);
+			if (Actor)
+			{
+				Actor->SetBuildingTransform(DataPtr->WidthX, DataPtr->LengthY, DataPtr->FloorCount);
+
+				// 4. 액터에게 이 데이터의 TSharedPtr 주소록을 그대로 주입
+				Actor->MyRuntimeData = DataPtr;
+
+				// 5. 원본 데이터에도 스폰된 액터 주소 기록
+				DataPtr->SpawnedActor = Actor;
 			}
 		}
-		else {
+		// [Case B] 플레이어가 스폰 거리보다 멀어짐 (디스폰 영역)
+		else
+		{
 			TestCheck.Add(distance);
-			
-			//없앰
-			if (Data.SpawnedActor != nullptr) {
-				Data.SpawnedActor->Destroy();
-				Data.SpawnedActor = nullptr;
+
+			if (DataPtr->SpawnedActor != nullptr)
+			{
+				// 액터를 안전하게 파괴하고 포인터 정리
+				DataPtr->SpawnedActor->Destroy();
+				DataPtr->SpawnedActor = nullptr;
 			}
 		}
-	}
 
-	TestCheck.Sort();
-	
-	for (int i = 0; i < 10; i++) {
-		if (i >= TestCheck.Num()) break;
-		UE_LOG(LogTemp, Warning, TEXT("Fail Spawn : %f"), TestCheck[i]);
+		DataCount++;
 	}
-
 }
 
 void UUCityNewworkManager::UpdateRoadVisibility(FVector PlayerLocation)
@@ -776,8 +790,6 @@ void UUCityNewworkManager::UpdateRoadVisibility(FVector PlayerLocation)
 		double distance = FVector::Distance(RoadSpawnLocation, PlayerLocation);
 
 		if (distance < MinComputeDistance) {
-
-			if (RoadData.SpawnedActor) continue; //이미 소환돼있으면 넘김
 
 			if (RoadActorClass) {
 				ARoadActor* roadactor = World->SpawnActor<ARoadActor>(RoadActorClass, RoadSpawnLocation, Roadrotator);
@@ -821,48 +833,6 @@ void UUCityNewworkManager::CheckCityVisibility()
 	//DebugingBuildingCheck(PlayerLocation);
 	UpdateBuildingVisibility(PlayerLocation);
 	UpdateRoadVisibility(PlayerLocation);
-}
-
-void UUCityNewworkManager::DebugingBuildingCheck(FVector PlayerLocation)
-{
-	UWorld* World = GetWorld();
-	if (!World || !BuildingBase || TotalBuildingData.Num() == 0) return;
-
-	// 루프 제한을 위한 카운터 변수 이름 명확화
-	int32 ProcessedCount = 0;
-	const int32 MaxDebugSpawnCount = 1000;
-
-	for (FRuntimeBuildingData& Building : TotalBuildingData)
-	{
-		// 10개까지만 처리하고 중단
-		ProcessedCount++;
-		if (ProcessedCount > MaxDebugSpawnCount) return;
-
-		// 디버깅을 위해 거리 계산은 남겨두되, 필터링 조건문만 주석 처리
-		float DistanceSq = FVector::DistSquared(PlayerLocation, Building.CenterLocation);
-
-		//UE_LOG(LogTemp, Error, TEXT("%f"), DistanceSq);
-
-		if (Building.SpawnedActor == nullptr)
-		{
-			Building.SpawnedActor = World->SpawnActor<AABuildingBase>(
-				BuildingBase,
-				Building.SpawnLocation,
-				Building.Rotation
-			);
-
-			if (Building.SpawnedActor)
-			{
-
-				Building.SpawnedActor->SetBuildingTransform(
-					Building.WidthX,
-					Building.LengthY,
-					Building.FloorCount
-				);
-				
-			}
-		}
-	}
 }
 
 void UUCityNewworkManager::BuildNavigationNetwork()

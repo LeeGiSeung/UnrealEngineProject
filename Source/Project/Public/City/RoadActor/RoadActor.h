@@ -10,6 +10,7 @@
 
 class USplineComponent;
 class USplineMeshComponent;
+class UUCityNewworkManager;
 
 UCLASS()
 class PROJECT_API ARoadActor : public AActor
@@ -63,6 +64,9 @@ public:
 public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "BP_SplineMesh")
 	void BP_SplineMesh();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Navigation")
+	UUCityNewworkManager* CityNewworkManager;
 
 private:
 	

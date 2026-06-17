@@ -4,9 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-
 #include "Components/Boxcomponent.h"
 #include "Components/StaticMeshcomponent.h"
+#include "City/CitySystemStruct/CitySystemStruct.h"
+
 
 #include "ABuildingBase.generated.h"
 
@@ -48,6 +49,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Floor")
 	float fDefaultFloorHeight;
+
+	TSharedPtr<FRuntimeBuildingData> MyRuntimeData = nullptr;
 
 private:
 	float fX;
