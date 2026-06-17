@@ -83,7 +83,7 @@ private:
 	FTimerHandle VisibilityTimerHandle;
 
 	UPROPERTY()
-	double MinComputeDistance = 100000;
+	double MinComputeDistance = 70000;
 
 	void CheckCityVisibility();
 

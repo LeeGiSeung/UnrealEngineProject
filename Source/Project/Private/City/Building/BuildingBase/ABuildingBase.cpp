@@ -15,7 +15,8 @@ AABuildingBase::AABuildingBase()
 	BuildingID = -1;
 
     BuildingMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BuildingMesh"));
-    BuildingMesh->SetupAttachment(GetRootComponent());
+    RootComponent = BuildingMesh;
+    //BuildingMesh->SetupAttachment(GetRootComponent());
 
 	Collision = CreateDefaultSubobject<UBoxComponent>(TEXT("BuildingBoxCollision"));
 	Collision->SetBoxExtent(FVector(100.f, 100.f, 100.f));
@@ -27,8 +28,6 @@ AABuildingBase::AABuildingBase()
 void AABuildingBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-    UE_LOG(LogTemp, Error, TEXT("BeginPlay()"));
 }
 
 void AABuildingBase::Tick(float DeltaTime)
@@ -41,8 +40,6 @@ void AABuildingBase::SetBuildingTransform(float _WidthX, float _WidthY, int floo
 {
     if (floor < 1) floor = 1;
     if (!BuildingMesh || !Collision) return;
-
-    UE_LOG(LogTemp, Error, TEXT("SetBuildingTransform"));
 
     iFloor = floor;
     WidthX = _WidthX;

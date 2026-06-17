@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "ProjectCharacter.h"
 #include "Containers/Queue.h"
+#include <float.h>
 
 #pragma execution_character_set("utf-8")
 using namespace std;
@@ -40,7 +41,7 @@ void UUCityNewworkManager::Initialize(FSubsystemCollectionBase& Collection)
 
 	LoadQGIS();
 
-	GetWorld()->GetTimerManager().SetTimer(VisibilityTimerHandle, this, &UUCityNewworkManager::CheckCityVisibility, 3.f, true);
+	GetWorld()->GetTimerManager().SetTimer(VisibilityTimerHandle, this, &UUCityNewworkManager::CheckCityVisibility, 0.5f, false);
 }
 
 void UUCityNewworkManager::LoadBuildingDataAsset(bool& retFlag)
@@ -82,8 +83,8 @@ void UUCityNewworkManager::LoadQGIS()
 	LoadRoad(RoadFlag);
 	if (RoadFlag) return;
 
-	//UE_LOG(LogTemp, Error, TEXT("TotalBuildingData %d"), TotalBuildingData.Num());
-	//UE_LOG(LogTemp, Error, TEXT("TotalRoadData %d"), TotalRoadData.Num());
+	UE_LOG(LogTemp, Error, TEXT("TotalBuildingData %d"), TotalBuildingData.Num());
+	UE_LOG(LogTemp, Error, TEXT("TotalRoadData %d"), TotalRoadData.Num());
 	
 
 }
@@ -427,8 +428,8 @@ void UUCityNewworkManager::LoadRoad(bool& retFlag)
 	const TArray<TSharedPtr<FJsonValue>>* FeaturesArray;
 	if (!JsonObject->TryGetArrayField(TEXT("features"), FeaturesArray)) return;
 
-	double minx = TNumericLimits<double>::Max();
-	double miny = TNumericLimits<double>::Max();
+	double minx = DBL_MAX;
+	double miny = DBL_MAX;
 
 	for (const auto& FeatureValue : *FeaturesArray) {
 		TSharedPtr<FJsonObject> FeatureObj = FeatureValue->AsObject();
@@ -559,8 +560,8 @@ void UUCityNewworkManager::LoadBuilding(bool& retFlag)
 	const TArray<TSharedPtr<FJsonValue>>* FeaturesArray;
 	if (!JsonObject->TryGetArrayField(TEXT("features"), FeaturesArray)) return;
 
-	int minx = 1e9;
-	int miny = 1e9;
+	double minx = DBL_MAX;
+	double miny = DBL_MAX;
 
 	for (const auto& FeatureValue : *FeaturesArray) {
 		TSharedPtr<FJsonObject> FeatureObj = FeatureValue->AsObject();
@@ -628,6 +629,9 @@ void UUCityNewworkManager::LoadBuilding(bool& retFlag)
 						float LocalX = (RawX - minx) * BuildingBetweenDistance;
 						float LocalY = -(RawY - miny) * BuildingBetweenDistance;
 
+						//float LocalX = (RawX - minx);
+						//float LocalY = -(RawY - miny);
+
 						FVector Vertex = FVector(LocalX, LocalY, 0.0f);
 						bData.Vertices.Add(Vertex);
 						SumLocation += Vertex;
@@ -689,6 +693,7 @@ void UUCityNewworkManager::LoadBuilding(bool& retFlag)
 		BuildData.WidthX = WidthX;
 		BuildData.LengthY = LengthY;
 		BuildData.Rotation = BuildingRotator;
+		BuildData.SpawnedActor = nullptr;
 
 		TotalBuildingData.Add(BuildData);
 	}
@@ -708,10 +713,18 @@ void UUCityNewworkManager::UpdateBuildingVisibility(FVector PlayerLocation)
 
 	UWorld* world = GetWorld();
 
+	TArray<float> TestCheck;
+	TArray<float> asdfCheck;
+	int spawncount = 0;
+
 	if (!world || TotalBuildingData.Num() == 0) return;
 
+	int forcount = 0;
 	for (FRuntimeBuildingData& Data : TotalBuildingData) {
-		if (Data.FloorCount == 0) continue;
+		if (Data.FloorCount == 0) {
+			forcount++;
+			continue;
+		}
 		if (Data.SpawnedActor) continue;
 		FVector SpawnLocation = Data.SpawnLocation;
 		FRotator BuildingRotator = Data.Rotation;
@@ -724,16 +737,26 @@ void UUCityNewworkManager::UpdateBuildingVisibility(FVector PlayerLocation)
 			AABuildingBase* Actor = world->SpawnActor<AABuildingBase>(BuildingBase, SpawnLocation, BuildingRotator);
 
 			if (Actor) {
+				asdfCheck.Add(distance);
 				Actor->SetBuildingTransform(Data.WidthX, Data.LengthY, Data.FloorCount);
 			}
 		}
 		else {
+			TestCheck.Add(distance);
+			
 			//¾ø¾Ú
 			if (Data.SpawnedActor != nullptr) {
 				Data.SpawnedActor->Destroy();
 				Data.SpawnedActor = nullptr;
 			}
 		}
+	}
+
+	TestCheck.Sort();
+	
+	for (int i = 0; i < 10; i++) {
+		if (i >= TestCheck.Num()) break;
+		UE_LOG(LogTemp, Warning, TEXT("Fail Spawn : %f"), TestCheck[i]);
 	}
 
 }
@@ -744,7 +767,7 @@ void UUCityNewworkManager::UpdateRoadVisibility(FVector PlayerLocation)
 	if (!World || !RoadActorClass || TotalRoadData.Num() == 0) return;
 
 	OutRoadVector.Empty();
-
+	int spawncount = 0;
 	for (FRuntimeRoadData& RoadData : TotalRoadData) {
 
 		FVector RoadSpawnLocation = RoadData.Points[0];
@@ -781,8 +804,6 @@ void UUCityNewworkManager::UpdateRoadVisibility(FVector PlayerLocation)
 				RoadData.SpawnedActor = nullptr;
 			}
 		}
-
-		
 	}
 
 	BuildNavigationNetwork();
