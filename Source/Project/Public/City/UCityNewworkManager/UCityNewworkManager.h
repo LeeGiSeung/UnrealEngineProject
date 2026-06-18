@@ -57,8 +57,8 @@ private:
 	
 	void LoadBuildingDataAsset(bool& retFlag);
 	
-	void LoadRoad(bool& retFlag);
-	void LoadBuilding(bool& retFlag);
+	void LoadRoad();
+	void LoadBuilding();
 
 	void ConstructBuilding();
 	void ConstructRoad();
@@ -94,7 +94,6 @@ private:
 
 	// 도로를 보여줄 반경 (빌딩보다 조금 더 길게 잡는 것을 추천합니다. 약 250미터 = 25000.f)
 	const float RoadSpawnRadius = 25000.f;
-
 
 	float standX = -1400.f;
 	float standY = -500.f;

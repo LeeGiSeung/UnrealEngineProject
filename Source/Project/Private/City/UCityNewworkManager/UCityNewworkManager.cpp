@@ -75,16 +75,13 @@ TArray<FRoadNode> UUCityNewworkManager::GetNavigationCourse()
 void UUCityNewworkManager::LoadQGIS()
 {
 
-	bool BuildingFlag;
-	LoadBuilding(BuildingFlag);
-	if (BuildingFlag) return;
+	LoadBuilding();
 	
-	bool RoadFlag;
-	LoadRoad(RoadFlag);
-	if (RoadFlag) return;
+	LoadRoad();
 
-	//UE_LOG(LogTemp, Error, TEXT("TotalBuildingData %d"), TotalBuildingData.Num());
-	//UE_LOG(LogTemp, Error, TEXT("TotalRoadData %d"), TotalRoadData.Num());
+
+	UE_LOG(LogTemp, Error, TEXT("TotalBuildingData %d"), TotalBuildingData.Num());
+	UE_LOG(LogTemp, Error, TEXT("TotalRoadData %d"), TotalRoadData.Num());
 	
 
 }
@@ -398,9 +395,8 @@ void UUCityNewworkManager::LoadQGIS()
 //	retFlag = false;
 //}
 
-void UUCityNewworkManager::LoadRoad(bool& retFlag)
+void UUCityNewworkManager::LoadRoad()
 {
-	retFlag = true;
 	
 	UWorld* world = GetWorld();
 	if (!world) {
@@ -525,13 +521,10 @@ void UUCityNewworkManager::LoadRoad(bool& retFlag)
 
 		TotalRoadData.Add(RoadData);
 	}
-
-	retFlag = false;
 }
 
-void UUCityNewworkManager::LoadBuilding(bool& retFlag)
+void UUCityNewworkManager::LoadBuilding()
 {
-	retFlag = true;
 	UWorld* world = GetWorld();
 	if (!BuildingBase || !world) {
 		UE_LOG(LogTemp, Error, TEXT("NO BUILDING BASE"));
@@ -544,7 +537,7 @@ void UUCityNewworkManager::LoadBuilding(bool& retFlag)
 
 	FString JsonString;
 	if (!FFileHelper::LoadFileToString(JsonString, *DataPath)) {
-		UE_LOG(LogTemp, Error, TEXT("NO FILE"));
+		UE_LOG(LogTemp, Error, TEXT("Incheon_Michugolgu_All NO FILE"));
 		return;
 	}
 
@@ -697,7 +690,6 @@ void UUCityNewworkManager::LoadBuilding(bool& retFlag)
 
 		TotalBuildingData.Add(BuildData);
 	}
-	retFlag = false;
 }
 
 void UUCityNewworkManager::ConstructBuilding()
@@ -834,6 +826,8 @@ void UUCityNewworkManager::CheckCityVisibility()
 	UpdateBuildingVisibility(PlayerLocation);
 	UpdateRoadVisibility(PlayerLocation);
 }
+
+
 
 void UUCityNewworkManager::BuildNavigationNetwork()
 {

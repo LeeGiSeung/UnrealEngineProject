@@ -40,7 +40,10 @@ public:
 	void MapLeftButtonClick();
 
 	UFUNCTION(BlueprintCallable, Category = "MapViewer")
-	void MousePositionToImagePath(const FVector2D& _MousePosition);
+	void PositionToImagePath();
+
+	UFUNCTION(BlueprintCallable, Category = "MapViewer")
+	void ClearMapImage();
 
 	UFUNCTION(BlueprintCallable, Category = "MapViewer")
 	void SpawnMapPointMarker(const FVector2D& _MousePosition);
@@ -93,7 +96,7 @@ public:
 	UCanvasPanel* MapViewerCanvasPanel;
 
 	UPROPERTY(BlueprintReadWrite, Category = "MapViewer")
-	int32 NowScollLevel = 16; //스크롤 레벨
+	int32 NowScollLevel = 13; //스크롤 레벨
 
 	UPROPERTY(BlueprintReadWrite, Category = "MapViewer")
 	int32 minScollLevel = 13;
@@ -115,5 +118,11 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "MapViewer")
 	UCityMapWidget* CityMapWidget;
+
+	UFUNCTION()
+	UTexture2D* LoadTextureFromFile(FString _FilePath);
+
+private:
+	int32 MaxImageCountInFolder = 0;
 
 };
