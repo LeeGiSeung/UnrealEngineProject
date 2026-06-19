@@ -91,32 +91,32 @@ void UMapViewer::ChangeMapImage()
     TArray<FString> FoundFiles;
     IFileManager::Get().FindFiles(FoundFiles, *BaseFolderPath, TEXT("*.png"));
 
-    MaxImageCountInFolder = FoundFiles.Num();
-    int32 CurImageCountInFolder = 0;
+    MaxImageCountInFolder = 4;
+    int32 ABSImageIdx = 0;
 
     bool flag = true;
 
     // 4x4 그리드에서 세로 방향으로 순회하기 위한 이중 루프
     for (int32 X = 0; X < 4; ++X)
     {
-        if (!flag) break; //만약폴더 번호가 넘으면 return 
+        if (!flag) break;
         for (int32 Y = 0; Y < 4; ++Y)
         {
             int32 GridIndex = (Y * 4) + X;
 
             if (MapGridPanelImage.IsValidIndex(GridIndex))
             {
-                if (CurImageCountInFolder >= MaxImageCountInFolder) {
-                    CurImageCountInFolder = 0;
-                    CurrentFoloderStart++; 
+                if (ABSImageIdx >= MaxImageCountInFolder) {
+                    ABSImageIdx = 0;
+                    CurrentFoloderStart++;
                     CurrentFileStart = BaseFileStart;
                     if (CurrentFoloderStart >= BaseFolderStart * 2)
                     {
                         flag = false;
                         break;
                     }
-
                 }
+
                 FString TargetPath = FPaths::Combine(ProjDir, TEXT("IncheonLandFile/IncheonMichuolPNG"),
                     *FString::Printf(TEXT("%d/%d/%d.png"), ClampedScrollLevel, CurrentFoloderStart, CurrentFileStart));
 
@@ -124,14 +124,16 @@ void UMapViewer::ChangeMapImage()
 
                 UTexture2D* TileImage = LoadTextureFromFile(TargetPath);
 
+                int32 ThisFileIndex = CurrentFileStart;
+                CurrentFileStart++;
+                ABSImageIdx++;
+
                 if (!TileImage) {
-                    //UE_LOG(LogTemp, Error, TEXT("NO TileImage"));
                     continue;
                 }
 
+                // 성공했을 때만 텍스처를 지정합니다.
                 MapGridPanelImage[GridIndex]->SetBrushFromTexture(TileImage);
-                CurrentFileStart++;
-                CurImageCountInFolder++;
             }
         }
     }
@@ -313,13 +315,15 @@ UTexture2D* UMapViewer::LoadTextureFromFile(FString _FilePath)
             // 2. RawRGBA(uint8)의 메모리를 UncompressedRGBA(FColor)로 안전하게 복사
             FMemory::Memcpy(UncompressedRGBA.GetData(), RawRGBA.GetData(), RawRGBA.Num());
 
+            FName UniqueTextureName = MakeUniqueObjectName(GetTransientPackage(), UTexture2D::StaticClass(), TEXT("RuntimeTexture"));
+
             // 3. 이제 크기가 채워진 UncompressedRGBA를 전달합니다.
             UTexture2D* NewTexture = FImageUtils::CreateTexture2D(
                 Width,
                 Height,
                 UncompressedRGBA,
                 GetTransientPackage(),
-                TEXT("RuntimeSpawnedTexture"),
+                UniqueTextureName.ToString(),
                 RF_NoFlags,
                 FCreateTexture2DParameters()
             );
