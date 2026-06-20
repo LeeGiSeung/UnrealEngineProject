@@ -10,6 +10,7 @@
 #include "ProjectPlayerController.h"
 #include "City/MapWidget/CityMapWidget.h"
 #include "HAL/FileManager.h" // 파일 개수 검사를 위해 필요
+#include "City/MapWidget/Marker/MapViewer/PersonMarker/PersonMarker.h"
 
 //Image
 #include "ImageUtils.h"
@@ -17,6 +18,7 @@
 #include "IImageWrapperModule.h"
 #include "Modules/ModuleManager.h"
 #include "Misc/FileHelper.h"
+#include "Components/UniformGridPanel.h"
 
 //화면 렌더링 : 지도 이미지(Texture)를 보여주고, 줌인 / 줌아웃(Zoom), 드래그로 지도 이동(Pan)하는 기능.
 //마커 표시 : MapContent에서 마커 데이터를 받아와 화면에 아이콘 위젯들을 생성하고 배치하는 기능.
@@ -25,115 +27,194 @@
 void UMapViewer::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+    FFolderFileStartEndBase StartEndBase;
+    StartEndBase.BaseStartFolder = BaseStartFolder;
+    StartEndBase.BaseStartFile = BaseStartFile;
+    StartEndBase.BaseEndFolder = BaseEndFolder;
+    StartEndBase.BaseEndFile = BaseEndFile;
+    FolderFileBaseMap.Add(minScollLevel, StartEndBase);
+
+    TargetCenterFolder = 6978;
+    TargetCenterFile = 3175;
+
+    for (int ScroolLevel = minScollLevel + 1; ScroolLevel <= maxScollLevel; ScroolLevel++) {
+        int sqrt = ScroolLevel - minScollLevel;
+        int sq = pow(2, sqrt);
+        FFolderFileStartEndBase StartEndFor;
+        StartEndFor.BaseStartFolder = BaseStartFolder * sq;
+        StartEndFor.BaseStartFile = BaseStartFile * sq;
+        StartEndFor.BaseEndFolder = BaseEndFolder * sq;
+        StartEndFor.BaseEndFile = BaseEndFile * sq;
+
+        FolderFileBaseMap.Add(ScroolLevel, StartEndFor);
+
+    }
+
+    ChangeMapImage();
     
-	ChangeMapImage();
+    GetWorld()->GetTimerManager().SetTimer(UpdatePlayerPositionIcon, this, &UMapViewer::UpdatePersonPosition, 1.f, true);
+
 }
 
-void UMapViewer::ScroolUp()
+void UMapViewer::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
-    if (NowScollLevel + 1 > maxScollLevel) return;
-    NowScollLevel++;
+    Super::NativeTick(MyGeometry, InDeltaTime);
+}
 
-    UE_LOG(LogTemp, Error, TEXT("NowScollLevel : %d"), NowScollLevel);
-    
+void UMapViewer::ChangeFilePath(FVector2D MousePosition, bool bZoomIn)
+{
+    // 그리드 패널의 현재 화면 상 절대 좌표를 가져옵니다.
+    //FVector2D PanelScreenPos = MapImageGridPanel->GetCachedGeometry().GetAbsolutePosition();
+    FVector2D PanelScreenPos;
+    PanelScreenPos.X = 20.f;
+    PanelScreenPos.Y = 10.f;
+
+    // 마우스가 5x5 그리드 중 몇 번째 칸(0 ~ 4)에 있는지 인덱스 계산
+    int32 MouseGridX = FMath::FloorToInt((MousePosition.X - PanelScreenPos.X) / TilePixelSize);
+    int32 MouseGridY = FMath::FloorToInt((MousePosition.Y - PanelScreenPos.Y) / TilePixelSize);
+
+    // 마우스가 패널 영역을 벗어났을 때를 대비한 안전장치
+    MouseGridX = FMath::Clamp(MouseGridX, 0, 4);
+    MouseGridY = FMath::Clamp(MouseGridY, 0, 4);
+
+    //MouseGridX만큼 현재 폴더 * 2에서 +index 해줘야함
+    //MouseGridY만큼 현재 파일 * 2에서 +index 해줘야함
+
+    // 현재 마우스 밑에 있던 실제 타일(파일) 번호 역산
+    const int32 CenterIndex =
+        MaxImageCountInFolder / 2;
+
+    int32 CurrentMouseFolder =
+        TargetCenterFolder + (MouseGridX - CenterIndex);
+
+    int32 CurrentMouseFile =
+        TargetCenterFile + (MouseGridY - CenterIndex);
+
+    // 다음 레벨의 새로운 중심 타일 번호 결정 (배율 적용)
+    if (bZoomIn)
+    {
+        TargetCenterFolder = CurrentMouseFolder * 2;
+        TargetCenterFile = CurrentMouseFile * 2;
+    }
+    else
+    {
+        TargetCenterFolder = CurrentMouseFolder / 2;
+        TargetCenterFile = CurrentMouseFile / 2;
+    }
     ChangeMapImage();
 }
 
-void UMapViewer::ScroolDown()
+void UMapViewer::ScroolUp(FVector2D MousePostion)
 {
-    if (NowScollLevel - 1 < minScollLevel) return;
-    NowScollLevel--;
+    if (NowScrollLevel + 1 > maxScollLevel) return;
+    NowScrollLevel++;
+    
+    ChangeFilePath(MousePostion, true);
+    ChangeMapImage();
+}
 
-    UE_LOG(LogTemp, Error, TEXT("NowScollLevel : %d"), NowScollLevel);
+void UMapViewer::ScroolDown(FVector2D MousePostion)
+{
+    if (NowScrollLevel - 1 < minScollLevel) return;
+    NowScrollLevel--;
 
+    ChangeFilePath(MousePostion, false);
     ChangeMapImage();
 }
 
 void UMapViewer::MapMove(FVector2D value)
 {
-	
+    if (value.X == 0 && value.Y == 0) return;
+
+    if (bMapMove == false) return;
+    bMapMove = false;
+
+    GetWorld()->GetTimerManager().SetTimer(MapMoveCoolTime, this, &UMapViewer::bMapMoveTrue, 0.15f, false);
+
+    UE_LOG(LogTemp, Error, TEXT("%f, %f"), value.X, value.Y);
+
+    // 상하좌우
+    if (value.X == 0 && value.Y < 0) {
+        TargetCenterFile += 1; // 상
+    }
+    else if (value.X == 0 && value.Y > 0) {
+        TargetCenterFile -= 1; // 하
+    }
+    else if (value.X < 0 && value.Y == 0) {
+        TargetCenterFolder += 1; // 좌`
+    }
+    else if (value.X > 0 && value.Y == 0) {
+        TargetCenterFolder -= 1; // 우
+    }
+    // 대각선
+    else if (value.X < 0 && value.Y < 0) {
+        TargetCenterFolder += 1; // 좌상
+        TargetCenterFile += 1;
+    }
+    else if (value.X > 0 && value.Y < 0) {
+        TargetCenterFolder -= 1; // 우상
+        TargetCenterFile += 1;
+    }
+    else if (value.X > 0 && value.Y > 0) {
+        TargetCenterFolder -= 1; // 우하
+        TargetCenterFile -= 1;
+    }
+    else if (value.X < 0 && value.Y > 0) {
+        TargetCenterFolder += 1; // 좌하
+        TargetCenterFile -= 1;
+    }
+    ChangeMapImage();
 }
 
 void UMapViewer::ChangeMapImage()
 {
     ClearMapImage();
 
-    const double TileSize = 256.0;
+    int32 ClampedScrollLevel =
+        FMath::Clamp(NowScrollLevel, 13, 17);
 
-    // 1. 요구사항에 맞춘 레벨 13 기준 원점 데이터 설정
-    const int32 BaseZoom = 13;
-    const int32 BaseStartX = 6977; // 시작 폴더 번호 변경
-    const int32 BaseStartY = 3174; // 시작 PNG 이름 변경
-
-    // 2. NowScollLevel 변수를 기반으로 현재 레벨 판단 및 13~17 레벨 범위 제한 (안전장치)
-    int32 ClampedScrollLevel = FMath::Clamp(NowScollLevel, 13, 17);
-
-    // 줌 레벨 차이 계산
-    int32 ZoomDiff = ClampedScrollLevel - BaseZoom;
-
-    // 2의 거듭제곱 배수 구하기 (레벨이 1 오를 때마다 2배씩 증가)
-    int32 ScaleMultiplier = (FMath::Pow(2.0, ZoomDiff));
-
-    UE_LOG(LogTemp, Error, TEXT("ScaleMultiplier : %d"), ScaleMultiplier);
-
-    // 현재 줌 레벨에 맞는 진짜 시작 타일 번호 자동 계산
-    int32 BaseFolderStart = BaseStartX * ScaleMultiplier;
-    int32 BaseFileStart = BaseStartY * ScaleMultiplier;
-
-    int32 CurrentFoloderStart = BaseFolderStart;
-    int32 CurrentFileStart = BaseFileStart;
+    const int32 CenterIndex =
+        MaxImageCountInFolder / 2;
 
     FString ProjDir = FPaths::ProjectDir();
 
-    FString BaseFolderPath = FPaths::Combine(ProjDir, TEXT("IncheonLandFile/IncheonMichuolPNG"),
-        *FString::Printf(TEXT("%d/%d"), ClampedScrollLevel, BaseFolderStart));
-
-    TArray<FString> FoundFiles;
-    IFileManager::Get().FindFiles(FoundFiles, *BaseFolderPath, TEXT("*.png"));
-
-    MaxImageCountInFolder = 4;
-    int32 ABSImageIdx = 0;
-
-    bool flag = true;
-
-    // 4x4 그리드에서 세로 방향으로 순회하기 위한 이중 루프
-    for (int32 X = 0; X < 4; ++X)
+    for (int32 Y = 0; Y < MaxImageCountInFolder; Y++)
     {
-        if (!flag) break;
-        for (int32 Y = 0; Y < 4; ++Y)
+        for (int32 X = 0; X < MaxImageCountInFolder; X++)
         {
-            int32 GridIndex = (Y * 4) + X;
+            int32 GridIndex =
+                Y * MaxImageCountInFolder + X;
 
-            if (MapGridPanelImage.IsValidIndex(GridIndex))
+            if (!MapGridPanelImage.IsValidIndex(GridIndex))
             {
-                if (ABSImageIdx >= MaxImageCountInFolder) {
-                    ABSImageIdx = 0;
-                    CurrentFoloderStart++;
-                    CurrentFileStart = BaseFileStart;
-                    if (CurrentFoloderStart >= BaseFolderStart * 2)
-                    {
-                        flag = false;
-                        break;
-                    }
-                }
+                continue;
+            }
 
-                FString TargetPath = FPaths::Combine(ProjDir, TEXT("IncheonLandFile/IncheonMichuolPNG"),
-                    *FString::Printf(TEXT("%d/%d/%d.png"), ClampedScrollLevel, CurrentFoloderStart, CurrentFileStart));
+            // 가운데 기준 실제 타일 번호 계산
+            int32 FolderNumber =
+                TargetCenterFolder + (X - CenterIndex);
 
-                UE_LOG(LogTemp, Error, TEXT("FilePath : %s"), *TargetPath);
+            int32 FileNumber =
+                TargetCenterFile + (Y - CenterIndex);
 
-                UTexture2D* TileImage = LoadTextureFromFile(TargetPath);
+            FString TargetPath =
+                FPaths::Combine(
+                    ProjDir,
+                    TEXT("IncheonLandFile/IncheonMichuolPNG"),
+                    *FString::Printf(
+                        TEXT("%d/%d/%d.png"),
+                        ClampedScrollLevel,
+                        FolderNumber,
+                        FileNumber));
 
-                int32 ThisFileIndex = CurrentFileStart;
-                CurrentFileStart++;
-                ABSImageIdx++;
+            UTexture2D* TileImage =
+                LoadTextureFromFile(TargetPath);
 
-                if (!TileImage) {
-                    continue;
-                }
-
-                // 성공했을 때만 텍스처를 지정합니다.
-                MapGridPanelImage[GridIndex]->SetBrushFromTexture(TileImage);
+            if (TileImage)
+            {
+                MapGridPanelImage[GridIndex]
+                    ->SetBrushFromTexture(TileImage);
             }
         }
     }
@@ -279,6 +360,8 @@ TArray<FVector2D> UMapViewer::ComputeOnPaintLocationArray()
     return returnArray;
 }
 
+
+
 UTexture2D* UMapViewer::LoadTextureFromFile(FString _FilePath)
 {
     if (!FPaths::FileExists(_FilePath))
@@ -333,6 +416,16 @@ UTexture2D* UMapViewer::LoadTextureFromFile(FString _FilePath)
     }
 
     return nullptr;
+}
+
+void UMapViewer::bMapMoveTrue()
+{
+    bMapMove = true;
+}
+
+void UMapViewer::UpdatePersonPosition()
+{
+    //UE_LOG(LogTemp, Warning, TEXT("UpdatePersonPosition"));
 }
 
 

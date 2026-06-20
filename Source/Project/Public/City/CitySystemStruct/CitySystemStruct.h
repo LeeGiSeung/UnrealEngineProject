@@ -142,3 +142,15 @@ struct FRuntimeBuildingData
 	UPROPERTY()
 	class AABuildingBase* SpawnedActor = nullptr;
 };
+
+USTRUCT(BlueprintType)
+struct FFolderFileStartEndBase
+{
+	GENERATED_BODY()
+
+	int32 BaseStartFolder = 0;
+	int32 BaseStartFile = 0;
+
+	int32 BaseEndFolder = 0;
+	int32 BaseEndFile = 0;
+};

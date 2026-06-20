@@ -10,6 +10,8 @@ class UImage;
 class UPointMarker;
 class UCanvasPanel;
 class UUCityMapWidget;
+class UUniformGridPanel;
+class UPersonMarker;
 
 UCLASS()
 class PROJECT_API UMapViewer : public UUserWidget
@@ -19,13 +21,15 @@ class PROJECT_API UMapViewer : public UUserWidget
 //Function
 public:
 	virtual void NativeConstruct() override;
+	
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "MapViewFunction")
-	void ScroolUp();
+	void ScroolUp(FVector2D MousePostion);
 
 	UFUNCTION(BlueprintCallable, Category = "MapViewFunction")
-	void ScroolDown();
+	void ScroolDown(FVector2D MousePostion);
 
 	UFUNCTION(BlueprintCallable, Category = "MapViewFunction")
 	void MapMove(FVector2D value);
@@ -71,6 +75,9 @@ public:
 	UFUNCTION()
 	TArray<FVector2D> ComputeOnPaintLocationArray();
 
+	UFUNCTION()
+	void ChangeFilePath(FVector2D MousePostion, bool zoom);
+
 public:
 	//########################
 	UPROPERTY(BlueprintReadWrite, Category = "MapViewer")
@@ -93,10 +100,13 @@ public:
 	//########################
 
 	UPROPERTY(meta = (BindWidget))
+	UUniformGridPanel* MapImageGridPanel;
+
+	UPROPERTY(meta = (BindWidget))
 	UCanvasPanel* MapViewerCanvasPanel;
 
 	UPROPERTY(BlueprintReadWrite, Category = "MapViewer")
-	int32 NowScollLevel = 13; //스크롤 레벨
+	int32 NowScrollLevel = 13; //스크롤 레벨
 
 	UPROPERTY(BlueprintReadWrite, Category = "MapViewer")
 	int32 minScollLevel = 13;
@@ -122,7 +132,44 @@ public:
 	UFUNCTION()
 	UTexture2D* LoadTextureFromFile(FString _FilePath);
 
+	UPROPERTY(BlueprintReadWrite, Category = "MapViewer")
+	FVector2D CurrentMapRenderOffset;
+
+	UPROPERTY(EditAnywhere)
+	float TilePixelSize = 160.f;
+
+	UPROPERTY(BlueprintReadWrite, Category = "MapViewer|PersonPNG")
+	UTexture2D* PersonPNG;
+
+	UPROPERTY(meta = (BindWidget))
+	UPersonMarker* PersonMarker;
+
 private:
-	int32 MaxImageCountInFolder = 0;
+	int32 MaxImageCountInFolder = 5;
+
+	const double TileSize = 256.0;
+
+	// 1. 요구사항에 맞춘 레벨 13 기준 원점 데이터 설정
+	const int32 BaseZoom = 13;
+	const int32 BaseStartFolder = 6977; // 시작 폴더 번호 변경
+	const int32 BaseStartFile = 3174; // 시작 PNG 이름 변경
+
+	const int32 BaseEndFolder = 6977; // 시작 폴더 번호 변경
+	const int32 BaseEndFile = 3174; // 시작 PNG 이름 변경
+
+	int32 TargetCenterFolder;
+	int32 TargetCenterFile;
+
+	TMap<int32, FFolderFileStartEndBase> FolderFileBaseMap;
+	
+	FTimerHandle MapMoveCoolTime;
+
+	FTimerHandle UpdatePlayerPositionIcon;
+
+	bool bMapMove = true;
+
+	void bMapMoveTrue();
+	
+	void UpdatePersonPosition();
 
 };

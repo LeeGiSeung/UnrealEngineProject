@@ -79,7 +79,6 @@ void UUCityNewworkManager::LoadQGIS()
 	
 	LoadRoad();
 
-
 	UE_LOG(LogTemp, Error, TEXT("TotalBuildingData %d"), TotalBuildingData.Num());
 	UE_LOG(LogTemp, Error, TEXT("TotalRoadData %d"), TotalRoadData.Num());
 	
@@ -822,7 +821,6 @@ void UUCityNewworkManager::CheckCityVisibility()
 	FVector PlayerLocation = PlayerPawn->GetActorLocation();
 
 	// 확인된 두 배열의 데이터를 기반으로 거리 체크 및 스폰/디스폰 실행
-	//DebugingBuildingCheck(PlayerLocation);
 	UpdateBuildingVisibility(PlayerLocation);
 	UpdateRoadVisibility(PlayerLocation);
 }
