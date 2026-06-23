@@ -6,12 +6,13 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "City/CitySystemStruct/CitySystemStruct.h"
 
-
 #include "UCityNewworkManager.generated.h"
 
 class AABuildingBase;
 class ARoadActor;
 class AProjectCharacter;
+
+DECLARE_MULTICAST_DELEGATE_FourParams(FOnLocalXYSetting, float, float, float, float);
 
 /**
  * 
@@ -51,6 +52,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	TArray<FRoadNode> GetNavigationCourse();
 
+	FOnLocalXYSetting OnLocalXYSetting;
+
+	UFUNCTION()
+	void GetMapBounds(float& OutMinX, float& OutMaxX, float& OutMinY, float& OutMaxY);
+
+
 private:
 
 	void LoadQGIS();
@@ -86,14 +93,9 @@ private:
 	FTimerHandle VisibilityTimerHandle;
 
 	UPROPERTY()
-	double MinComputeDistance = 70000;
+	double MinComputeDistance = 120000;
 
 	void CheckCityVisibility();
-
-	void DebugingBuildingCheck(FVector PlayerLocation);
-
-	// 도로를 보여줄 반경 (빌딩보다 조금 더 길게 잡는 것을 추천합니다. 약 250미터 = 25000.f)
-	const float RoadSpawnRadius = 25000.f;
 
 	float standX = -1400.f;
 	float standY = -500.f;
@@ -104,4 +106,11 @@ private:
 	TArray<ARoadActor*> OutRoadVector;
 	
 	TArray<FRoadNode> NavigationCourse;
+
+	float WorldMinX = UE_MAX_FLT;
+	float WorldMaxX = -UE_MAX_FLT;
+	float WorldMinY = UE_MAX_FLT;
+	float WorldMaxY = -UE_MAX_FLT;
+
+	
 };

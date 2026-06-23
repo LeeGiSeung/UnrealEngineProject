@@ -41,7 +41,7 @@ void UUCityNewworkManager::Initialize(FSubsystemCollectionBase& Collection)
 
 	LoadQGIS();
 
-	GetWorld()->GetTimerManager().SetTimer(VisibilityTimerHandle, this, &UUCityNewworkManager::CheckCityVisibility, 5.f, true);
+	GetWorld()->GetTimerManager().SetTimer(VisibilityTimerHandle, this, &UUCityNewworkManager::CheckCityVisibility, 5.f, false);
 }
 
 void UUCityNewworkManager::LoadBuildingDataAsset(bool& retFlag)
@@ -72,15 +72,24 @@ TArray<FRoadNode> UUCityNewworkManager::GetNavigationCourse()
 	return NavigationCourse;
 }
 
+void UUCityNewworkManager::GetMapBounds(float& OutMinX, float& OutMaxX, float& OutMinY, float& OutMaxY)
+{
+	OutMinX = WorldMinX;
+	OutMaxX = WorldMaxX;
+	OutMinY = WorldMinY;
+	OutMaxY = WorldMaxY;
+}
+
 void UUCityNewworkManager::LoadQGIS()
 {
 
 	LoadBuilding();
-	
 	LoadRoad();
 
-	UE_LOG(LogTemp, Error, TEXT("TotalBuildingData %d"), TotalBuildingData.Num());
-	UE_LOG(LogTemp, Error, TEXT("TotalRoadData %d"), TotalRoadData.Num());
+	OnLocalXYSetting.Broadcast(WorldMinX, WorldMaxX, WorldMinY, WorldMaxY);
+
+	//UE_LOG(LogTemp, Error, TEXT("TotalBuildingData %d"), TotalBuildingData.Num());
+	//UE_LOG(LogTemp, Error, TEXT("TotalRoadData %d"), TotalRoadData.Num());
 	
 
 }
@@ -408,8 +417,11 @@ void UUCityNewworkManager::LoadRoad()
 
 	FString JsonString;
 	if (!FFileHelper::LoadFileToString(JsonString, *DataPath)) {
-		UE_LOG(LogTemp, Error, TEXT("Load NO FILE"));
+		UE_LOG(LogTemp, Warning, TEXT("No Road FILE~"));
 		return;
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("Yes Road FILE~"));
 	}
 
 	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
@@ -459,8 +471,6 @@ void UUCityNewworkManager::LoadRoad()
 		return;
 	}
 
-	
-
 	// === 2. 실제 데이터 파싱 ===
 	for (const auto& FeatureValue : *FeaturesArray) {
 		TSharedPtr<FJsonObject> FeatureObj = FeatureValue->AsObject();
@@ -499,6 +509,11 @@ void UUCityNewworkManager::LoadRoad()
 					float LocalX = (RawX - minx) * BuildingBetweenDistance;
 					float LocalY = -((RawY - miny) * BuildingBetweenDistance);
 
+					WorldMinX = FMath::Min(WorldMinX, LocalX);
+					WorldMaxX = FMath::Max(WorldMaxX, LocalX);
+					WorldMinY = FMath::Min(WorldMinY, LocalY);
+					WorldMaxY = FMath::Max(WorldMaxY, LocalY);
+
 					rData.Points.Add(FVector(LocalX, LocalY, 0.0f));
 				}
 			}
@@ -536,8 +551,11 @@ void UUCityNewworkManager::LoadBuilding()
 
 	FString JsonString;
 	if (!FFileHelper::LoadFileToString(JsonString, *DataPath)) {
-		UE_LOG(LogTemp, Error, TEXT("Incheon_Michugolgu_All NO FILE"));
+		UE_LOG(LogTemp, Error, TEXT("No Building FILE"));
 		return;
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("Yes Building FILE~"));
 	}
 
 	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
@@ -621,8 +639,10 @@ void UUCityNewworkManager::LoadBuilding()
 						float LocalX = (RawX - minx) * BuildingBetweenDistance;
 						float LocalY = -(RawY - miny) * BuildingBetweenDistance;
 
-						//float LocalX = (RawX - minx);
-						//float LocalY = -(RawY - miny);
+						WorldMinX = FMath::Min(WorldMinX, LocalX);
+						WorldMaxX = FMath::Max(WorldMaxX, LocalX);
+						WorldMinY = FMath::Min(WorldMinY, LocalY);
+						WorldMaxY = FMath::Max(WorldMaxY, LocalY);
 
 						FVector Vertex = FVector(LocalX, LocalY, 0.0f);
 						bData.Vertices.Add(Vertex);
@@ -824,6 +844,7 @@ void UUCityNewworkManager::CheckCityVisibility()
 	UpdateBuildingVisibility(PlayerLocation);
 	UpdateRoadVisibility(PlayerLocation);
 }
+
 
 
 

@@ -12,6 +12,8 @@ class UCanvasPanel;
 class UUCityMapWidget;
 class UUniformGridPanel;
 class UPersonMarker;
+class UUCityNewworkManager;
+
 
 UCLASS()
 class PROJECT_API UMapViewer : public UUserWidget
@@ -21,6 +23,8 @@ class PROJECT_API UMapViewer : public UUserWidget
 //Function
 public:
 	virtual void NativeConstruct() override;
+
+	void SetFolderFileBaseMap();
 	
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
@@ -30,6 +34,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "MapViewFunction")
 	void ScroolDown(FVector2D MousePostion);
+
+	void ZoomViewSize();
 
 	UFUNCTION(BlueprintCallable, Category = "MapViewFunction")
 	void MapMove(FVector2D value);
@@ -99,6 +105,9 @@ public:
 	TArray<UImage*> MapGridPanelImage;
 	//########################
 
+	UPROPERTY()
+	UUCityNewworkManager* CityNewworkManager;
+
 	UPROPERTY(meta = (BindWidget))
 	UUniformGridPanel* MapImageGridPanel;
 
@@ -144,18 +153,25 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UPersonMarker* PersonMarker;
 
+	// 현재 맵 화면의 범위 (ChangeMapImage 때마다 갱신됨)
+	float CurrentViewMinX, CurrentViewMaxX;
+	float CurrentViewMinY, CurrentViewMaxY;
+
+	// 타일 1개당 실제 월드 단위 크기 반환 함수
+	float GetTileWorldSizeForLevel(int32 ZoomLevel);
+
 private:
 	int32 MaxImageCountInFolder = 5;
 
 	const double TileSize = 256.0;
-
+	FVector CommitPlayerLocation;
 	// 1. 요구사항에 맞춘 레벨 13 기준 원점 데이터 설정
 	const int32 BaseZoom = 13;
 	const int32 BaseStartFolder = 6977; // 시작 폴더 번호 변경
 	const int32 BaseStartFile = 3174; // 시작 PNG 이름 변경
 
-	const int32 BaseEndFolder = 6977; // 시작 폴더 번호 변경
-	const int32 BaseEndFile = 3174; // 시작 PNG 이름 변경
+	const int32 BaseEndFolder = 6979; // 시작 폴더 번호 변경
+	const int32 BaseEndFile = 3176; // 시작 PNG 이름 변경
 
 	int32 TargetCenterFolder;
 	int32 TargetCenterFile;
@@ -170,6 +186,17 @@ private:
 
 	void bMapMoveTrue();
 	
-	void UpdatePersonPosition();
+	void UpdatePersonPosition(FVector PlayerLocation);
+
+	float WorldMinX = UE_MAX_FLT;
+	float WorldMaxX = -UE_MAX_FLT;
+	float WorldMinY = UE_MAX_FLT;
+	float WorldMaxY = -UE_MAX_FLT;
+
+	float UITimeImageSize = 160.f;
+
+	void SetLocalMapSize(float _WorldMinX, float _WorldMaxX, float _WorldMinY, float _WorldMaxY);
+
+	float GetTileWorldSizeForLevel();
 
 };

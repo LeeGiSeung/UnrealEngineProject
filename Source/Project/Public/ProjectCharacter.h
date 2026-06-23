@@ -25,6 +25,8 @@ class UCityMapWidget;
 
 struct FInputActionValue;
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerMoved, FVector);
+
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FGetFGroundSpeedTo, float);
@@ -296,6 +298,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Map")
 	TSubclassOf<UCityMapWidget> CityMapWidgetClass;
+
+public:
+	FOnPlayerMoved OnPlayerMoved;
 
 };
 
