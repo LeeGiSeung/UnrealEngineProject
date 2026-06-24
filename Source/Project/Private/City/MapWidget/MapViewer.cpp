@@ -33,7 +33,7 @@ void UMapViewer::NativeConstruct()
 
     ChangeMapImage();
     
-    AProjectCharacter* Player = Cast<AProjectCharacter>(GetOwningPlayerPawn());
+    Player = Cast<AProjectCharacter>(GetOwningPlayerPawn());
 
     CityNewworkManager = Cast<UUCityNewworkManager>(GetWorld()->GetGameInstance()->GetSubsystemBase(UUCityNewworkManager::StaticClass()));
 
@@ -104,12 +104,11 @@ void UMapViewer::ChangeFilePath(FVector2D MousePosition, bool bZoomIn)
         MaxImageCountInFolder / 2;
 
     int32 CurrentMouseFolder =
-        TargetCenterFolder + (MouseGridX - CenterIndex);
+        TargetCenterFolder + (MouseGridY - CenterIndex);
 
     int32 CurrentMouseFile =
-        TargetCenterFile + (MouseGridY - CenterIndex);
+        TargetCenterFile + (MouseGridX - CenterIndex);
 
-    // 다음 레벨의 새로운 중심 타일 번호 결정 (배율 적용)
     if (bZoomIn)
     {
         TargetCenterFolder = CurrentMouseFolder * 2;
@@ -120,15 +119,118 @@ void UMapViewer::ChangeFilePath(FVector2D MousePosition, bool bZoomIn)
         TargetCenterFolder = CurrentMouseFolder / 2;
         TargetCenterFile = CurrentMouseFile / 2;
     }
+
     ChangeMapImage();
+}
+
+void UMapViewer::ChangePointMarkerWorldPosition(
+    FVector& OutLocation,
+    FVector2D MapPosition)
+{
+    const int32 CenterIndex =
+        MaxImageCountInFolder / 2;
+
+    //----------------------------------
+    // 현재 타일 찾기
+    //----------------------------------
+
+    int32 TileX =
+        FMath::FloorToInt(MapPosition.X / TilePixelSize);
+
+    int32 TileY =
+        FMath::FloorToInt(MapPosition.Y / TilePixelSize);
+
+    TileX = FMath::Clamp(TileX, 0, MaxImageCountInFolder - 1);
+    TileY = FMath::Clamp(TileY, 0, MaxImageCountInFolder - 1);
+
+    //----------------------------------
+    // 실제 Folder / File
+    //----------------------------------
+
+    int32 Folder =
+        TargetCenterFolder + (TileX - CenterIndex);
+
+    int32 File =
+        TargetCenterFile + (TileY - CenterIndex);
+
+    //----------------------------------
+    // 타일 내부 UV
+    //----------------------------------
+
+    float LocalU =
+        FMath::Fmod(MapPosition.X, TilePixelSize)
+        / TilePixelSize;
+
+    float LocalV =
+        FMath::Fmod(MapPosition.Y, TilePixelSize)
+        / TilePixelSize;
+
+    //----------------------------------
+    // 현재 Zoom의 실제 범위
+    //----------------------------------
+
+    FFolderFileStartEndBase* Range =
+        FolderFileBaseMap.Find(NowScrollLevel);
+
+    if (!Range)
+    {
+        return;
+    }
+
+    //----------------------------------
+    // 전체 지도 UV
+    //----------------------------------
+
+    double GlobalU =
+        (
+            (Folder - Range->BaseStartFolder)
+            + LocalU
+            )
+        /
+        (
+            double)(Range->BaseEndFolder - Range->BaseStartFolder);
+
+    double GlobalV =
+        (
+            (File - Range->BaseStartFile)
+            + LocalV
+            )
+        /
+        (
+            double)(Range->BaseEndFile - Range->BaseStartFile);
+
+    GlobalU = FMath::Clamp(GlobalU, 0.0, 1.0);
+    GlobalV = FMath::Clamp(GlobalV, 0.0, 1.0);
+
+    //----------------------------------
+    // 월드 좌표
+    //----------------------------------
+
+    OutLocation.X =
+        FMath::Lerp(WorldMinX, WorldMaxX, GlobalU);
+
+    OutLocation.Y =
+        FMath::Lerp(WorldMinY, WorldMaxY, GlobalV);
+
+    OutLocation.X += ZoomCenterOffset[NowScrollLevel].X;
+    OutLocation.Y += ZoomCenterOffset[NowScrollLevel].Y;
+
+    OutLocation.Z = 0.f;
+
+    UE_LOG(LogTemp, Warning,
+        TEXT("Zoom=%d Folder=%d File=%d GlobalUV=(%f,%f) World=%s"),
+        NowScrollLevel,
+        Folder,
+        File,
+        GlobalU,
+        GlobalV,
+        *OutLocation.ToString());
 }
 
 void UMapViewer::ScroolUp(FVector2D MousePostion)
 {
     if (NowScrollLevel + 1 > maxScollLevel) return;
     NowScrollLevel++;
-    
-    
 
     ChangeFilePath(MousePostion, true);
     ChangeMapImage();
@@ -300,8 +402,13 @@ void UMapViewer::SpawnMapPointMarker(const FVector2D& _MousePosition)
         CanvasSlot->SetAlignment(FVector2D(0.5, 1.0));
         
         PointMarkerWidget->SetSpawnMarker(iMapMarkerCount, this);
-        
         PointMarkerArray.Add(PointMarkerWidget);
+
+        FVector LocalLocation; //이거 해야함
+        ChangePointMarkerWorldPosition(LocalLocation , LocalScreenMousePostion);
+
+        PointMarkerWidget->SetMarkerPosition(LocalLocation);
+        CityNewworkManager->SetPointMarkerArray(PointMarkerArray);
     }
 }
 
@@ -459,36 +566,39 @@ void UMapViewer::UpdatePersonPosition(FVector PlayerLocation)
     {
         return;
     }
-
     CommitPlayerLocation = PlayerLocation;
+
+    if (NowScrollLevel == 13) {
+
+    }
+    else if (NowScrollLevel == 14) {
+
+    }
+    else if (NowScrollLevel == 15) {
+
+    }
+    else if (NowScrollLevel == 16) {
+        CommitPlayerLocation.X += 135000;
+        CommitPlayerLocation.Y += 60000;
+    }
+    else if (NowScrollLevel == 17) {
+        CommitPlayerLocation.X += 137000;
+        CommitPlayerLocation.Y += 60000;
+    }
 
     const double RatioX =
         FMath::Clamp(
-            (PlayerLocation.X - WorldMinX) /
+            (CommitPlayerLocation.X - WorldMinX) /
             (WorldMaxX - WorldMinX),
             0.0,
             1.0);
 
     const double RatioY =
         FMath::Clamp(
-            (PlayerLocation.Y - WorldMinY) /
+            (CommitPlayerLocation.Y - WorldMinY) /
             (WorldMaxY - WorldMinY),
             0.0,
             1.0);
-
-    //LogTemp: Warning: RatioX=442923.000000 RatioY=417284.406250
-
-    //UE_LOG(LogTemp, Warning,
-    //    TEXT("RatioX=%f RatioY=%f"),
-    //    RatioX,
-    //    RatioY);
-
-    //CanvasSlot->SetPosition(
-    //FVector2D(
-    //    RatioX * 800,
-    //    RatioX * 800));
-
-    //RatioX, RatioY 좌표 위치는 제대로 돼있음
 
     if (!FolderFileBaseMap.Contains(NowScrollLevel))
     {
@@ -571,10 +681,10 @@ void UMapViewer::UpdatePersonPosition(FVector PlayerLocation)
     // 타일 좌표 -> 픽셀 좌표
     //------------------------------------
 
-    const double PixelX =
+    double PixelX =
         LocalFolder * UITimeImageSize;
 
-    const double PixelY =
+    double PixelY =
         LocalFile * UITimeImageSize;
 
     //------------------------------------
@@ -583,61 +693,24 @@ void UMapViewer::UpdatePersonPosition(FVector PlayerLocation)
 
     const FVector2D MarkerSize =
         PersonMarker->GetDesiredSize();
-    
+
+    if (NowScrollLevel == 13) {
+        PixelX += 80;
+        PixelY += 80;
+    }
+    else if (NowScrollLevel == 14) {
+        PixelX += 160;
+        PixelY += 170;
+    }
+    else if (NowScrollLevel == 15) {
+        PixelX += 180;
+        PixelY += 190;
+    }
+
     CanvasSlot->SetPosition(
         FVector2D(
-            PixelX + 80,
-            PixelY + 80));
-    
-    UE_LOG(LogTemp, Warning,
-        TEXT("Player=(%f,%f)"),
-        PlayerLocation.X,
-        PlayerLocation.Y);
-
-    UE_LOG(LogTemp, Warning,
-        TEXT("Min=(%f,%f)"),
-        WorldMinX,
-        WorldMinY);
-
-    UE_LOG(LogTemp, Warning,
-        TEXT("Max=(%f,%f)"),
-        WorldMaxX,
-        WorldMaxY);
-
-    UE_LOG(LogTemp, Warning,
-        TEXT("RatioX=%.12f RatioY=%.12f"),
-        RatioX,
-        RatioY);
-
-    UE_LOG(LogTemp, Warning,
-        TEXT("StartFolder=%d EndFolder=%d"),
-        StartFolder,
-        EndFolder);
-
-    UE_LOG(LogTemp, Warning,
-        TEXT("StartFile=%d EndFile=%d"),
-        StartFile,
-        EndFile);
-
-    UE_LOG(LogTemp, Warning,
-        TEXT("TargetCenterFolder=%d TargetCenterFile=%d"),
-        TargetCenterFolder,
-        TargetCenterFile);
-
-    UE_LOG(LogTemp, Warning,
-        TEXT("FolderPos=%f FilePos=%f"),
-        FolderPos,
-        FilePos);
-
-    UE_LOG(LogTemp, Warning,
-        TEXT("LocalFolder=%f LocalFile=%f"),
-        LocalFolder,
-        LocalFile);
-
-    UE_LOG(LogTemp, Warning,
-        TEXT("Pixel=(%f,%f)"),
-        PixelX,
-        PixelY);
+            PixelX,
+            PixelY));
 
 }
 
@@ -651,4 +724,39 @@ void UMapViewer::SetLocalMapSize(float _WorldMinX, float _WorldMaxX, float _Worl
     WorldMinY = _WorldMinY;
     WorldMaxX = _WorldMaxX;
     WorldMaxY = _WorldMaxY;
+
+    float XMid = (WorldMinX + WorldMaxX) * 0.5f;
+    float YMid = (WorldMinY + WorldMaxY) * 0.5f;
+
+    TArray<FVector2D> Base;
+    Base.Add(FVector2D(667259, -178848));
+    Base.Add(FVector2D(665777, -180244));
+    Base.Add(FVector2D(567332, -285856));
+    Base.Add(FVector2D(506587, -286205));
+    Base.Add(FVector2D(506379, -286221));
+
+    for (int32 Zoom = 13; Zoom <= 17; Zoom++)
+    {
+        const int32 Index = Zoom - 13;
+
+        FVector2D Offset;
+        Offset.X = XMid - Base[Index].X;
+        Offset.Y = YMid - Base[Index].Y;
+
+        ZoomCenterOffset.Add(Zoom, Offset);
+    }
+    //13
+    //World = X = 667259.562 Y = -178848
+
+    //14
+    //World = X = 665777.250 Y = -180244.641
+
+    //15
+    //World = X = 567332.188 Y = -285856.812
+
+    //16
+    //World = X = 506587.469 Y = -286205.906
+
+    //17
+    //World = X = 506379.781 Y = -286221.688
 }

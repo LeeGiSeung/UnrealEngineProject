@@ -13,7 +13,7 @@ class UUCityMapWidget;
 class UUniformGridPanel;
 class UPersonMarker;
 class UUCityNewworkManager;
-
+class AProjectCharacter;
 
 UCLASS()
 class PROJECT_API UMapViewer : public UUserWidget
@@ -84,6 +84,9 @@ public:
 	UFUNCTION()
 	void ChangeFilePath(FVector2D MousePostion, bool zoom);
 
+	UFUNCTION()
+	void ChangePointMarkerWorldPosition(FVector& value, FVector2D MapPosition);
+
 public:
 	//########################
 	UPROPERTY(BlueprintReadWrite, Category = "MapViewer")
@@ -133,7 +136,7 @@ public:
 	int32 iMapMarkerCount = 0;
 
 	UPROPERTY(BlueprintReadWrite, Category = "MapViewer")
-	int32 iMapMarkerMaxCount = 2;
+	int32 iMapMarkerMaxCount = 1;
 
 	UPROPERTY(BlueprintReadWrite, Category = "MapViewer")
 	UCityMapWidget* CityMapWidget;
@@ -156,9 +159,6 @@ public:
 	// 현재 맵 화면의 범위 (ChangeMapImage 때마다 갱신됨)
 	float CurrentViewMinX, CurrentViewMaxX;
 	float CurrentViewMinY, CurrentViewMaxY;
-
-	// 타일 1개당 실제 월드 단위 크기 반환 함수
-	float GetTileWorldSizeForLevel(int32 ZoomLevel);
 
 private:
 	int32 MaxImageCountInFolder = 5;
@@ -193,10 +193,13 @@ private:
 	float WorldMinY = UE_MAX_FLT;
 	float WorldMaxY = -UE_MAX_FLT;
 
+	TMap<int32, FVector2D> ZoomCenterOffset;
+
+
 	float UITimeImageSize = 160.f;
 
 	void SetLocalMapSize(float _WorldMinX, float _WorldMaxX, float _WorldMinY, float _WorldMaxY);
 
-	float GetTileWorldSizeForLevel();
+	AProjectCharacter* Player;
 
 };

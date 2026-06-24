@@ -154,3 +154,15 @@ struct FFolderFileStartEndBase
 	int32 BaseEndFolder = 0;
 	int32 BaseEndFile = 0;
 };
+
+USTRUCT(BlueprintType)
+struct FMapCoordinate
+{
+	GENERATED_BODY()
+
+	int32 Zoom;
+	int32 Folder;
+	int32 File;
+	float U;
+	float V;
+};

@@ -8,6 +8,7 @@
 
 #include "UCityNewworkManager.generated.h"
 
+class UPointMarker;
 class AABuildingBase;
 class ARoadActor;
 class AProjectCharacter;
@@ -43,6 +44,7 @@ public:
 	int32 maxNodeCount = 1e9;
 
 	FRoadNode SelectNode;
+	FRoadNode GoalNode;
 
 	TArray<FRoadNode> DfsNavigation(int NodeID, int NodeCount, int GoalNodeID);
 
@@ -57,8 +59,13 @@ public:
 	UFUNCTION()
 	void GetMapBounds(float& OutMinX, float& OutMaxX, float& OutMinY, float& OutMaxY);
 
+	UFUNCTION()
+	void SetPointMarkerArray(TArray<UPointMarker*> _PointMarkerArray);
 
 private:
+
+	UPROPERTY()
+	TArray<UPointMarker*> PointMarkerArray;
 
 	void LoadQGIS();
 	
@@ -93,12 +100,14 @@ private:
 	FTimerHandle VisibilityTimerHandle;
 
 	UPROPERTY()
-	double MinComputeDistance = 120000;
+	double MinComputeDistance = 60000;
 
 	void CheckCityVisibility();
 
 	float standX = -1400.f;
 	float standY = -500.f;
+
+	TMap<int32, FVector2D> ZoomOffset;
 
 	TArray<FRoadNode> Nodes;
 	TArray<FRoadEdge> Edges;

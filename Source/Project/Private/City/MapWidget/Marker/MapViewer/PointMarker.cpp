@@ -24,3 +24,13 @@ void UPointMarker::DeletePointMarker()
 {
 	MapViewer->DeleteMapPointMarker(this);
 }
+
+void UPointMarker::SetMarkerPosition(FVector value)
+{
+	MarkerPosition = value;
+}
+
+FVector UPointMarker::GetMarkerPosition()
+{
+	return MarkerPosition;
+}

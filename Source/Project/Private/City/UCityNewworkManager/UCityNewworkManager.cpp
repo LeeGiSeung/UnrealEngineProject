@@ -10,6 +10,7 @@
 #include "ProjectCharacter.h"
 #include "Containers/Queue.h"
 #include <float.h>
+#include "City/MapWidget/Marker/MapViewer/PointMarker.h"
 
 #pragma execution_character_set("utf-8")
 using namespace std;
@@ -78,6 +79,11 @@ void UUCityNewworkManager::GetMapBounds(float& OutMinX, float& OutMaxX, float& O
 	OutMaxX = WorldMaxX;
 	OutMinY = WorldMinY;
 	OutMaxY = WorldMaxY;
+}
+
+void UUCityNewworkManager::SetPointMarkerArray(TArray<UPointMarker*> _PointMarkerArray)
+{
+	PointMarkerArray = _PointMarkerArray;
 }
 
 void UUCityNewworkManager::LoadQGIS()
@@ -933,8 +939,16 @@ TArray<FRoadNode> UUCityNewworkManager::Navigation(AProjectCharacter* player, co
 {
 	SelectNode; //이거 초기화 해야함
 	maxNodeCount = 1e9;
-	double mindist = 1e9;
+	double minplayerdist = 1e9;
+	double mingoaldist = 1e9;
 	NavigationCourse.Empty();
+	
+
+	if (!player) return NavigationCourse;
+
+	int GoalNodeID = 0;
+	FVector GoalLocation = PointMarkerArray[PointMarkerArray.Num() - 1]->GetMarkerPosition();
+
 	//이분 탐색으로 변경해야함
 	for (FRoadNode &Node : Nodes) {
 		if (Node.Location.X == 0.f && Node.Location.Y == 0.f && Node.Location.Z == 0.f) {
@@ -942,23 +956,28 @@ TArray<FRoadNode> UUCityNewworkManager::Navigation(AProjectCharacter* player, co
 		}
 		FVector NodeLocation = Node.Location;
 
-		double dist = FVector::Dist(PlayerLocation, NodeLocation);
+		double Playerdist = FVector::Dist(PlayerLocation, NodeLocation);
+		
+		double Goaldist = FVector::Dist(GoalLocation, NodeLocation);
 
-		if (dist < mindist) {
-			mindist = dist;
+		if (Playerdist < minplayerdist) {
+			minplayerdist = Playerdist;
 			SelectNode = Node;
 		}
-	}
 
-	if (!player) return NavigationCourse;
+		if (Goaldist < mingoaldist) {
+			mingoaldist = Goaldist;
+			GoalNode = Node;
+			GoalNodeID = Node.NodeID;
+		}
+	}
 
 	TArray<bool> visit;
 	visit.Init(false, Nodes.Num()); // 지난번 이야기한 올바른 초기화법
 
+	//int GoalNodeID = 50;
 	
-	int GoalNodeID = 50;
-
-	FVector GoalLocation = Nodes[GoalNodeID].Location;
+	//FVector GoalLocation = Nodes[GoalNodeID].Location;
 
 	NavigationCourse = DfsNavigation(SelectNode.NodeID, 1, GoalNodeID);
 

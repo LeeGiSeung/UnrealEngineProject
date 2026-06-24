@@ -26,11 +26,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "PointMarker")
 	void DeletePointMarker();
 
+	void SetMarkerPosition(FVector value);
+	FVector GetMarkerPosition();
+
 public:
 	UPROPERTY()
 	UMapViewer* MapViewer;
 
 private:
 	int SpawnMarkerIdx = 0;
+
+	FVector MarkerPosition;
 
 };
