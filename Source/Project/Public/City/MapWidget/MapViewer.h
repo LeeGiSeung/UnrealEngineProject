@@ -202,4 +202,7 @@ private:
 
 	AProjectCharacter* Player;
 
+	int32 FolderNumber;
+	int32 FileNumber;
+
 };

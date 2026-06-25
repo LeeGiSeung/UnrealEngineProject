@@ -949,6 +949,10 @@ TArray<FRoadNode> UUCityNewworkManager::Navigation(AProjectCharacter* player, co
 	int GoalNodeID = 0;
 	FVector GoalLocation = PointMarkerArray[PointMarkerArray.Num() - 1]->GetMarkerPosition();
 
+	//FVector GoalLocation(443852.649387, -426473.010608, 92.400002);
+
+	UE_LOG(LogTemp, Error, TEXT("CityNetWorkManager GoalLocation : %s"), *GoalLocation.ToString());
+
 	//이분 탐색으로 변경해야함
 	for (FRoadNode &Node : Nodes) {
 		if (Node.Location.X == 0.f && Node.Location.Y == 0.f && Node.Location.Z == 0.f) {
