@@ -11,7 +11,6 @@
 #include "City/MapWidget/CityMapWidget.h"
 #include "HAL/FileManager.h" // 파일 개수 검사를 위해 필요
 #include "City/MapWidget/Marker/MapViewer/PersonMarker/PersonMarker.h"
-#include "ProjectCharacter.h"
 
 //Image
 #include "ImageUtils.h"
@@ -20,6 +19,11 @@
 #include "Modules/ModuleManager.h"
 #include "Misc/FileHelper.h"
 #include "Components/UniformGridPanel.h"
+
+//#TogetherManager
+#include "Manager/TogetherManager/TogetherManager.h"
+#include "NPC/TogetherRun/TogetherRunBase.h"
+#include "City/MapWidget/Marker/MapViewer/TogetherActor/TogetherActorMarker.h"
 
 //화면 렌더링 : 지도 이미지(Texture)를 보여주고, 줌인 / 줌아웃(Zoom), 드래그로 지도 이동(Pan)하는 기능.
 //마커 표시 : MapContent에서 마커 데이터를 받아와 화면에 아이콘 위젯들을 생성하고 배치하는 기능.
@@ -39,6 +43,7 @@ void UMapViewer::NativeConstruct()
 
     if (Player) {
         Player->OnPlayerMoved.AddUObject(this, &UMapViewer::UpdatePersonPosition);
+        Player->OnPlayerTurnd.AddUObject(this, &UMapViewer::UpdatePersonRotation);
     }
 
     if (CityNewworkManager) {
@@ -49,7 +54,41 @@ void UMapViewer::NativeConstruct()
         CityNewworkManager->OnLocalXYSetting.AddUObject(this, &UMapViewer::SetLocalMapSize);
     }
     
+    TogetherManager = GetWorld()->GetSubsystem<UTogetherManager>();
 
+    TogetherActorMarkerSetting();
+
+}
+
+void UMapViewer::TogetherActorMarkerSetting()
+{
+    ///UE_LOG(LogTemp, Error, TEXT("TogetherActorMarkerSetting"));
+    if (TogetherManager) {
+        ChainArray = TogetherManager->GetWorldSpawnChainArray();
+        if (ChainArray) {
+            for (ATogetherRunBase* TogetherActor : *ChainArray) {
+                UTogetherActorMarker* Marker =
+                    CreateWidget<UTogetherActorMarker>(
+                        GetOwningPlayer(),
+                        TogetherActorMarkerClass);
+
+                MapViewerCanvasPanel->AddChild(Marker);
+
+                TogetherActor->SetTogetherMarker(Marker);
+
+                TogetherActor->OnTogetherMoved.AddUObject(this, &UMapViewer::UpdateTogetherActorPosition);
+                TogetherActor->OnTogetherTurnd.AddUObject(this, &UMapViewer::UpdateTogetherActorRotation);
+
+                UpdateTogetherActorPosition(
+                    TogetherActor->GetActorLocation(),
+                    TogetherActor);
+
+                UpdateTogetherActorRotation(
+                    TogetherActor->GetActorRotation(),
+                    TogetherActor);
+            }
+        }
+    }
 }
 
 void UMapViewer::SetFolderFileBaseMap()
@@ -109,14 +148,14 @@ void UMapViewer::ChangeFilePath(FVector2D MousePosition, bool bZoomIn)
     int32 CurrentMouseFile =
         TargetCenterFile + (MouseGridX - CenterIndex);
 
-    UE_LOG(LogTemp, Error, TEXT("Before TargetCenterFolder %d: , TargetCenterFile : %d"), TargetCenterFolder, TargetCenterFile);
+    //UE_LOG(LogTemp, Error, TEXT("Before TargetCenterFolder %d: , TargetCenterFile : %d"), TargetCenterFolder, TargetCenterFile);
 
     if (bZoomIn)
     {
         TargetCenterFolder = CurrentMouseFolder * 2;
         TargetCenterFile = CurrentMouseFile * 2;
         
-        UE_LOG(LogTemp, Error, TEXT("After Zoomin TargetCenterFolder %d: , TargetCenterFile : %d"), TargetCenterFolder, TargetCenterFile);
+        //UE_LOG(LogTemp, Error, TEXT("After Zoomin TargetCenterFolder %d: , TargetCenterFile : %d"), TargetCenterFolder, TargetCenterFile);
 
     }
     else
@@ -124,7 +163,7 @@ void UMapViewer::ChangeFilePath(FVector2D MousePosition, bool bZoomIn)
         TargetCenterFolder = CurrentMouseFolder / 2;
         TargetCenterFile = CurrentMouseFile / 2;
 
-        UE_LOG(LogTemp, Error, TEXT("After Zoomout TargetCenterFolder %d: , TargetCenterFile : %d"), TargetCenterFolder, TargetCenterFile);
+       //UE_LOG(LogTemp, Error, TEXT("After Zoomout TargetCenterFolder %d: , TargetCenterFile : %d"), TargetCenterFolder, TargetCenterFile);
     }
 
     ChangeMapImage();
@@ -250,8 +289,6 @@ void UMapViewer::MapMove(FVector2D value)
 
     GetWorld()->GetTimerManager().SetTimer(MapMoveCoolTime, this, &UMapViewer::bMapMoveTrue, 0.15f, false);
 
-    UE_LOG(LogTemp, Error, TEXT("%f, %f"), value.X, value.Y);
-
     // 상하좌우
     if (value.X == 0 && value.Y < 0) {
         TargetCenterFile += 1; // 상
@@ -283,6 +320,8 @@ void UMapViewer::MapMove(FVector2D value)
         TargetCenterFile -= 1;
     }
     ChangeMapImage();
+
+    UpdatePersonPosition(CommitPlayerLocation);
 }
 
 void UMapViewer::ChangeMapImage()
@@ -401,7 +440,7 @@ void UMapViewer::SpawnMapPointMarker(const FVector2D& _MousePosition)
 
         PointMarkerWidget->SetMarkerPosition(LocalLocation);
 
-        UE_LOG(LogTemp, Error, TEXT("MapViewer GoalLocation : %s"), *LocalLocation.ToString());
+        //UE_LOG(LogTemp, Error, TEXT("MapViewer GoalLocation : %s"), *LocalLocation.ToString());
 
         CityNewworkManager->SetPointMarkerArray(PointMarkerArray);
     }
@@ -452,7 +491,7 @@ void UMapViewer::SetWBPMainHUD(UCityMapWidget* value)
 
 void UMapViewer::OnPaintNavigationCourse()
 {
-    UE_LOG(LogTemp, Error, TEXT("OnPaintNavigationCourse In %d"), DFSNavigationLocationArray.Num());
+    //UE_LOG(LogTemp, Error, TEXT("OnPaintNavigationCourse In %d"), DFSNavigationLocationArray.Num());
 
     WidgetLocationArray.Empty();
     WidgetLocationArray = ComputeOnPaintLocationArray(); //구현해야함
@@ -549,51 +588,37 @@ void UMapViewer::bMapMoveTrue()
 
 void UMapViewer::UpdatePersonPosition(FVector PlayerLocation)
 {
+
     if (!PersonMarker)
     {
         return;
     }
 
-    UCanvasPanelSlot* CanvasSlot =
-        Cast<UCanvasPanelSlot>(PersonMarker->Slot);
+    UCanvasPanelSlot* CanvasSlot = Cast<UCanvasPanelSlot>(PersonMarker->Slot);
 
     if (!CanvasSlot)
     {
         return;
     }
-    CommitPlayerLocation = PlayerLocation;
 
-    if (NowScrollLevel == 13) {
-        CommitPlayerLocation.X += 251000;
-        CommitPlayerLocation.Y += 142000;
-    }
-    else if (NowScrollLevel == 14) {
-        CommitPlayerLocation.X += 251000;
-        CommitPlayerLocation.Y += 132000;
-    }
-    else if (NowScrollLevel == 15) {
-        CommitPlayerLocation.X += 81000;
-        CommitPlayerLocation.Y += 42000;
-    }
-    else if (NowScrollLevel == 16) {
-        CommitPlayerLocation.X += 81000;
-        CommitPlayerLocation.Y += 40000;
-    }
-    else if (NowScrollLevel == 17) {
-        CommitPlayerLocation.X += 81000;
-        CommitPlayerLocation.Y += 42000;
-    }
+    CommitPlayerLocation = InterpolateLocation(PlayerLocation);
 
+    SpawnMarkerToMapViewer(CanvasSlot, CommitPlayerLocation);
+
+}
+
+void UMapViewer::SpawnMarkerToMapViewer(UCanvasPanelSlot* CanvasSlot, FVector &Location)
+{
     const double RatioX =
         FMath::Clamp(
-            (CommitPlayerLocation.X - WorldMinX) /
+            (Location.X - WorldMinX) /
             (WorldMaxX - WorldMinX),
             0.0,
             1.0);
 
     const double RatioY =
         FMath::Clamp(
-            (CommitPlayerLocation.Y - WorldMinY) /
+            (Location.Y - WorldMinY) /
             (WorldMaxY - WorldMinY),
             0.0,
             1.0);
@@ -694,14 +719,72 @@ void UMapViewer::UpdatePersonPosition(FVector PlayerLocation)
             PixelX,
             PixelY));
 
-    UE_LOG(LogTemp, Warning,
-        TEXT("World=(%f,%f) Ratio=(%f,%f) FilePos=%f FolderPos=%f"),
-        CommitPlayerLocation.X,
-        CommitPlayerLocation.Y,
-        RatioX,
-        RatioY,
-        FilePos,
-        FolderPos);
+    //UE_LOG(LogTemp, Warning,
+    //    TEXT("World=(%f,%f) Ratio=(%f,%f) FilePos=%f FolderPos=%f"),
+    //    Location.X,
+    //    Location.Y,
+    //    RatioX,
+    //    RatioY,
+    //    FilePos,
+    //    FolderPos);
+}
+
+FVector UMapViewer::InterpolateLocation(FVector Value)
+{
+    if (NowScrollLevel == 13) {
+        Value.X += 251000;
+        Value.Y += 142000;
+    }
+    else if (NowScrollLevel == 14) {
+        Value.X += 251000;
+        Value.Y += 132000;
+    }
+    else if (NowScrollLevel == 15) {
+        Value.X += 81000;
+        Value.Y += 42000;
+    }
+    else if (NowScrollLevel == 16) {
+        Value.X += 81000;
+        Value.Y += 40000;
+    }
+    else if (NowScrollLevel == 17) {
+        Value.X += 81000;
+        Value.Y += 42000;
+    }
+
+    return Value;
+}
+
+void UMapViewer::UpdateTogetherActorPosition(FVector TogetherLocation, ATogetherRunBase* Actor)
+{
+    UE_LOG(LogTemp, Error, TEXT("UpdateTogetherActorPosition "));
+
+    if (!Actor) return;
+
+    UTogetherActorMarker* TogetherActorMarker = Actor->GetTogetherMarker();
+    UCanvasPanelSlot* CanvasSlot = Cast<UCanvasPanelSlot>(TogetherActorMarker->Slot);
+
+    if (!CanvasSlot) return;
+
+    FVector TogetherActorLocation = InterpolateLocation(TogetherLocation);
+
+    UE_LOG(LogTemp, Error, TEXT("TogetherActorLocation %s"), *TogetherActorLocation.ToString());
+
+    SpawnMarkerToMapViewer(CanvasSlot, TogetherActorLocation);
+}
+
+void UMapViewer::UpdateTogetherActorRotation(FRotator TogetherLocation, ATogetherRunBase* Actor)
+{
+    if (!Actor || !Actor->GetTogetherMarker()) return;
+
+    UTogetherActorMarker* TogetherActorMarker = Actor->GetTogetherMarker();
+}
+
+void UMapViewer::UpdatePersonRotation(FRotator PlayerRotation)
+{
+    if (!PersonMarker) return;
+
+    PersonMarker->TurnArrowImage(PlayerRotation);
 
 }
 

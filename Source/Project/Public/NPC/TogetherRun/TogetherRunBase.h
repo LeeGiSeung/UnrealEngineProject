@@ -8,9 +8,17 @@
 
 class AProjectCharacter;
 class UTogetherRunAnimInstance;
+class ATogetherRunBase;
+class UTogetherActorMarker;
+class UTogetherManager;
+
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnTogetherMoved, FVector, ATogetherRunBase*);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnTogetherTurnd, FRotator, ATogetherRunBase*);
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerActorReference, AProjectCharacter*);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnfGroundSpeedFromPlayer, float, FVector);
+
+
 
 UCLASS()
 class PROJECT_API ATogetherRunBase : public ACharacter
@@ -38,10 +46,6 @@ protected:
 	void BasicSetting();
 
 public:	
-	// Called every frame
-	
-
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UPROPERTY(BlueprintReadWrite, Category = "MovementData")
@@ -80,4 +84,17 @@ public:
 	void SetChainIndex(int value);
 	int GetChainIndex();
 
+public:
+	FVector prevTogetherLocation;
+	FRotator prevTogetherRotation;
+
+public:
+	FOnTogetherMoved OnTogetherMoved;
+	FOnTogetherTurnd OnTogetherTurnd;
+
+	UTogetherActorMarker* TogetherActorMarker;
+	UTogetherManager* TogetherManager;
+
+	UTogetherActorMarker* GetTogetherMarker();
+	void SetTogetherMarker(UTogetherActorMarker* Value);
 };

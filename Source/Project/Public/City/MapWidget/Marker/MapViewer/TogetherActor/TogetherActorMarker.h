@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "City/MapWidget/Marker/MapViewer/PointMarker.h"
-#include "PersonMarker.generated.h"
+#include "TogetherActorMarker.generated.h"
 
 class UImage;
 
@@ -12,20 +12,18 @@ class UImage;
  * 
  */
 UCLASS()
-class PROJECT_API UPersonMarker : public UPointMarker
+class PROJECT_API UTogetherActorMarker : public UPointMarker
 {
 	GENERATED_BODY()
 
 public:
 	virtual void NativeConstruct() override;
 
+public:
 	UPROPERTY(meta = (BindWidget))
-	UImage* ArrowImage;
-
-	UPROPERTY(meta = (BindWidget))
-	UImage* PersonImage;
+	UImage* TogetherActorImage;
 
 	UFUNCTION()
-	void TurnArrowImage(FRotator value);
+	void TurnTogetherImage(FRotator value);
 
 };

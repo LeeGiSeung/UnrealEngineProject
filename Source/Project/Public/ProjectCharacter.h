@@ -26,6 +26,8 @@ class UCityMapWidget;
 struct FInputActionValue;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerMoved, FVector);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerTurnd, FRotator);
+
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -298,9 +300,16 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Map")
 	TSubclassOf<UCityMapWidget> CityMapWidgetClass;
+		
+	UPROPERTY()
+	FVector prevLocation;
+
+	UPROPERTY()
+	FRotator prevRotatioin;
 
 public:
 	FOnPlayerMoved OnPlayerMoved;
+	FOnPlayerTurnd OnPlayerTurnd;
 
 };
 

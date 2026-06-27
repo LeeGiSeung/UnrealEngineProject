@@ -14,6 +14,10 @@ class UUniformGridPanel;
 class UPersonMarker;
 class UUCityNewworkManager;
 class AProjectCharacter;
+class UTogetherManager;
+class ATogetherRunBase;
+class UCanvasPanelSlot;
+class UTogetherActorMarker;
 
 UCLASS()
 class PROJECT_API UMapViewer : public UUserWidget
@@ -24,9 +28,14 @@ class PROJECT_API UMapViewer : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 
+	void TogetherActorMarkerSetting();
+
 	void SetFolderFileBaseMap();
 	
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
+public:
+	UTogetherManager* TogetherManager;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "MapViewFunction")
@@ -87,6 +96,7 @@ public:
 	UFUNCTION()
 	void ChangePointMarkerWorldPosition(FVector& value, FVector2D MapPosition);
 
+	TArray<ATogetherRunBase*> *ChainArray;
 public:
 	//########################
 	UPROPERTY(BlueprintReadWrite, Category = "MapViewer")
@@ -156,6 +166,9 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UPersonMarker* PersonMarker;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "TogetherActorMarkerClass")
+	TSubclassOf<UTogetherActorMarker> TogetherActorMarkerClass;
+
 	// 현재 맵 화면의 범위 (ChangeMapImage 때마다 갱신됨)
 	float CurrentViewMinX, CurrentViewMaxX;
 	float CurrentViewMinY, CurrentViewMaxY;
@@ -186,7 +199,16 @@ private:
 
 	void bMapMoveTrue();
 	
+
+
+	void SpawnMarkerToMapViewer(UCanvasPanelSlot* CanvasSlot, FVector &Value);
+	FVector InterpolateLocation(FVector Value);
+	
 	void UpdatePersonPosition(FVector PlayerLocation);
+	void UpdatePersonRotation(FRotator PlayerRotation);
+
+	void UpdateTogetherActorPosition(FVector TogetherLocation, ATogetherRunBase* Actor);
+	void UpdateTogetherActorRotation(FRotator TogetherLocation, ATogetherRunBase* Actor);
 
 	float WorldMinX = UE_MAX_FLT;
 	float WorldMaxX = -UE_MAX_FLT;

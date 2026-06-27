@@ -12,6 +12,9 @@
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
 
+#include "City/MapWidget/Marker/MapViewer/TogetherActor/TogetherActorMarker.h"
+#include "Manager/TogetherManager/TogetherManager.h"
+
 // Sets default values
 ATogetherRunBase::ATogetherRunBase()
 {
@@ -30,6 +33,20 @@ void ATogetherRunBase::BeginPlay()
 	
 	BasicSetting();
 
+	TogetherManager = GetWorld()->GetSubsystem<UTogetherManager>();
+
+	if (TogetherManager) {
+		TogetherManager->RegisterTogetherActor(this);
+
+		const FVector CurLocation = GetActorLocation();
+		const FRotator CurRotation = GetActorRotation();
+
+		OnTogetherMoved.Broadcast(CurLocation, this);
+		OnTogetherTurnd.Broadcast(CurRotation, this);
+
+		UE_LOG(LogTemp, Error, TEXT("OnTogetherMoved.Broadcast(CurLocation, this)"));
+
+	}
 }
 
 void ATogetherRunBase::BasicSetting()
@@ -77,6 +94,21 @@ void ATogetherRunBase::Tick(float DeltaTime)
 
 	SetTogetherActorTurn();
 
+	const FVector CurLocation = GetActorLocation();
+	const FRotator CurRotation = GetActorRotation();
+
+	double LocalDistance = FVector::Distance(CurLocation, prevTogetherLocation);
+
+	if (LocalDistance) {
+		OnTogetherMoved.Broadcast(CurLocation, this);
+	}
+	if (prevTogetherRotation.Equals(CurRotation, 0.1f)) {
+		OnTogetherTurnd.Broadcast(CurRotation, this);
+	}
+
+	prevTogetherLocation = CurLocation;
+	prevTogetherRotation = CurRotation;
+
 }
 
 void ATogetherRunBase::SetTogetherActorTurn()
@@ -111,6 +143,16 @@ void ATogetherRunBase::SetChainIndex(int value)
 int ATogetherRunBase::GetChainIndex()
 {
 	return chainIndex;
+}
+
+UTogetherActorMarker* ATogetherRunBase::GetTogetherMarker()
+{
+	return TogetherActorMarker;
+}
+
+void ATogetherRunBase::SetTogetherMarker(UTogetherActorMarker* Value)
+{
+	TogetherActorMarker = Value;
 }
 
 

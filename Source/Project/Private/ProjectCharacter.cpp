@@ -145,9 +145,15 @@ void AProjectCharacter::BeginPlay()
 
 	GetGroundSpeedTo.AddUObject(this, &AProjectCharacter::SetfGroundSpeedToAniminstance);
 
-	
+	prevLocation = GetActorLocation();
+	prevRotatioin = GetActorRotation();
 
-	
+	//UE_LOG(LogTemp, Warning,
+	//	TEXT("BeginPlay : Mode=%d Orient=%d RotationRate=%s Velocity=%s"),
+	//	(int32)GetCharacterMovement()->MovementMode,
+	//	GetCharacterMovement()->bOrientRotationToMovement,
+	//	*GetCharacterMovement()->RotationRate.ToString(),
+	//	*GetVelocity().ToString());
 
 }
 
@@ -182,8 +188,6 @@ void AProjectCharacter::Tick(float DeltaTime)
 
 	Super::Tick(DeltaTime);
 
-	if (!bMapWidget) return;
-
 	bool bHitWall = false;
 
 	FHitResult HitResult;
@@ -191,6 +195,25 @@ void AProjectCharacter::Tick(float DeltaTime)
 	FVector End = Start + (GetActorForwardVector() * 120.0f);
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
+
+	const FVector CurLocation = GetActorLocation();
+	const FRotator CurRotation = GetActorRotation();
+
+	double LocalDistance = FVector::Distance(CurLocation, prevLocation);
+
+	if (LocalDistance) {
+		OnPlayerMoved.Broadcast(CurLocation);
+	}
+	if (prevRotatioin.Equals(CurRotation, 0.1f)) {
+		OnPlayerTurnd.Broadcast(CurRotation);
+	}
+
+	prevLocation = CurLocation;
+	prevRotatioin = CurRotation;
+
+	if (bIsMovingAlongPath) {
+		MovingNavigation(DeltaTime);
+	}
 
 	if (!PlayerAnimInstance || PlayerAnimInstance->GetbIsTogether()) return;
 
@@ -205,6 +228,13 @@ void AProjectCharacter::Tick(float DeltaTime)
 	if (bHitWall && !PlayerAnimInstance->GetIsClimb() && GetCanClimb() && !PlayerAnimInstance->GetWallChange() && bOffClimb)
 	{
 		StartClimb(HitResult);
+
+		//UE_LOG(LogTemp, Warning,
+		//	TEXT("StartClimb : Mode=%d Orient=%d RotationRate=%s Velocity=%s"),
+		//	(int32)GetCharacterMovement()->MovementMode,
+		//	GetCharacterMovement()->bOrientRotationToMovement,
+		//	*GetCharacterMovement()->RotationRate.ToString(),
+		//	*GetVelocity().ToString());
 	}
 
 	// 2. 이미 벽을 타고 있는 중일 때의 로직
@@ -225,12 +255,11 @@ void AProjectCharacter::Tick(float DeltaTime)
 
 	CheckGroundWhileClimbing();
 
-	//Navigation이 활성화 돼있으면
-	if (bIsMovingAlongPath) { 
-		MovingNavigation(DeltaTime);
-	}
+
 	
-	
+	if (!bMapWidget) return;
+
+
 
 }
 
@@ -457,7 +486,7 @@ void AProjectCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	}
 	else
 	{
-		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
+		//UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
 }
 
@@ -523,7 +552,7 @@ void AProjectCharacter::Move(const FInputActionValue& Value)
 			AddMovementInput(ForwardDirection, MovementVector.Y);
 			AddMovementInput(RightDirection, MovementVector.X);
 
-			OnPlayerMoved.Broadcast(GetActorLocation());
+			
 		}
 	}
 }
@@ -777,21 +806,18 @@ void AProjectCharacter::MovingNavigation(float DeltaTime)
 
 void AProjectCharacter::OffMapWidget()
 {
-	CityMapWidget->RemoveFromParent();
 	bMapWidget = false;
+	//CityMapWidget->RemoveFromParent();
 }
 
 void AProjectCharacter::OnMapWidget()
 {
 	bMapWidget = true;
-	if (APlayerController* PC = Cast<APlayerController>(GetController())) {
-		CityMapWidget = Cast<UCityMapWidget>(CreateWidget(PC, CityMapWidgetClass));
-
-		if (CityMapWidget) {
-			CityMapWidget->AddToViewport();
-		}
-
-		
-	}
-
+	//if (APlayerController* PC = Cast<APlayerController>(GetController())) {
+	//	CityMapWidget = Cast<UCityMapWidget>(CreateWidget(PC, CityMapWidgetClass));
+	//	if (CityMapWidget) {
+	//		CityMapWidget->AddToViewport();
+	//	}
+	//	
+	//}
 }

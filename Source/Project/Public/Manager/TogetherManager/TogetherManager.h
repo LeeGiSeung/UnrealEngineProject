@@ -35,13 +35,19 @@ public:
 	void RegisterPlayer(AProjectCharacter* value);
 	void PlaceChainArray(const float speed, const FVector HandLocation);
 
+	void RegisterTogetherActor(ATogetherRunBase* value);
+	TArray<ATogetherRunBase*>* GetWorldSpawnChainArray();
+
 	int GetChainArrayNum();
 
 	
 	TArray<ATogetherRunBase*> GetChainArray();
+	TArray<ATogetherRunBase*>& GetChainReferenceArray();
 
 private:
 	TArray<ATogetherRunBase*> ChainArray;
+	TArray<ATogetherRunBase*> WorldSpawnChainArray;
+
 	AProjectCharacter* Player;
 
 	FName TogetherNPCLeftHandName = "hand_l_Socket";
