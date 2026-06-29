@@ -102,7 +102,11 @@ void UTogetherManager::PlaceChainArray(const float speed, const FVector HandLoca
 
 void UTogetherManager::RegisterTogetherActor(ATogetherRunBase* value)
 {
+	if (!value) return;
+
 	WorldSpawnChainArray.Add(value);
+
+	OnAddTogetherActorToManager.Broadcast();
 }
 
 TArray<ATogetherRunBase*>* UTogetherManager::GetWorldSpawnChainArray()

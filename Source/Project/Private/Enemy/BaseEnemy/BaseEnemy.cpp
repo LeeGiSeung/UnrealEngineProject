@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "BrainComponent.h"
 #include "Minimap/MinimapWorldSystem.h"
+#include "Enemy/EnemyManager/EnemyManager.h"
 
 // Sets default values
 ABaseEnemy::ABaseEnemy()
@@ -44,6 +45,11 @@ void ABaseEnemy::BeginPlay()
     if (UWorld* World = GetWorld())
     {
         MinimapWorld = World->GetSubsystem<UMinimapWorldSystem>();
+        EnemyManager = World->GetSubsystem<UEnemyManager>();
+    }
+
+    if (EnemyManager) {
+        EnemyManager->RegisterEnemyToManager(this);
     }
 
 }

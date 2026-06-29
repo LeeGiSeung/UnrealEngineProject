@@ -19,6 +19,8 @@ class ATogetherRunBase;
 class UCanvasPanelSlot;
 class UTogetherActorMarker;
 class UBossMarker;
+class UEnemyManager;
+class ABaseEnemy;
 
 UCLASS()
 class PROJECT_API UMapViewer : public UUserWidget
@@ -37,6 +39,7 @@ public:
 
 public:
 	UTogetherManager* TogetherManager;
+	UEnemyManager* EnemyManager;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "MapViewFunction")
@@ -99,7 +102,7 @@ public:
 	UFUNCTION()
 	void ChangePointMarkerWorldPosition(FVector& value, FVector2D MapPosition);
 
-	TArray<ATogetherRunBase*> *ChainArray;
+
 public:
 	//########################
 	UPROPERTY(BlueprintReadWrite, Category = "MapViewer")
@@ -232,5 +235,10 @@ private:
 
 	int32 FolderNumber;
 	int32 FileNumber;
+
+//ManagerArray
+	private:
+		TArray<ATogetherRunBase*>* ChainArray;
+		TArray<ABaseEnemy*>* EnemyArray;
 
 };

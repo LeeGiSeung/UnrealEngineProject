@@ -9,6 +9,8 @@
 class ATogetherRunBase;
 class AProjectCharacter;
 
+DECLARE_MULTICAST_DELEGATE(FOnAddTogetherActorToManager);
+
 /**
  * 
  */
@@ -44,6 +46,8 @@ public:
 	TArray<ATogetherRunBase*> GetChainArray();
 	TArray<ATogetherRunBase*>& GetChainReferenceArray();
 
+	FOnAddTogetherActorToManager OnAddTogetherActorToManager;
+
 private:
 	TArray<ATogetherRunBase*> ChainArray;
 	TArray<ATogetherRunBase*> WorldSpawnChainArray;
@@ -52,5 +56,7 @@ private:
 
 	FName TogetherNPCLeftHandName = "hand_l_Socket";
 	FName TogetherNPCRIghtHandName = "hand_r_Socket";
+
+	
 
 };

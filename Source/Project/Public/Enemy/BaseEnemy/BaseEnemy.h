@@ -10,6 +10,9 @@
 class AAIController;
 class UBlackboardComponent;
 class UMinimapWorldSystem;
+class UEnemyManager;
+
+
 
 UCLASS()
 class PROJECT_API ABaseEnemy : public ACharacter
@@ -42,6 +45,9 @@ public:
 
 	UPROPERTY()
 	UMinimapWorldSystem* MinimapWorld;
+	
+	UPROPERTY()
+	UEnemyManager* EnemyManager;
 
 protected:
 	uint32 EnemyHP;
