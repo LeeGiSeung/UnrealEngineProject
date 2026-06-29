@@ -18,6 +18,7 @@ class UTogetherManager;
 class ATogetherRunBase;
 class UCanvasPanelSlot;
 class UTogetherActorMarker;
+class UBossMarker;
 
 UCLASS()
 class PROJECT_API UMapViewer : public UUserWidget
@@ -48,6 +49,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "MapViewFunction")
 	void MapMove(FVector2D value);
+
+	void UpdateTogetherActorUV();
 
 	UFUNCTION(BlueprintCallable, Category = "MapViewer")
 	void ChangeMapImage();
@@ -168,6 +171,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "TogetherActorMarkerClass")
 	TSubclassOf<UTogetherActorMarker> TogetherActorMarkerClass;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "TogetherActorMarkerClass")
+	TSubclassOf<UBossMarker> BossMarkerClass;
 
 	// 현재 맵 화면의 범위 (ChangeMapImage 때마다 갱신됨)
 	float CurrentViewMinX, CurrentViewMaxX;

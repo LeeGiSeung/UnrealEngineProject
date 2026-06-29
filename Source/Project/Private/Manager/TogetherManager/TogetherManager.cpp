@@ -9,6 +9,8 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "City/MapWidget/Marker/MapViewer/TogetherActor/TogetherActorMarker.h"
+
 void UTogetherManager::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
@@ -29,6 +31,11 @@ void UTogetherManager::AddChainArray(ATogetherRunBase* value)
 	}
 
 	ChainArray.Add(value);
+
+	if (value->TogetherActorMarker) {
+		value->TogetherActorMarker->RemoveFromParent();
+	}
+	
 
 }
 

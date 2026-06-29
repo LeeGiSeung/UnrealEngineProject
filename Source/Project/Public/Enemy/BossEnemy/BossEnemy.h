@@ -9,6 +9,10 @@
 class UBossAnimInstance;
 class UBlackboardComponent;
 class AAIController;
+
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnBossEnemyTurn, FRotator, ABossEnemy*);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnBossEnemyMove, FVector, ABossEnemy*);
+
 /**
  * 
  */
@@ -27,6 +31,8 @@ public:
 	// Called every frame
 	ABossEnemy();
 	virtual void Tick(float DeltaTime) override;
+
+	void BossMoveBroadcast();
 
 	void TurnToPlayer(float DeltaTime);
 
@@ -115,5 +121,13 @@ private:
 	void SpawnThrity();
 
 	int bSpawnBossArm = 0;
+
+//MapViewer
+public:
+	FOnBossEnemyMove OnBossEnemyMove;
+	FOnBossEnemyTurn OnBossEnemyTurn;
+	
+	FVector prevLocation;
+	FRotator prevRotation;
 
 };

@@ -24,6 +24,7 @@
 #include "Manager/TogetherManager/TogetherManager.h"
 #include "NPC/TogetherRun/TogetherRunBase.h"
 #include "City/MapWidget/Marker/MapViewer/TogetherActor/TogetherActorMarker.h"
+#include "City/MapWidget/Marker/MapViewer/BossMarker/BossMarker.h"
 
 //화면 렌더링 : 지도 이미지(Texture)를 보여주고, 줌인 / 줌아웃(Zoom), 드래그로 지도 이동(Pan)하는 기능.
 //마커 표시 : MapContent에서 마커 데이터를 받아와 화면에 아이콘 위젯들을 생성하고 배치하는 기능.
@@ -58,11 +59,37 @@ void UMapViewer::NativeConstruct()
 
     TogetherActorMarkerSetting();
 
+    if (TogetherManager) {
+        ChainArray = TogetherManager->GetWorldSpawnChainArray();
+        if (ChainArray) {
+            for (ATogetherRunBase* TogetherActor : *ChainArray) {
+                UTogetherActorMarker* Marker =
+                    CreateWidget<UTogetherActorMarker>(
+                        GetOwningPlayer(),
+                        TogetherActorMarkerClass);
+
+                MapViewerCanvasPanel->AddChild(Marker);
+
+                TogetherActor->SetTogetherMarker(Marker);
+
+                TogetherActor->OnTogetherMoved.AddUObject(this, &UMapViewer::UpdateTogetherActorPosition);
+                TogetherActor->OnTogetherTurnd.AddUObject(this, &UMapViewer::UpdateTogetherActorRotation);
+
+                UpdateTogetherActorPosition(
+                    TogetherActor->GetActorLocation(),
+                    TogetherActor);
+
+                UpdateTogetherActorRotation(
+                    TogetherActor->GetActorRotation(),
+                    TogetherActor);
+            }
+        }
+    }
+
 }
 
 void UMapViewer::TogetherActorMarkerSetting()
 {
-    ///UE_LOG(LogTemp, Error, TEXT("TogetherActorMarkerSetting"));
     if (TogetherManager) {
         ChainArray = TogetherManager->GetWorldSpawnChainArray();
         if (ChainArray) {
@@ -289,7 +316,6 @@ void UMapViewer::MapMove(FVector2D value)
 
     GetWorld()->GetTimerManager().SetTimer(MapMoveCoolTime, this, &UMapViewer::bMapMoveTrue, 0.15f, false);
 
-    // 상하좌우
     if (value.X == 0 && value.Y < 0) {
         TargetCenterFile += 1; // 상
     }
@@ -302,7 +328,6 @@ void UMapViewer::MapMove(FVector2D value)
     else if (value.X > 0 && value.Y == 0) {
         TargetCenterFolder -= 1; // 우
     }
-    // 대각선
     else if (value.X < 0 && value.Y < 0) {
         TargetCenterFolder += 1; // 좌상
         TargetCenterFile += 1;
@@ -322,6 +347,21 @@ void UMapViewer::MapMove(FVector2D value)
     ChangeMapImage();
 
     UpdatePersonPosition(CommitPlayerLocation);
+
+    UpdateTogetherActorUV();
+}
+
+void UMapViewer::UpdateTogetherActorUV()
+{
+    for (ATogetherRunBase* TogetherActor : *ChainArray) {
+        UpdateTogetherActorPosition(
+            TogetherActor->GetActorLocation(),
+            TogetherActor);
+
+        UpdateTogetherActorRotation(
+            TogetherActor->GetActorRotation(),
+            TogetherActor);
+    }
 }
 
 void UMapViewer::ChangeMapImage()
@@ -601,7 +641,9 @@ void UMapViewer::UpdatePersonPosition(FVector PlayerLocation)
         return;
     }
 
-    CommitPlayerLocation = InterpolateLocation(PlayerLocation);
+    if (CommitPlayerLocation != PlayerLocation) {
+        CommitPlayerLocation = InterpolateLocation(PlayerLocation);
+    }
 
     SpawnMarkerToMapViewer(CanvasSlot, CommitPlayerLocation);
 
@@ -762,6 +804,8 @@ void UMapViewer::UpdateTogetherActorPosition(FVector TogetherLocation, ATogether
     if (!Actor) return;
 
     UTogetherActorMarker* TogetherActorMarker = Actor->GetTogetherMarker();
+
+    if (!TogetherActorMarker) return;
     UCanvasPanelSlot* CanvasSlot = Cast<UCanvasPanelSlot>(TogetherActorMarker->Slot);
 
     if (!CanvasSlot) return;
@@ -775,7 +819,7 @@ void UMapViewer::UpdateTogetherActorPosition(FVector TogetherLocation, ATogether
 
 void UMapViewer::UpdateTogetherActorRotation(FRotator TogetherLocation, ATogetherRunBase* Actor)
 {
-    if (!Actor || !Actor->GetTogetherMarker()) return;
+    if (!Actor) return;
 
     UTogetherActorMarker* TogetherActorMarker = Actor->GetTogetherMarker();
 }

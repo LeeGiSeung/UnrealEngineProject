@@ -40,7 +40,8 @@ void ABossEnemy::BeginPlay()
         MinimapWorld->RegisterMakerData(this, EnumMinimapType::Boss);
     }
     
-
+    prevLocation = GetActorLocation();
+    prevRotation = GetActorRotation();
 
 }
 
@@ -50,6 +51,26 @@ void ABossEnemy::Tick(float DeltaTime)
 
     TurnToPlayer(DeltaTime);
 
+    BossMoveBroadcast();
+
+}
+
+void ABossEnemy::BossMoveBroadcast()
+{
+    FVector CurLocation = GetActorLocation();
+    FRotator CurRotation = GetActorRotation();
+    double LocationDistance = FVector::Distance(CurLocation, prevLocation);
+
+    if (LocationDistance) {
+        OnBossEnemyMove.Broadcast(CurLocation, this);
+    }
+
+    if (prevRotation.Equals(CurRotation)) {
+        OnBossEnemyTurn.Broadcast(CurRotation, this);
+    }
+
+    prevLocation = CurLocation;
+    prevRotation = CurRotation;
 }
 
 void ABossEnemy::TurnToPlayer(float DeltaTime)

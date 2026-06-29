@@ -228,13 +228,6 @@ void AProjectCharacter::Tick(float DeltaTime)
 	if (bHitWall && !PlayerAnimInstance->GetIsClimb() && GetCanClimb() && !PlayerAnimInstance->GetWallChange() && bOffClimb)
 	{
 		StartClimb(HitResult);
-
-		//UE_LOG(LogTemp, Warning,
-		//	TEXT("StartClimb : Mode=%d Orient=%d RotationRate=%s Velocity=%s"),
-		//	(int32)GetCharacterMovement()->MovementMode,
-		//	GetCharacterMovement()->bOrientRotationToMovement,
-		//	*GetCharacterMovement()->RotationRate.ToString(),
-		//	*GetVelocity().ToString());
 	}
 
 	// 2. 이미 벽을 타고 있는 중일 때의 로직
