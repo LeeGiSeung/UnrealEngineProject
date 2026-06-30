@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "City/MapWidget/Marker/MapViewer/PointMarker.h"
-#include "BossMarker.generated.h"
+#include "EnemyMarker.generated.h"
 
 class UImage;
 
@@ -12,7 +12,7 @@ class UImage;
  * 
  */
 UCLASS()
-class PROJECT_API UBossMarker : public UPointMarker
+class PROJECT_API UEnemyMarker : public UPointMarker
 {
 	GENERATED_BODY()
 

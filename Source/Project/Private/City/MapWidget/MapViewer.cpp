@@ -26,7 +26,7 @@
 #include "City/MapWidget/Marker/MapViewer/TogetherActor/TogetherActorMarker.h"
 
 //#BossManager
-#include "City/MapWidget/Marker/MapViewer/BossMarker/BossMarker.h"
+#include "City/MapWidget/Marker/MapViewer/EnemyMarker/EnemyMarker.h"
 #include "Enemy/BaseEnemy/BaseEnemy.h"
 #include "Enemy/EnemyManager/EnemyManager.h"
 
@@ -56,81 +56,61 @@ void UMapViewer::NativeConstruct()
     }
     
     TogetherManager = GetWorld()->GetSubsystem<UTogetherManager>();
+    EnemyManager = GetWorld()->GetSubsystem<UEnemyManager>();
 
     TogetherActorMarkerSetting();
 
-    EnemyManager = GetWorld()->GetSubsystem<UEnemyManager>();
-    
     if (EnemyManager) {
         EnemyArray = EnemyManager->GetEnemyManagerArray();
 
         if (EnemyArray) {
             for (ABaseEnemy* Enemy : *EnemyArray) {
-                UBossMarker
+                UPointMarker* EnemyMarker = CreateWidget<UPointMarker>(GetOwningPlayer(), Enemy->GetMarkerClass());
+
+                MapViewerCanvasPanel->AddChild(EnemyMarker);
+                Enemy->SetPointMarker(EnemyMarker);
+
+                Enemy->OnMoved.AddUObject(this, &UMapViewer::UpdateActorPosition);
+                Enemy->OnTurnd.AddUObject(this, &UMapViewer::UpdateActorRotation);
+
+                UpdateActorPosition(Enemy);
+                UpdateActorRotation(Enemy);
             }
         }
     }
-
-    //if (TogetherManager) {
-    //    ChainArray = TogetherManager->GetWorldSpawnChainArray();
-    //    if (ChainArray) {
-    //        for (ATogetherRunBase* TogetherActor : *ChainArray) {
-    //            UTogetherActorMarker* Marker =
-    //                CreateWidget<UTogetherActorMarker>(
-    //                    GetOwningPlayer(),
-    //                    TogetherActorMarkerClass);
-
-    //            MapViewerCanvasPanel->AddChild(Marker);
-
-    //            TogetherActor->SetTogetherMarker(Marker);
-
-    //            TogetherActor->OnTogetherMoved.AddUObject(this, &UMapViewer::UpdateTogetherActorPosition);
-    //            TogetherActor->OnTogetherTurnd.AddUObject(this, &UMapViewer::UpdateTogetherActorRotation);
-
-    //            UpdateTogetherActorPosition(
-    //                TogetherActor->GetActorLocation(),
-    //                TogetherActor);
-
-    //            UpdateTogetherActorRotation(
-    //                TogetherActor->GetActorRotation(),
-    //                TogetherActor);
-    //        }
-    //    }
-    //}
-
 }
 
 void UMapViewer::TogetherActorMarkerSetting()
 {
     if (TogetherManager) {
-        ChainArray->Empty();
+        if (ChainArray) {
+            ChainArray->Empty();
+        }
+
         ChainArray = TogetherManager->GetWorldSpawnChainArray();
         if (ChainArray) {
             for (ATogetherRunBase* TogetherActor : *ChainArray) {
-                UTogetherActorMarker* Marker =
-                    CreateWidget<UTogetherActorMarker>(
+                if (TogetherActor->GetPointMarker()) continue;
+
+                UPointMarker* Marker =
+                    CreateWidget<UPointMarker>(
                         GetOwningPlayer(),
-                        TogetherActorMarkerClass);
+                        TogetherActor->GetMarkerClass());
 
                 MapViewerCanvasPanel->AddChild(Marker);
 
-                TogetherActor->SetTogetherMarker(Marker);
+                TogetherActor->SetPointMarker(Marker);
 
-                TogetherActor->OnTogetherMoved.AddUObject(this, &UMapViewer::UpdateTogetherActorPosition);
-                TogetherActor->OnTogetherTurnd.AddUObject(this, &UMapViewer::UpdateTogetherActorRotation);
+                TogetherActor->OnMoved.AddUObject(this, &UMapViewer::UpdateActorPosition);
+                TogetherActor->OnTurnd.AddUObject(this, &UMapViewer::UpdateActorRotation);
 
-                UpdateTogetherActorPosition(
-                    TogetherActor->GetActorLocation(),
+                UpdateActorPosition(
                     TogetherActor);
 
-                UpdateTogetherActorRotation(
-                    TogetherActor->GetActorRotation(),
+                UpdateActorRotation(
                     TogetherActor);
             }
         }
-
-
-
     }
 }
 
@@ -364,20 +344,27 @@ void UMapViewer::MapMove(FVector2D value)
 
     UpdatePersonPosition(CommitPlayerLocation);
 
-    UpdateTogetherActorUV();
+    UpdateActorUV();
 }
 
-void UMapViewer::UpdateTogetherActorUV()
+void UMapViewer::UpdateActorUV()
 {
     for (ATogetherRunBase* TogetherActor : *ChainArray) {
-        UpdateTogetherActorPosition(
-            TogetherActor->GetActorLocation(),
+        UpdateActorPosition(
             TogetherActor);
 
-        UpdateTogetherActorRotation(
-            TogetherActor->GetActorRotation(),
+        UpdateActorRotation(
             TogetherActor);
     }
+
+    for (ABaseEnemy* Actor : *EnemyArray) {
+        UpdateActorPosition(
+            Actor);
+
+        UpdateActorRotation(
+            Actor);
+    }
+
 }
 
 void UMapViewer::ChangeMapImage()
@@ -813,31 +800,40 @@ FVector UMapViewer::InterpolateLocation(FVector Value)
     return Value;
 }
 
-void UMapViewer::UpdateTogetherActorPosition(FVector TogetherLocation, ATogetherRunBase* Actor)
+void UMapViewer::UpdateActorPosition(AActor* Actor)
 {
-    UE_LOG(LogTemp, Error, TEXT("UpdateTogetherActorPosition "));
-
     if (!Actor) return;
 
-    UTogetherActorMarker* TogetherActorMarker = Actor->GetTogetherMarker();
+    IMapMarkerInterface* MarkerInterface = Cast<IMapMarkerInterface>(Actor);
 
-    if (!TogetherActorMarker) return;
-    UCanvasPanelSlot* CanvasSlot = Cast<UCanvasPanelSlot>(TogetherActorMarker->Slot);
+    UE_LOG(LogTemp, Error, TEXT("ActorName : %s YES Actor"), *Actor->GetName());
+
+    if (!MarkerInterface) return;
+
+    UPointMarker* Marker = MarkerInterface->GetPointMarker();
+
+    UE_LOG(LogTemp, Error, TEXT("ActorName : %s YES MarkerInterface"), *Actor->GetName());
+
+    if (!Marker) return;
+
+    UCanvasPanelSlot* CanvasSlot = Cast<UCanvasPanelSlot>(Marker->Slot);
+
+    UE_LOG(LogTemp, Error, TEXT("ActorName : %s YES Marker"), *Actor->GetName());
 
     if (!CanvasSlot) return;
 
-    FVector TogetherActorLocation = InterpolateLocation(TogetherLocation);
+    FVector MarkerLocation = InterpolateLocation(Actor->GetActorLocation());
 
-    UE_LOG(LogTemp, Error, TEXT("TogetherActorLocation %s"), *TogetherActorLocation.ToString());
+    UE_LOG(LogTemp, Error, TEXT("ActorName : %s YES CanvasSlot"), *Actor->GetName());
 
-    SpawnMarkerToMapViewer(CanvasSlot, TogetherActorLocation);
+    SpawnMarkerToMapViewer(CanvasSlot, MarkerLocation);
 }
 
-void UMapViewer::UpdateTogetherActorRotation(FRotator TogetherLocation, ATogetherRunBase* Actor)
+void UMapViewer::UpdateActorRotation(AActor* Actor)
 {
     if (!Actor) return;
 
-    UTogetherActorMarker* TogetherActorMarker = Actor->GetTogetherMarker();
+    //UTogetherActorMarker* TogetherActorMarker = Actor->GetTogetherMarker();
 }
 
 void UMapViewer::UpdatePersonRotation(FRotator PlayerRotation)

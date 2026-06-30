@@ -4,12 +4,15 @@
 #include "Enemy/EnemyManager/EnemyManager.h"
 #include "Enemy/BaseEnemy/BaseEnemy.h"
 
-void UEnemyManager::Tick(float DeltaTime)
-{
-}
-
 void UEnemyManager::Initialize(FSubsystemCollectionBase& Collection)
 {
+	Super::Initialize(Collection);
+
+}
+
+void UEnemyManager::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
 }
 
 void UEnemyManager::RegisterEnemyToManager(ABaseEnemy* Value)

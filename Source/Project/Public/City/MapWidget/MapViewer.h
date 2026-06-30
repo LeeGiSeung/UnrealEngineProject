@@ -18,7 +18,7 @@ class UTogetherManager;
 class ATogetherRunBase;
 class UCanvasPanelSlot;
 class UTogetherActorMarker;
-class UBossMarker;
+class UEnemyMarker;
 class UEnemyManager;
 class ABaseEnemy;
 
@@ -53,7 +53,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "MapViewFunction")
 	void MapMove(FVector2D value);
 
-	void UpdateTogetherActorUV();
+	void UpdateActorUV();
 
 	UFUNCTION(BlueprintCallable, Category = "MapViewer")
 	void ChangeMapImage();
@@ -172,13 +172,6 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UPersonMarker* PersonMarker;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "TogetherActorMarkerClass")
-	TSubclassOf<UTogetherActorMarker> TogetherActorMarkerClass;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "TogetherActorMarkerClass")
-	TSubclassOf<UBossMarker> BossMarkerClass;
-
-	// 현재 맵 화면의 범위 (ChangeMapImage 때마다 갱신됨)
 	float CurrentViewMinX, CurrentViewMaxX;
 	float CurrentViewMinY, CurrentViewMaxY;
 
@@ -216,8 +209,8 @@ private:
 	void UpdatePersonPosition(FVector PlayerLocation);
 	void UpdatePersonRotation(FRotator PlayerRotation);
 
-	void UpdateTogetherActorPosition(FVector TogetherLocation, ATogetherRunBase* Actor);
-	void UpdateTogetherActorRotation(FRotator TogetherLocation, ATogetherRunBase* Actor);
+	void UpdateActorPosition(AActor* Actor);
+	void UpdateActorRotation(AActor* Actor);
 
 	float WorldMinX = UE_MAX_FLT;
 	float WorldMaxX = -UE_MAX_FLT;

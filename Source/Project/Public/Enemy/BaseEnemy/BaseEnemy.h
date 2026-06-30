@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "City/MapWidget/Marker/MapViewer/MapMarkerInterface/MapMarkerInterface.h"
 
 #include "BaseEnemy.generated.h"
 
@@ -11,11 +12,13 @@ class AAIController;
 class UBlackboardComponent;
 class UMinimapWorldSystem;
 class UEnemyManager;
+class UEnemyMarker;
 
-
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnMoved, AActor*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnTurnd, AActor*);
 
 UCLASS()
-class PROJECT_API ABaseEnemy : public ACharacter
+class PROJECT_API ABaseEnemy : public ACharacter, public IMapMarkerInterface
 {
 	GENERATED_BODY()
 
@@ -48,6 +51,22 @@ public:
 	
 	UPROPERTY()
 	UEnemyManager* EnemyManager;
+
+	UPROPERTY()
+	UPointMarker* EnemyMarker;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "MarkerClass")
+	TSubclassOf<UEnemyMarker> EnemyMarkerClass;
+
+	virtual TSubclassOf<UUserWidget> GetMarkerClass() const override;
+	virtual UPointMarker* GetPointMarker() const override;
+	virtual void SetPointMarker(UPointMarker* Value) override;
+
+	FVector prevEnemyLocation;
+	FRotator prevEnemyRotation;
+
+	FOnMoved OnMoved;
+	FOnTurnd OnTurnd;
 
 protected:
 	uint32 EnemyHP;

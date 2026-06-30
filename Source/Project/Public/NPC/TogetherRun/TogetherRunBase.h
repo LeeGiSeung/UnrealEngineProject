@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "City/MapWidget/Marker/MapViewer/MapMarkerInterface/MapMarkerInterface.h"
 #include "TogetherRunBase.generated.h"
 
 class AProjectCharacter;
@@ -12,8 +13,8 @@ class ATogetherRunBase;
 class UTogetherActorMarker;
 class UTogetherManager;
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnTogetherMoved, FVector, ATogetherRunBase*);
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnTogetherTurnd, FRotator, ATogetherRunBase*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnMoved,AActor*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnTurnd,AActor*);
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerActorReference, AProjectCharacter*);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnfGroundSpeedFromPlayer, float, FVector);
@@ -21,7 +22,7 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FOnfGroundSpeedFromPlayer, float, FVector);
 
 
 UCLASS()
-class PROJECT_API ATogetherRunBase : public ACharacter
+class PROJECT_API ATogetherRunBase : public ACharacter, public IMapMarkerInterface
 {
 	GENERATED_BODY()
 
@@ -89,12 +90,21 @@ public:
 	FRotator prevTogetherRotation;
 
 public:
-	FOnTogetherMoved OnTogetherMoved;
-	FOnTogetherTurnd OnTogetherTurnd;
+	FOnMoved OnMoved;
+	FOnTurnd OnTurnd;
 
-	UTogetherActorMarker* TogetherActorMarker;
 	UTogetherManager* TogetherManager;
 
-	UTogetherActorMarker* GetTogetherMarker();
-	void SetTogetherMarker(UTogetherActorMarker* Value);
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "MarkerClass")
+	TSubclassOf<UTogetherActorMarker> TogetherActorMarkerClass;
+
+	UPointMarker* TogetherActorMarker;
+
+	virtual TSubclassOf<UUserWidget> GetMarkerClass() const override;
+	virtual UPointMarker* GetPointMarker() const override;
+	virtual void SetPointMarker(UPointMarker* Value) override;
+
+private:
+
+
 };

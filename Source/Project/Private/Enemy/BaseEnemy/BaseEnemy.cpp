@@ -9,6 +9,7 @@
 #include "BrainComponent.h"
 #include "Minimap/MinimapWorldSystem.h"
 #include "Enemy/EnemyManager/EnemyManager.h"
+#include "City/MapWidget/Marker/MapViewer/EnemyMarker/EnemyMarker.h"
 
 // Sets default values
 ABaseEnemy::ABaseEnemy()
@@ -50,14 +51,29 @@ void ABaseEnemy::BeginPlay()
 
     if (EnemyManager) {
         EnemyManager->RegisterEnemyToManager(this);
+        OnMoved.Broadcast(this);
+        OnTurnd.Broadcast(this);
     }
-
 }
 
-// Called every frame
 void ABaseEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+    const FVector CurLocation = GetActorLocation();
+    const FRotator CurRotation = GetActorRotation();
+
+    double LocalDistance = FVector::Distance(CurLocation, prevEnemyLocation);
+
+    if (LocalDistance) {
+        OnMoved.Broadcast(this);
+    }
+    if (prevEnemyRotation.Equals(CurRotation, 0.1f)) {
+        OnTurnd.Broadcast(this);
+    }
+
+    prevEnemyLocation = CurLocation;
+    prevEnemyRotation = CurRotation;
 
 }
 
@@ -100,5 +116,20 @@ void ABaseEnemy::EnemyDie()
     //자식 객체에서 항상 Destory() 꼭 해줘야함
     //#######################################
 
+}
+
+TSubclassOf<UUserWidget> ABaseEnemy::GetMarkerClass() const
+{
+    return EnemyMarkerClass;
+}
+
+UPointMarker* ABaseEnemy::GetPointMarker() const
+{
+    return EnemyMarker;
+}
+
+void ABaseEnemy::SetPointMarker(UPointMarker* Value)
+{
+    EnemyMarker = Value;
 }
 

@@ -32,7 +32,6 @@ void ABossEnemy::BeginPlay()
 
     BBComp = AICon->GetBlackboardComponent();
 
-    //GetWorld()->GetTimerManager().SetTimer(MeteorSkillTimerHandle, this, &ABossEnemy::SpawnMeteor, 1.0f, true);
     GetWorld()->GetTimerManager().SetTimer(SpawnBossArmTimerHandle, this, &ABossEnemy::SpawnBossArm, BaseSpawnSocketTime, true);
 
     if (UWorld* World = GetWorld())

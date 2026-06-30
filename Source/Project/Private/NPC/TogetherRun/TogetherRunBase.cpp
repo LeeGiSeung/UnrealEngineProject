@@ -15,6 +15,7 @@
 #include "City/MapWidget/Marker/MapViewer/TogetherActor/TogetherActorMarker.h"
 #include "Manager/TogetherManager/TogetherManager.h"
 
+
 // Sets default values
 ATogetherRunBase::ATogetherRunBase()
 {
@@ -41,10 +42,8 @@ void ATogetherRunBase::BeginPlay()
 		const FVector CurLocation = GetActorLocation();
 		const FRotator CurRotation = GetActorRotation();
 
-		OnTogetherMoved.Broadcast(CurLocation, this);
-		OnTogetherTurnd.Broadcast(CurRotation, this);
-
-		UE_LOG(LogTemp, Error, TEXT("OnTogetherMoved.Broadcast(CurLocation, this)"));
+		OnMoved.Broadcast(this);
+		OnTurnd.Broadcast(this);
 
 	}
 }
@@ -100,10 +99,10 @@ void ATogetherRunBase::Tick(float DeltaTime)
 	double LocalDistance = FVector::Distance(CurLocation, prevTogetherLocation);
 
 	if (LocalDistance) {
-		OnTogetherMoved.Broadcast(CurLocation, this);
+		OnMoved.Broadcast(this);
 	}
 	if (prevTogetherRotation.Equals(CurRotation, 0.1f)) {
-		OnTogetherTurnd.Broadcast(CurRotation, this);
+		OnTurnd.Broadcast(this);
 	}
 
 	prevTogetherLocation = CurLocation;
@@ -145,12 +144,17 @@ int ATogetherRunBase::GetChainIndex()
 	return chainIndex;
 }
 
-UTogetherActorMarker* ATogetherRunBase::GetTogetherMarker()
+TSubclassOf<UUserWidget> ATogetherRunBase::GetMarkerClass() const
+{
+	return TogetherActorMarkerClass;
+}
+
+UPointMarker* ATogetherRunBase::GetPointMarker() const
 {
 	return TogetherActorMarker;
 }
 
-void ATogetherRunBase::SetTogetherMarker(UTogetherActorMarker* Value)
+void ATogetherRunBase::SetPointMarker(UPointMarker* Value)
 {
 	TogetherActorMarker = Value;
 }
