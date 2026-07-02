@@ -35,6 +35,9 @@ public:
 	UPROPERTY()
 	float BuildingBetweenDistance;
 
+	UPROPERTY()
+	float RoadBetweenDistance;
+
 	void BuildNavigationNetwork();
 	
 	UFUNCTION()
@@ -121,5 +124,6 @@ private:
 	float WorldMinY = UE_MAX_FLT;
 	float WorldMaxY = -UE_MAX_FLT;
 
-	
+	TMap<FString, EBuildingType> PurposeMap;
+
 };

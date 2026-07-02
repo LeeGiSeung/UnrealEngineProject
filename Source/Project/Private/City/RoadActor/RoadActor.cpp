@@ -6,6 +6,7 @@
 #include "Components/SplineComponent.h"
 #include "City/Building/BuildingBase/ABuildingBase.h"
 #include "City/UCityNewworkManager/UCityNewworkManager.h"
+#include "Components/BoxComponent.h"
 
 // Sets default values
 ARoadActor::ARoadActor()
@@ -56,7 +57,13 @@ void ARoadActor::SpawnRoadActor(TArray<FVector> Points, int32 _RoadCount, double
     RoadSpline->UpdateSpline();
 
     BP_SplineMesh();
+ 
+    ResolveBuilding(_RoadWidth);
 
+}
+
+void ARoadActor::ResolveBuilding(double _RoadWidth)
+{
     //겹친 빌딩있으면 해당 ABuildingBase Actor 삭제
     UWorld* World = GetWorld();
     if (!World) return;
@@ -116,9 +123,11 @@ void ARoadActor::SpawnRoadActor(TArray<FVector> Points, int32 _RoadCount, double
 
     for (AActor* Building : BuildingsToRemove)
     {
+
+        //Building
+
         if (AABuildingBase* BuildingBase = Cast<AABuildingBase>(Building))
         {
-            // 맵이고 인덱스고 뭐고 주소 타고 들어가서 즉시 변경
             if (BuildingBase->MyRuntimeData.IsValid())
             {
                 BuildingBase->MyRuntimeData->bOverlapRoad = true;

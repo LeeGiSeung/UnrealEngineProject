@@ -806,25 +806,17 @@ void UMapViewer::UpdateActorPosition(AActor* Actor)
 
     IMapMarkerInterface* MarkerInterface = Cast<IMapMarkerInterface>(Actor);
 
-    UE_LOG(LogTemp, Error, TEXT("ActorName : %s YES Actor"), *Actor->GetName());
-
     if (!MarkerInterface) return;
 
     UPointMarker* Marker = MarkerInterface->GetPointMarker();
-
-    UE_LOG(LogTemp, Error, TEXT("ActorName : %s YES MarkerInterface"), *Actor->GetName());
 
     if (!Marker) return;
 
     UCanvasPanelSlot* CanvasSlot = Cast<UCanvasPanelSlot>(Marker->Slot);
 
-    UE_LOG(LogTemp, Error, TEXT("ActorName : %s YES Marker"), *Actor->GetName());
-
     if (!CanvasSlot) return;
 
     FVector MarkerLocation = InterpolateLocation(Actor->GetActorLocation());
-
-    UE_LOG(LogTemp, Error, TEXT("ActorName : %s YES CanvasSlot"), *Actor->GetName());
 
     SpawnMarkerToMapViewer(CanvasSlot, MarkerLocation);
 }
@@ -848,7 +840,7 @@ void UMapViewer::UpdatePersonRotation(FRotator PlayerRotation)
 
 void UMapViewer::SetLocalMapSize(float _WorldMinX, float _WorldMaxX, float _WorldMinY, float _WorldMaxY)
 {
-    UE_LOG(LogTemp, Error, TEXT("WorldMinX : %f, WorldMinY : %f, WorldMaxX : %f, WorldMaxY : %f"), WorldMinX, WorldMinY, WorldMaxX, WorldMaxY);
+    //UE_LOG(LogTemp, Error, TEXT("WorldMinX : %f, WorldMinY : %f, WorldMaxX : %f, WorldMaxY : %f"), WorldMinX, WorldMinY, WorldMaxX, WorldMaxY);
 
     WorldMinX = _WorldMinX;
     WorldMinY = _WorldMinY;
@@ -858,7 +850,7 @@ void UMapViewer::SetLocalMapSize(float _WorldMinX, float _WorldMaxX, float _Worl
     float XMid = (WorldMinX + WorldMaxX) * 0.5f;
     float YMid = (WorldMinY + WorldMaxY) * 0.5f;
 
-    UE_LOG(LogTemp, Error, TEXT("%f, %f"), XMid, YMid);
+    //UE_LOG(LogTemp, Error, TEXT("%f, %f"), XMid, YMid);
 
     TArray<FVector2D> Base;
     Base.Add(FVector2D(667259, -178848));
@@ -877,18 +869,4 @@ void UMapViewer::SetLocalMapSize(float _WorldMinX, float _WorldMaxX, float _Worl
 
         ZoomCenterOffset.Add(Zoom, Offset);
     }
-    //13
-    //World = X = 667259.562 Y = -178848
-
-    //14
-    //World = X = 665777.250 Y = -180244.641
-
-    //15
-    //World = X = 567332.188 Y = -285856.812
-
-    //16
-    //World = X = 506587.469 Y = -286205.906
-
-    //17
-    //World = X = 506379.781 Y = -286221.688
 }

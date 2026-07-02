@@ -3,22 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "CitySystemStruct.generated.h"
 
-USTRUCT(BlueprintType)
-struct FBuildingData {
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(BlueprintReadWrite, Category = "Data")
-	int32 FloorCount = 0;
-
-	UPROPERTY(BlueprintReadWrite, Category = "Data")
-	FVector CenterLocation = FVector::ZeroVector;
-
-	UPROPERTY(BlueprintReadWrite, Category = "Data")
-	TArray<FVector> Vertices; // 정렬된 최종 로컬 좌표들
-};
+class AABuildingBase;
 
 USTRUCT(BlueprintType)
 struct FRoadData {
@@ -125,25 +113,6 @@ struct FRuntimeRoadData
 };
 
 USTRUCT(BlueprintType)
-struct FRuntimeBuildingData
-{
-	GENERATED_BODY()
-
-	FVector CenterLocation = FVector::ZeroVector;
-	FVector SpawnLocation = FVector::ZeroVector;
-	FRotator Rotation = FRotator::ZeroRotator;
-	float WidthX = 0.f;
-	float LengthY = 0.f;
-	int32 FloorCount = 1;
-
-	bool bOverlapRoad = false;
-
-	// 현재 월드에 스폰된 액터의 포인터 (스폰되지 않았다면 nullptr)
-	UPROPERTY()
-	class AABuildingBase* SpawnedActor = nullptr;
-};
-
-USTRUCT(BlueprintType)
 struct FFolderFileStartEndBase
 {
 	GENERATED_BODY()
@@ -165,4 +134,83 @@ struct FMapCoordinate
 	int32 File;
 	float U;
 	float V;
+};
+
+UENUM(BlueprintType)
+enum class EBuildingType : uint8
+{
+	None,
+	OtherFacilities,
+	FacilitiesRelatedtoAnimalsandPlants,
+	AutomotiveRelatedFacilities,
+	Accommodation,
+	ReligiousFacilities,
+	EducationalandResearchFacilities,
+	HazardousMaterialsStorageandHandlingFacility,
+	Facilitiesfortheelderlyandchildren,
+	Transportationfacilities,
+	SportsFacilities,
+	WarehouseFacilities,
+	RetailFacilities,
+	OfficeFacilities,
+	NightSoilandWasteTreatmentFacilities,
+	Factory,
+	House,
+	MedicalFacilities,
+	LivingFacility,
+	TrainingFacility,
+	CulturalandAssemblyFacilities,
+	Funeralfacility,
+	BroadcastingandCommunicationsFacilities,
+	End
+};
+
+USTRUCT(BlueprintType)
+struct FBuildingData {
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadWrite, Category = "Data")
+	int32 FloorCount = 0;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Data")
+	FVector CenterLocation = FVector::ZeroVector;
+
+	EBuildingType BuildingType = EBuildingType::None;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Data")
+	TArray<FVector> Vertices; // 정렬된 최종 로컬 좌표들
+};
+
+USTRUCT(BlueprintType)
+struct FBuildingSetting
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AABuildingBase> BuildingClass;
+
+	UPROPERTY(EditAnywhere)
+	UMaterialInterface* Material;
+};
+
+USTRUCT(BlueprintType)
+struct FRuntimeBuildingData
+{
+	GENERATED_BODY()
+
+	FVector CenterLocation = FVector::ZeroVector;
+	FVector SpawnLocation = FVector::ZeroVector;
+	FRotator Rotation = FRotator::ZeroRotator;
+	float WidthX = 0.f;
+	float LengthY = 0.f;
+	int32 FloorCount = 1;
+
+	bool bOverlapRoad = false;
+
+	EBuildingType BuildingType = EBuildingType::None;
+
+	// 현재 월드에 스폰된 액터의 포인터 (스폰되지 않았다면 nullptr)
+	UPROPERTY()
+	class AABuildingBase* SpawnedActor = nullptr;
 };

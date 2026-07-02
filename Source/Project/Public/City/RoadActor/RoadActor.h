@@ -46,6 +46,8 @@ public:
 
 	void SpawnRoadActor(TArray<FVector> a, int32 RoadCount ,double b);
 
+	void ResolveBuilding(double _RoadWidth);
+
 	void SetWorldPoints(TArray<FVector> value);
 
 	TArray<FVector> WorldPoints;

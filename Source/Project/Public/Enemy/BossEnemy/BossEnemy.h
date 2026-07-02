@@ -99,11 +99,7 @@ private:
 
 	UBossAnimInstance* AnimInst;
 
-	
 	float CurSpawnSocketTime = 0.f;
-
-	
-
 	// 스킬을 실행할 함수
 	
 	void SpawnEachMeteor(FName value);

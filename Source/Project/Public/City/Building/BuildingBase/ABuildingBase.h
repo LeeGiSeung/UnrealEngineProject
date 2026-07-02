@@ -11,6 +11,8 @@
 
 #include "ABuildingBase.generated.h"
 
+class UMaterialInterface;
+
 UCLASS()
 class PROJECT_API AABuildingBase : public AActor
 {
@@ -20,7 +22,7 @@ public:
 	// Sets default values for this actor's properties
 	AABuildingBase();
 
-protected:
+public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -37,7 +39,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void SetBuildingTransform(float widthx, float widthy, int floor);
+	void SetBuildingTransform(float widthx, float widthy, int floor, EBuildingType BuildingType);
 
 	void Building();
 
@@ -52,11 +54,23 @@ public:
 
 	TSharedPtr<FRuntimeBuildingData> MyRuntimeData = nullptr;
 
+	UPROPERTY(BlueprintReadWrite, Category = "EBuildingType")
+	TMap<EBuildingType, FBuildingSetting> BuildingSettingMap;
+
+	UPROPERTY(BlueprintReadWrite,VisibleAnywhere, Category = "BuildingType")
+	EBuildingType BuildingType;
+
+	float GetWidthX();
+	float GetWidthY();
+
+	void SetWidgetX(float Value);
+	void SetWidgetY(float Value);
+
 private:
 	float fX;
 	float fY;
 	float WidthX;
 	float WidthY;
 	
-
+	
 };

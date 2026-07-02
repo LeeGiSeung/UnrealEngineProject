@@ -36,6 +36,30 @@ void UUCityNewworkManager::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
+	PurposeMap.Add(TEXT("OtherFacilities"), EBuildingType::OtherFacilities);
+	PurposeMap.Add(TEXT("FacilitiesRelatedtoAnimalsandPlants"), EBuildingType::FacilitiesRelatedtoAnimalsandPlants);
+	PurposeMap.Add(TEXT("AutomotiveRelatedFacilities"), EBuildingType::AutomotiveRelatedFacilities);
+	PurposeMap.Add(TEXT("Accommodation"), EBuildingType::Accommodation);
+	PurposeMap.Add(TEXT("ReligiousFacilities"), EBuildingType::ReligiousFacilities);
+	PurposeMap.Add(TEXT("EducationalandResearchFacilities"), EBuildingType::EducationalandResearchFacilities);
+	PurposeMap.Add(TEXT("HazardousMaterialsStorageandHandlingFacility"), EBuildingType::HazardousMaterialsStorageandHandlingFacility);
+	PurposeMap.Add(TEXT("Facilitiesfortheelderlyandchildren"), EBuildingType::Facilitiesfortheelderlyandchildren);
+	PurposeMap.Add(TEXT("Transportationfacilities"), EBuildingType::Transportationfacilities);
+	PurposeMap.Add(TEXT("SportsFacilities"), EBuildingType::SportsFacilities);
+	PurposeMap.Add(TEXT("WarehouseFacilities"), EBuildingType::WarehouseFacilities);
+	PurposeMap.Add(TEXT("RetailFacilities"), EBuildingType::RetailFacilities);
+	PurposeMap.Add(TEXT("OfficeFacilities"), EBuildingType::OfficeFacilities);
+	PurposeMap.Add(TEXT("NightSoilandWasteTreatmentFacilities"), EBuildingType::NightSoilandWasteTreatmentFacilities);
+	PurposeMap.Add(TEXT("Factory"), EBuildingType::Factory);
+	PurposeMap.Add(TEXT("House"), EBuildingType::House);
+	PurposeMap.Add(TEXT("MedicalFacilities"), EBuildingType::MedicalFacilities);
+	PurposeMap.Add(TEXT("TrainingFacility"), EBuildingType::TrainingFacility);
+	PurposeMap.Add(TEXT("CulturalandAssemblyFacilities"), EBuildingType::CulturalandAssemblyFacilities);
+	PurposeMap.Add(TEXT("LivingFacility"), EBuildingType::LivingFacility);
+	PurposeMap.Add(TEXT("Funeralfacility"), EBuildingType::Funeralfacility);
+	PurposeMap.Add(TEXT("BroadcastingandCommunicationsFacilities"), EBuildingType::BroadcastingandCommunicationsFacilities);
+	
+
 	bool buildingFlag;
 	LoadBuildingDataAsset(buildingFlag);
 	if (buildingFlag) return;
@@ -43,6 +67,9 @@ void UUCityNewworkManager::Initialize(FSubsystemCollectionBase& Collection)
 	LoadQGIS();
 
 	GetWorld()->GetTimerManager().SetTimer(VisibilityTimerHandle, this, &UUCityNewworkManager::CheckCityVisibility, 5.f, false);
+
+
+
 }
 
 void UUCityNewworkManager::LoadBuildingDataAsset(bool& retFlag)
@@ -59,6 +86,7 @@ void UUCityNewworkManager::LoadBuildingDataAsset(bool& retFlag)
 		UBuildingDataAsset* LoadedConfig = Cast<UBuildingDataAsset>(AssetClass->GetDefaultObject());
 		BuildingBase = LoadedConfig->BuildingBase;
 		BuildingBetweenDistance = LoadedConfig->BuildingBetweenDistance;
+		RoadBetweenDistance = LoadedConfig->RoadBetweenDistance;
 		RoadActorClass = LoadedConfig->RoadActor;
 		DebugBlockClass = LoadedConfig->DebugBlockClass;
 	}
@@ -94,324 +122,10 @@ void UUCityNewworkManager::LoadQGIS()
 
 	OnLocalXYSetting.Broadcast(WorldMinX, WorldMaxX, WorldMinY, WorldMaxY);
 
-	//UE_LOG(LogTemp, Error, TEXT("TotalBuildingData %d"), TotalBuildingData.Num());
-	//UE_LOG(LogTemp, Error, TEXT("TotalRoadData %d"), TotalRoadData.Num());
-	
-
 }
-
-//void UUCityNewworkManager::LoadRoad(bool& retFlag)
-//{
-//	retFlag = true;
-//	UWorld* world = GetWorld();
-//	if (!world) {
-//		UE_LOG(LogTemp, Error, TEXT("NO WORLD OR BASE"));
-//		return;
-//	}
-//
-//	FString RelativePath = FPaths::Combine(FPaths::ProjectDir(), TEXT("IncheonLandFile/IncheonData/Inchecon_Michuholgu_Road_All.geojson"));
-//	FString DataPath = FPaths::ConvertRelativePathToFull(RelativePath);
-//
-//	FString JsonString;
-//	if (!FFileHelper::LoadFileToString(JsonString, *DataPath)) {
-//		UE_LOG(LogTemp, Error, TEXT("Load NO FILE"));
-//		return;
-//	}
-//
-//	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
-//	TSharedPtr<FJsonObject> JsonObject;
-//
-//	if (!FJsonSerializer::Deserialize(Reader, JsonObject) || !JsonObject.IsValid()) {
-//		UE_LOG(LogTemp, Error, TEXT("Fail string to json"));
-//		return;
-//	}
-//
-//	const TArray<TSharedPtr<FJsonValue>>* FeaturesArray;
-//	if (!JsonObject->TryGetArrayField(TEXT("features"), FeaturesArray)) return;
-//
-//	double minx = TNumericLimits<double>::Max();
-//	double miny = TNumericLimits<double>::Max();
-//
-//	for (const auto& FeatureValue : *FeaturesArray) {
-//		TSharedPtr<FJsonObject> FeatureObj = FeatureValue->AsObject();
-//		if (!FeatureObj.IsValid()) continue;
-//
-//		TSharedPtr<FJsonObject> GeometryObj = FeatureObj->GetObjectField(TEXT("geometry"));
-//		if (!GeometryObj.IsValid()) continue;
-//
-//		FString GeoType;
-//		if (!GeometryObj->TryGetStringField(TEXT("type"), GeoType) || GeoType != TEXT("MultiLineString")) continue;
-//
-//		const TArray<TSharedPtr<FJsonValue>>* Coordinates = nullptr;
-//		if (GeometryObj->TryGetArrayField(TEXT("coordinates"), Coordinates) && Coordinates->Num() > 0) {
-//
-//			const TArray<TSharedPtr<FJsonValue>>& PointsArray = (*Coordinates)[0]->AsArray();
-//
-//			for (const auto& PointValue : PointsArray) {
-//				const TArray<TSharedPtr<FJsonValue>>& Pt = PointValue->AsArray();
-//				if (Pt.Num() >= 2) {
-//					double X = Pt[0]->AsNumber();
-//					double Y = Pt[1]->AsNumber();
-//
-//					if (X < minx) minx = X;
-//					if (Y < miny) miny = Y;
-//				}
-//			}
-//		}
-//	}
-//
-//	if (minx == TNumericLimits<double>::Max() || miny == TNumericLimits<double>::Max()) {
-//		UE_LOG(LogTemp, Error, TEXT("No valid coordinates found."));
-//		return;
-//	}
-//
-//	TArray<FRoadData> RoadDataList;
-//
-//	// === 2. 실제 데이터 파싱 ===
-//	for (const auto& FeatureValue : *FeaturesArray) {
-//		TSharedPtr<FJsonObject> FeatureObj = FeatureValue->AsObject();
-//		if (!FeatureObj.IsValid()) continue;
-//
-//		TSharedPtr<FJsonObject> GeometryObj = FeatureObj->GetObjectField(TEXT("geometry"));
-//		if (!GeometryObj.IsValid()) continue;
-//
-//		FString GeoType;
-//		if (!GeometryObj->TryGetStringField(TEXT("type"), GeoType) || GeoType != TEXT("MultiLineString")) continue;
-//
-//		FRoadData rData;
-//
-//		TSharedPtr<FJsonObject> PropertiesObj = FeatureObj->GetObjectField(TEXT("properties"));
-//
-//		if (PropertiesObj.IsValid()) {
-//			rData.RoadCount = PropertiesObj->HasField(TEXT("RoadCount")) ? PropertiesObj->GetIntegerField(TEXT("RoadCount")) : 1;
-//			rData.RoadWidth = PropertiesObj->HasField(TEXT("RoadWidth")) ? PropertiesObj->GetNumberField(TEXT("RoadWidth")) : 1.0f;
-//		}
-//
-//		const TArray<TSharedPtr<FJsonValue>>* Coordinates = nullptr;
-//		if (GeometryObj->TryGetArrayField(TEXT("coordinates"), Coordinates) && Coordinates->Num() > 0) {
-//
-//			const TArray<TSharedPtr<FJsonValue>>& PointsArray = (*Coordinates)[0]->AsArray();
-//
-//			for (const auto& PointValue : PointsArray) {
-//				const TArray<TSharedPtr<FJsonValue>>& Pt = PointValue->AsArray();
-//				if (Pt.Num() >= 2) {
-//					double RawX = Pt[0]->AsNumber();
-//					double RawY = Pt[1]->AsNumber();
-//
-//					float LocalX = (RawX - minx) * BuildingBetweenDistance;
-//					float LocalY = -((RawY - miny) * BuildingBetweenDistance);
-//
-//					rData.Points.Add(FVector(LocalX, LocalY, 0.0f));
-//				}
-//			}
-//
-//			if (rData.Points.Num() > 1) {
-//				RoadDataList.Add(rData);
-//			}
-//		}
-//	}
-//
-//	// 기존 데이터 정렬 규칙을 그대로 유지합니다.
-//	RoadDataList.Sort(sortroad);
-//
-//	// 런타임 관리용 전역 배열을 비워줍니다.
-//	TotalRoadData.Empty();
-//
-//	// 코드 변경 구간: 직접 액터를 생성하던 루프를 구조체 배열에 데이터를 저장하는 루프로 대체합니다.
-//	for (int i = 0; i < RoadDataList.Num(); i++) {
-//		const FRoadData& RoadData = RoadDataList[i];
-//
-//		FVector RoadSpawnLocation = RoadData.Points[0];
-//
-//		// 액터를 생성하지 않고 구조체에 도로 생성 스펙을 백업합니다.
-//		FRuntimeRoadData RuntimeData;
-//		RuntimeData.Points = RoadData.Points;
-//		RuntimeData.RoadCount = RoadData.RoadCount;
-//		RuntimeData.RoadWidth = RoadData.RoadWidth;
-//		RuntimeData.SpawnLocation = RoadSpawnLocation;
-//		RuntimeData.SpawnedActor = nullptr; // 처음에는 소환되지 않은 상태이므로 nullptr 처리합니다.
-//
-//		TotalRoadData.Add(RuntimeData);
-//	}
-//
-//	// 액터가 월드에 배치되지 않았더라도 수학적 좌표 정보(TotalRoadData)가 완성이 되었으므로 바로 내비게이션 네트워크를 빌드합니다.
-//	BuildNavigationNetwork();
-//
-//	retFlag = false;
-//}
-
-//void UUCityNewworkManager::LoadBuilding(bool& retFlag)
-//{
-//	retFlag = true;
-//	UWorld* world = GetWorld();
-//	if (!BuildingBase || !world) {
-//		UE_LOG(LogTemp, Error, TEXT("NO BUILDING BASE"));
-//		return;
-//	}
-//
-//	FString RelativePath = FPaths::Combine(FPaths::ProjectDir(), TEXT("IncheonLandFile/IncheonData/Incheon_Michugolgu_All.geojson"));
-//	FString DataPath = FPaths::ConvertRelativePathToFull(RelativePath);
-//
-//	FString JsonString;
-//	if (!FFileHelper::LoadFileToString(JsonString, *DataPath)) {
-//		UE_LOG(LogTemp, Error, TEXT("NO FILE"));
-//		return;
-//	}
-//
-//	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
-//	TSharedPtr<FJsonObject> JsonObject;
-//	TArray<FBuildingData> BuildingData;
-//
-//	if (!FJsonSerializer::Deserialize(Reader, JsonObject) || !JsonObject.IsValid()) {
-//		UE_LOG(LogTemp, Error, TEXT("Fail string to json"));
-//		return;
-//	}
-//
-//	const TArray<TSharedPtr<FJsonValue>>* FeaturesArray;
-//	if (!JsonObject->TryGetArrayField(TEXT("features"), FeaturesArray)) return;
-//
-//	// =========================================================================
-//	// [수정] 원점 자료형을 double에서 int32(기존 정답 방식)로 변경하여 소수점 버림 동기화
-//	// =========================================================================
-//	int32 minx = 1e9;
-//	int32 miny = 1e9;
-//
-//	for (const auto& FeatureValue : *FeaturesArray) {
-//		TSharedPtr<FJsonObject> FeatureObj = FeatureValue->AsObject();
-//		if (!FeatureObj.IsValid()) continue;
-//
-//		TSharedPtr<FJsonObject> GeometryObj = FeatureObj->GetObjectField(TEXT("geometry"));
-//		if (!GeometryObj.IsValid()) continue;
-//
-//		const TArray<TSharedPtr<FJsonValue>>* Coordinates = nullptr;
-//
-//		if (GeometryObj->TryGetArrayField(TEXT("coordinates"), Coordinates) && Coordinates->Num() > 0) {
-//
-//			const TArray<TSharedPtr<FJsonValue>>& Ring = (*Coordinates)[0]->AsArray();
-//
-//			if (Ring.Num() > 0) {
-//				const TArray<TSharedPtr<FJsonValue>>& Points = Ring[0]->AsArray();
-//
-//				for (const auto& PointValue : Points) {
-//					const TArray<TSharedPtr<FJsonValue>>& Pt = PointValue->AsArray();
-//
-//					if (Pt.Num() >= 2) {
-//						double X = Pt[0]->AsNumber();
-//						double Y = Pt[1]->AsNumber();
-//
-//						// double 값이 int32에 대입되면서 소수점이 강제 커트(Truncation)되어 기존 원점과 완벽히 일치하게 됩니다.
-//						if (X < minx) minx = X;
-//						if (Y < miny) miny = Y;
-//					}
-//				}
-//			}
-//		}
-//	}
-//
-//	// [수정] 데이터 유효성 검사 기준값도 정수형 초기값(1e9)으로 변경
-//	if (minx == 1e9 || miny == 1e9) {
-//		UE_LOG(LogTemp, Error, TEXT("No valid coordinates found for buildings."));
-//		return;
-//	}
-//
-//	for (const auto& FeatureValue : *FeaturesArray) {
-//		TSharedPtr<FJsonObject> FeatureObj = FeatureValue->AsObject();
-//		if (!FeatureObj.IsValid()) continue;
-//
-//		FBuildingData bData;
-//
-//		TSharedPtr<FJsonObject> PropertiesObj = FeatureObj->GetObjectField(TEXT("properties"));
-//		bData.FloorCount = PropertiesObj->HasField(TEXT("floor")) ? PropertiesObj->GetIntegerField(TEXT("floor")) : 1;
-//
-//		TSharedPtr<FJsonObject> GeometryObj = FeatureObj->GetObjectField(TEXT("geometry"));
-//		if (!GeometryObj.IsValid()) continue;
-//
-//		const TArray<TSharedPtr<FJsonValue>>* Coordinates = nullptr;
-//		if (GeometryObj->TryGetArrayField(TEXT("coordinates"), Coordinates) && Coordinates->Num() > 0) {
-//
-//			const TArray<TSharedPtr<FJsonValue>>& Ring = (*Coordinates)[0]->AsArray();
-//
-//			if (Ring.Num() > 0) {
-//				const TArray<TSharedPtr<FJsonValue>>& Points = Ring[0]->AsArray();
-//
-//				FVector SumLocation = FVector::ZeroVector;
-//
-//				for (const auto& PointValue : Points) {
-//					const TArray<TSharedPtr<FJsonValue>>& Pt = PointValue->AsArray();
-//
-//					if (Pt.Num() >= 2) {
-//						double RawX = Pt[0]->AsNumber();
-//						double RawY = Pt[1]->AsNumber();
-//
-//						float LocalX = (RawX - minx) * BuildingBetweenDistance;
-//						float LocalY = -(RawY - miny) * BuildingBetweenDistance;
-//
-//						FVector Vertex = FVector(LocalX, LocalY, 0.0f);
-//						bData.Vertices.Add(Vertex);
-//						SumLocation += Vertex;
-//					}
-//				}
-//
-//				if (bData.Vertices.Num() > 0) {
-//					bData.CenterLocation = SumLocation / bData.Vertices.Num();
-//					BuildingData.Add(bData);
-//				}
-//			}
-//		}
-//	}
-//
-//	BuildingData.Sort(sortBuildingData);
-//
-//	// 런타임 관리용 전역 배열을 비워줍니다.
-//	TotalBuildingData.Empty();
-//
-//	for (int i = 0; i < BuildingData.Num(); i++) {
-//		const TArray<FVector>& Vertices = BuildingData[i].Vertices;
-//		if (Vertices.Num() == 0) continue;
-//
-//		float MaxX = -1e9f; float MaxY = -1e9f;
-//		float MinX = 1e9f;  float MinY = 1e9f; // 깨진 공백 문자 제거 및 정렬 정리
-//
-//		for (const FVector& Vertex : Vertices) {
-//			if (Vertex.X > MaxX) MaxX = Vertex.X;
-//			if (Vertex.Y > MaxY) MaxY = Vertex.Y;
-//			if (Vertex.X < MinX) MinX = Vertex.X;
-//			if (Vertex.Y < MinY) MinY = Vertex.Y;
-//		}
-//
-//		float WidthX = MaxX - MinX;
-//		float LengthY = MaxY - MinY;
-//
-//		int floor = BuildingData[i].FloorCount;
-//
-//		FVector P1 = BuildingData[i].Vertices[0];
-//		FVector P2 = BuildingData[i].Vertices[1];
-//		FVector Direction = (P2 - P1).GetSafeNormal();
-//
-//		FRotator BuildingRotator = Direction.Rotation();
-//		BuildingRotator.Pitch = 0.0f;
-//		BuildingRotator.Roll = 0.0f;
-//
-//		FVector SpawnLocation = BuildingData[i].CenterLocation - FVector(WidthX * 0.5f, LengthY * 0.5f, 0.f);
-//
-//		FRuntimeBuildingData RuntimeData;
-//		RuntimeData.CenterLocation = BuildingData[i].CenterLocation;
-//		RuntimeData.SpawnLocation = SpawnLocation;
-//		RuntimeData.Rotation = BuildingRotator;
-//		RuntimeData.WidthX = WidthX;
-//		RuntimeData.LengthY = LengthY;
-//		RuntimeData.FloorCount = floor;
-//		RuntimeData.SpawnedActor = nullptr; // 처음에는 스폰되지 않은 상태이므로 nullptr 처리합니다.
-//
-//		TotalBuildingData.Add(RuntimeData);
-//	}
-//
-//	retFlag = false;
-//}
 
 void UUCityNewworkManager::LoadRoad()
 {
-	
 	UWorld* world = GetWorld();
 	if (!world) {
 		UE_LOG(LogTemp, Error, TEXT("NO WORLD OR BASE"));
@@ -512,8 +226,8 @@ void UUCityNewworkManager::LoadRoad()
 					double RawX = Pt[0]->AsNumber();
 					double RawY = Pt[1]->AsNumber();
 
-					float LocalX = (RawX - minx) * BuildingBetweenDistance;
-					float LocalY = -((RawY - miny) * BuildingBetweenDistance);
+					float LocalX = (RawX - minx) * RoadBetweenDistance;
+					float LocalY = -((RawY - miny) * RoadBetweenDistance);
 
 					WorldMinX = FMath::Min(WorldMinX, LocalX);
 					WorldMaxX = FMath::Max(WorldMaxX, LocalX);
@@ -621,6 +335,28 @@ void UUCityNewworkManager::LoadBuilding()
 		TSharedPtr<FJsonObject> PropertiesObj = FeatureObj->GetObjectField(TEXT("properties"));
 		bData.FloorCount = PropertiesObj->HasField(TEXT("floor")) ? PropertiesObj->GetIntegerField(TEXT("floor")) : 1;
 
+		FString Purpose;
+
+		if (PropertiesObj->TryGetStringField(TEXT("purpose"), Purpose))
+		{
+
+			if (const EBuildingType* Type = PurposeMap.Find(Purpose))
+			{
+				bData.BuildingType = *Type;
+			}
+			else
+			{
+				bData.BuildingType = EBuildingType::None;
+
+				UE_LOG(LogTemp, Warning, TEXT("%s is NO PurposeMap."), *Purpose);
+			}
+		}
+		else
+		{
+			bData.BuildingType = EBuildingType::None;
+		}
+
+
 		// 2. geometry 및 coordinates 추출
 		TSharedPtr<FJsonObject> GeometryObj = FeatureObj->GetObjectField(TEXT("geometry"));
 		if (!GeometryObj.IsValid()) continue;
@@ -662,6 +398,59 @@ void UUCityNewworkManager::LoadBuilding()
 				}
 			}
 		}
+
+		/*const TArray<TSharedPtr<FJsonValue>>* Coordinates = nullptr;
+		if (GeometryObj->TryGetArrayField(TEXT("coordinates"), Coordinates) && Coordinates->Num() > 0)
+		{
+			const TArray<TSharedPtr<FJsonValue>>& Ring = (*Coordinates)[0]->AsArray();
+
+			if (Ring.Num() > 0)
+			{
+				const TArray<TSharedPtr<FJsonValue>>& Points = Ring[0]->AsArray();
+
+				float MinX = FLT_MAX;
+				float MinY = FLT_MAX;
+				float MaxX = -FLT_MAX;
+				float MaxY = -FLT_MAX;
+
+				for (const auto& PointValue : Points)
+				{
+					const TArray<TSharedPtr<FJsonValue>>& Pt = PointValue->AsArray();
+
+					if (Pt.Num() >= 2)
+					{
+						double RawX = Pt[0]->AsNumber();
+						double RawY = Pt[1]->AsNumber();
+
+						float LocalX = (RawX - minx) * BuildingBetweenDistance;
+						float LocalY = -(RawY - miny) * BuildingBetweenDistance;
+
+						WorldMinX = FMath::Min(WorldMinX, LocalX);
+						WorldMaxX = FMath::Max(WorldMaxX, LocalX);
+						WorldMinY = FMath::Min(WorldMinY, LocalY);
+						WorldMaxY = FMath::Max(WorldMaxY, LocalY);
+
+						MinX = FMath::Min(MinX, LocalX);
+						MaxX = FMath::Max(MaxX, LocalX);
+						MinY = FMath::Min(MinY, LocalY);
+						MaxY = FMath::Max(MaxY, LocalY);
+
+						bData.Vertices.Add(FVector(LocalX, LocalY, 0.f));
+					}
+				}
+
+				if (bData.Vertices.Num() > 0)
+				{
+					bData.CenterLocation = FVector(
+						(MinX + MaxX) * 0.5f,
+						(MinY + MaxY) * 0.5f,
+						0.f);
+
+					BuildingData.Add(bData);
+				}
+			}
+		}*/
+
 	}
 
 	BuildingData.Sort(sortBuildingData);
@@ -672,7 +461,6 @@ void UUCityNewworkManager::LoadBuilding()
 		const TArray<FVector>& Vertices = BuildingData[i].Vertices;
 		if (Vertices.Num() == 0) continue;
 
-		// 2. 이 건물의 실제 가로(X)와 세로(Y) 크기를 계산합니다.
 		float MaxX = -1e9f;
 		float MaxY = -1e9f;
 		float MinX = 1e9f;
@@ -697,10 +485,9 @@ void UUCityNewworkManager::LoadBuilding()
 		// 3. 방향 벡터를 언리얼의 회전값(FRotator)으로 변환
 		FRotator BuildingRotator = Direction.Rotation();
 
-		// 건물은 땅에 평평하게 서 있어야 하므로 롤(Roll)과 피치(Pitch)는 0으로 묶고, 
-		// 좌우 회전값인 요(Yaw)만 사용합니다.
 		BuildingRotator.Pitch = 0.0f;
 		BuildingRotator.Roll = 0.0f;
+		BuildingRotator.Yaw += -90.f;
 
 		FVector SpawnLocation = BuildingData[i].CenterLocation - FVector(WidthX * 0.5f, LengthY * 0.5f, 0.f);
 
@@ -712,18 +499,15 @@ void UUCityNewworkManager::LoadBuilding()
 		BuildData->LengthY = LengthY;
 		BuildData->Rotation = BuildingRotator;
 		BuildData->SpawnedActor = nullptr;
+		BuildData->BuildingType = BuildingData[i].BuildingType;
 
 		TotalBuildingData.Add(BuildData);
 	}
+
+
 }
 
-void UUCityNewworkManager::ConstructBuilding()
-{
-}
 
-void UUCityNewworkManager::ConstructRoad()
-{
-}
 
 void UUCityNewworkManager::UpdateBuildingVisibility(FVector PlayerLocation)
 {
@@ -763,10 +547,10 @@ void UUCityNewworkManager::UpdateBuildingVisibility(FVector PlayerLocation)
 			}
 
 			AABuildingBase* Actor = world->SpawnActor<AABuildingBase>(BuildingBase, SpawnLocation, BuildingRotator);
-
+			
 			if (Actor)
 			{
-				Actor->SetBuildingTransform(DataPtr->WidthX, DataPtr->LengthY, DataPtr->FloorCount);
+				Actor->SetBuildingTransform(DataPtr->WidthX, DataPtr->LengthY, DataPtr->FloorCount, DataPtr->BuildingType);
 
 				// 4. 액터에게 이 데이터의 TSharedPtr 주소록을 그대로 주입
 				Actor->MyRuntimeData = DataPtr;
